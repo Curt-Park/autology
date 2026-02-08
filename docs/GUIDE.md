@@ -204,14 +204,17 @@ Get knowledge graph statistics.
 
 ### SessionEnd
 
-**Trigger**: Claude Code session terminates
+**What You'll See**: When you exit a session, a tip message appears:
+```
+💡 Tip: To capture this session's summary in your knowledge graph:
+   1. Resume session: claude -r
+   2. Run: /autology:capture
+```
 
-**Behavior**:
-- Displays reminder tip to user
-- Suggests resuming with `claude -r` and running `/autology:capture`
-- User can manually create session node with files modified, decisions made, issues encountered
-
-**Note**: This hook only provides a reminder and cannot interactively prompt for capture. To capture before exiting, use `/autology:capture` manually before `/exit`.
+**Recommended Workflow**:
+1. **Before exiting**: Use `/autology:capture` to save important work
+2. **After exiting**: If you forgot, resume with `claude -r` and capture then
+3. **Alternative**: Use the PostToolUse(git commit) hook for automatic capture on commits
 
 ## Node Types
 
