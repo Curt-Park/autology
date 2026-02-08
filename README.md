@@ -25,7 +25,7 @@ Autology captures the "why" behind decisions and feeds it back into future sessi
 ```
 Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → Future Sessions
                                      ↑                                           ↓
-                                     └────────────── Learning Loop ───────────────┘
+                                     └────────────── Learning Loop ───────-──────┘
 ```
 
 **Three interaction modes**:
@@ -33,9 +33,9 @@ Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → 
 2. **Interactive**: Skills for explicit capture (`/autology:capture`, `/autology:explore`, `/autology:tutorial`)
 3. **Programmatic**: MCP tools for automation (`autology_capture`, `autology_query`, `autology_relate`, etc.)
 
-**Knowledge types** (7): decisions (ADR format), components, conventions, concepts, patterns, issues, sessions
+**7 Knowledge types**: `decisions` (ADR format), `components`, `conventions`, `concepts`, `patterns`, `issues`, `sessions`
 
-**Relationships** (7): `affects`, `uses`, `supersedes`, `relates_to`, `implements`, `depends_on`, `derived_from`
+**7 Relationships**: `affects`, `uses`, `supersedes`, `relates_to`, `implements`, `depends_on`, `derived_from`
 
 **Storage**: Obsidian-compatible markdown in `.autology/nodes/`
 
