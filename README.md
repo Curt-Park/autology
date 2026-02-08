@@ -62,8 +62,6 @@ Dev: "Claude, add authentication"
 
 ## Installation
 
-### Claude Code
-
 ```bash
 # Step 1: Add the marketplace
 /plugin marketplace add Curt-Park/autology
@@ -73,6 +71,14 @@ Dev: "Claude, add authentication"
 ```
 
 The plugin will automatically download the correct binary for your platform (macOS, Linux, or Windows).
+
+## Upgrading
+
+To upgrade to the latest version:
+
+```bash
+/plugin upgrade autology@autology
+```
 
 ## Quick Start
 
