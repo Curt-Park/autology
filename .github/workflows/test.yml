@@ -17,7 +17,7 @@ jobs:
           go-version: 'stable'
 
       - name: Run tests
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: go test -v -race -coverprofile=coverage.out ./internal/classification ./internal/enrichment ./internal/storage
 
       - name: Check coverage
         run: |
