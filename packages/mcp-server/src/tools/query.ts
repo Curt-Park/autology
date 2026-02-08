@@ -14,7 +14,7 @@ const QueryArgsSchema = z.object({
   minConfidence: z.number().min(0).max(1).optional(),
   relatedTo: z.string().optional(),
   limit: z.number().int().min(1).max(100).default(50),
-  offset: z.number().int().min(0).default(0)
+  offset: z.number().int().min(0).default(0),
 });
 
 export function registerQueryTool(_searchEngine: SearchEngine): Tool {
@@ -26,49 +26,49 @@ export function registerQueryTool(_searchEngine: SearchEngine): Tool {
       properties: {
         query: {
           type: 'string',
-          description: 'Full-text search query'
+          description: 'Full-text search query',
         },
         type: {
           type: 'string',
           enum: ['decision', 'component', 'convention', 'concept', 'session', 'pattern', 'issue'],
-          description: 'Filter by node type'
+          description: 'Filter by node type',
         },
         tags: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Filter by tags (must have all tags)'
+          description: 'Filter by tags (must have all tags)',
         },
         status: {
           type: 'string',
           enum: ['active', 'needs_review', 'superseded'],
-          description: 'Filter by node status'
+          description: 'Filter by node status',
         },
         minConfidence: {
           type: 'number',
           minimum: 0,
           maximum: 1,
-          description: 'Minimum confidence level'
+          description: 'Minimum confidence level',
         },
         relatedTo: {
           type: 'string',
-          description: 'Filter by relationship to another node ID'
+          description: 'Filter by relationship to another node ID',
         },
         limit: {
           type: 'number',
-          description: 'Maximum number of results (default 50)'
+          description: 'Maximum number of results (default 50)',
         },
         offset: {
           type: 'number',
-          description: 'Offset for pagination (default 0)'
-        }
-      }
-    }
+          description: 'Offset for pagination (default 0)',
+        },
+      },
+    },
   };
 }
 
 export async function handleQuery(
   args: Record<string, unknown>,
-  searchEngine: SearchEngine
+  searchEngine: SearchEngine,
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   const validated = QueryArgsSchema.parse(args);
 
@@ -79,7 +79,7 @@ export async function handleQuery(
     status: validated.status,
     minConfidence: validated.minConfidence,
     relatedTo: validated.relatedTo,
-    searchQuery: validated.query
+    searchQuery: validated.query,
   };
 
   // Execute search
@@ -91,16 +91,13 @@ export async function handleQuery(
       content: [
         {
           type: 'text',
-          text: 'No nodes found matching the query criteria.'
-        }
-      ]
+          text: 'No nodes found matching the query criteria.',
+        },
+      ],
     };
   }
 
-  const output = [
-    `Found ${results.length} node(s):\n`,
-    '---\n'
-  ];
+  const output = [`Found ${results.length} node(s):\n`, '---\n'];
 
   for (const { node, score } of results) {
     output.push(`\n## ${node.title}`);
@@ -126,8 +123,8 @@ export async function handleQuery(
     content: [
       {
         type: 'text',
-        text: output.join('\n')
-      }
-    ]
+        text: output.join('\n'),
+      },
+    ],
   };
 }

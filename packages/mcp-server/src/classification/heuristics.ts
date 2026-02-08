@@ -22,7 +22,7 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
     { keywords: ['adopt', 'use', 'switch to', 'move to'], weight: 0.8 },
     { keywords: ['instead of', 'over', 'rather than', 'vs'], weight: 0.7 },
     { keywords: ['because', 'since', 'reason', 'rationale'], weight: 0.6 },
-    { keywords: ['alternative', 'option', 'considered'], weight: 0.5 }
+    { keywords: ['alternative', 'option', 'considered'], weight: 0.5 },
   ],
 
   component: [
@@ -30,7 +30,7 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
     { keywords: ['component', 'controller', 'model', 'view'], weight: 0.9 },
     { keywords: ['handles', 'manages', 'implements', 'provides'], weight: 0.8 },
     { keywords: ['api', 'endpoint', 'route', 'handler'], weight: 0.7 },
-    { keywords: ['created', 'built', 'implemented'], weight: 0.6 }
+    { keywords: ['created', 'built', 'implemented'], weight: 0.6 },
   ],
 
   convention: [
@@ -38,7 +38,7 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
     { keywords: ['convention', 'standard', 'practice', 'guideline'], weight: 0.9 },
     { keywords: ['rule', 'policy', 'requirement'], weight: 0.8 },
     { keywords: ['style', 'format', 'naming', 'pattern'], weight: 0.7 },
-    { keywords: ['all', 'every', 'each', 'any'], weight: 0.6 }
+    { keywords: ['all', 'every', 'each', 'any'], weight: 0.6 },
   ],
 
   concept: [
@@ -46,7 +46,7 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
     { keywords: ['represents', 'means', 'refers to', 'is'], weight: 0.9 },
     { keywords: ['lifecycle', 'workflow', 'process', 'flow'], weight: 0.8 },
     { keywords: ['state', 'status', 'phase', 'stage'], weight: 0.7 },
-    { keywords: ['domain', 'business', 'entity'], weight: 0.6 }
+    { keywords: ['domain', 'business', 'entity'], weight: 0.6 },
   ],
 
   pattern: [
@@ -54,7 +54,7 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
     { keywords: ['reusable', 'generic', 'abstract', 'common'], weight: 0.9 },
     { keywords: ['design pattern', 'architectural pattern'], weight: 0.95 },
     { keywords: ['factory', 'singleton', 'observer', 'repository'], weight: 0.8 },
-    { keywords: ['template', 'blueprint', 'recipe'], weight: 0.7 }
+    { keywords: ['template', 'blueprint', 'recipe'], weight: 0.7 },
   ],
 
   issue: [
@@ -62,15 +62,15 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
     { keywords: ['broken', 'failing', 'not working'], weight: 0.9 },
     { keywords: ['debt', 'technical debt', 'todo', 'fixme'], weight: 0.8 },
     { keywords: ['bottleneck', 'performance', 'slow'], weight: 0.7 },
-    { keywords: ['needs fix', 'needs refactor', 'improvement needed'], weight: 0.6 }
+    { keywords: ['needs fix', 'needs refactor', 'improvement needed'], weight: 0.6 },
   ],
 
   session: [
     { keywords: ['session', 'worked on', 'accomplished', 'completed'], weight: 1.0 },
     { keywords: ['today', 'this session', 'summary'], weight: 0.9 },
     { keywords: ['implemented', 'fixed', 'added', 'updated'], weight: 0.7 },
-    { keywords: ['progress', 'status update'], weight: 0.6 }
-  ]
+    { keywords: ['progress', 'status update'], weight: 0.6 },
+  ],
 };
 
 /**
@@ -79,7 +79,7 @@ const CLASSIFICATION_PATTERNS: Record<NodeType, ReadonlyArray<Pattern>> = {
 export function classifyNodeType(
   title: string,
   content: string,
-  sourceContext?: 'hook_write' | 'hook_commit' | 'hook_session' | 'manual'
+  sourceContext?: 'hook_write' | 'hook_commit' | 'hook_session' | 'manual',
 ): ClassificationResult {
   const text = `${title} ${content}`.toLowerCase();
 
@@ -88,7 +88,7 @@ export function classifyNodeType(
     hook_write: { component: 0.3, convention: 0.2 },
     hook_commit: { decision: 0.3, issue: 0.2 },
     hook_session: { session: 0.5 },
-    manual: {} // No boost for manual
+    manual: {}, // No boost for manual
   };
 
   const boost = contextBoost[sourceContext || 'manual'] || {};
@@ -101,7 +101,7 @@ export function classifyNodeType(
     concept: 0,
     pattern: 0,
     issue: 0,
-    session: 0
+    session: 0,
   };
 
   for (const [type, patterns] of Object.entries(CLASSIFICATION_PATTERNS)) {
@@ -144,7 +144,7 @@ export function classifyNodeType(
   return {
     type: bestType,
     confidence,
-    reasoning
+    reasoning,
   };
 }
 
@@ -154,7 +154,7 @@ export function classifyNodeType(
 function generateReasoning(
   chosenType: NodeType,
   text: string,
-  scores: Record<NodeType, number>
+  scores: Record<NodeType, number>,
 ): string {
   const patterns = CLASSIFICATION_PATTERNS[chosenType];
   const matchedKeywords: string[] = [];
@@ -195,7 +195,7 @@ export function isConfidentClassification(result: ClassificationResult): boolean
  */
 export function suggestAlternatives(
   title: string,
-  content: string
+  content: string,
 ): ReadonlyArray<ClassificationResult> {
   const text = `${title} ${content}`.toLowerCase();
   const scores: Array<{ type: NodeType; score: number }> = [];
@@ -224,6 +224,6 @@ export function suggestAlternatives(
   return scores.slice(0, 3).map(({ type, score }) => ({
     type,
     confidence: Math.min(0.95, score / maxPossibleScore),
-    reasoning: `Score: ${score.toFixed(2)}`
+    reasoning: `Score: ${score.toFixed(2)}`,
   }));
 }

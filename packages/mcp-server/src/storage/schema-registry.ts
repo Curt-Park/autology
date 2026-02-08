@@ -86,45 +86,45 @@ export class SchemaRegistryStore {
           name: 'decision',
           description: 'Architectural decisions and design choices',
           examples: ['use-jwt-auth', 'choose-database', 'api-design'],
-          commonTags: ['architecture', 'design', 'infrastructure']
+          commonTags: ['architecture', 'design', 'infrastructure'],
         },
         component: {
           name: 'component',
           description: 'Code components, modules, and services',
           examples: ['auth-service', 'user-model', 'api-router'],
-          commonTags: ['code', 'service', 'module']
+          commonTags: ['code', 'service', 'module'],
         },
         convention: {
           name: 'convention',
           description: 'Coding conventions and standards',
           examples: ['error-handling', 'naming-conventions', 'file-structure'],
-          commonTags: ['standards', 'style', 'best-practices']
+          commonTags: ['standards', 'style', 'best-practices'],
         },
         concept: {
           name: 'concept',
           description: 'Domain concepts and business logic',
           examples: ['order-lifecycle', 'user-permissions', 'payment-flow'],
-          commonTags: ['domain', 'business', 'concept']
+          commonTags: ['domain', 'business', 'concept'],
         },
         session: {
           name: 'session',
           description: 'Coding session summaries',
           examples: ['session-2024-01-01', 'feature-x-implementation'],
-          commonTags: ['session', 'summary', 'work-log']
+          commonTags: ['session', 'summary', 'work-log'],
         },
         pattern: {
           name: 'pattern',
           description: 'Design patterns and reusable solutions',
           examples: ['repository-pattern', 'factory-pattern', 'middleware-pattern'],
-          commonTags: ['pattern', 'design', 'reusable']
+          commonTags: ['pattern', 'design', 'reusable'],
         },
         issue: {
           name: 'issue',
           description: 'Known issues and technical debt',
           examples: ['performance-bottleneck', 'security-concern', 'refactor-needed'],
-          commonTags: ['issue', 'debt', 'problem']
-        }
-      }
+          commonTags: ['issue', 'debt', 'problem'],
+        },
+      },
     };
   }
 }

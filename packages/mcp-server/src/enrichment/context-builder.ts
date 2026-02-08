@@ -21,7 +21,7 @@ export interface ScoredNode {
  */
 export function scoreNodesForContext(
   nodes: ReadonlyArray<KnowledgeNode>,
-  signals: ContextSignals
+  signals: ContextSignals,
 ): ReadonlyArray<ScoredNode> {
   const scored: ScoredNode[] = [];
 
@@ -96,7 +96,7 @@ function scoreNode(node: KnowledgeNode, signals: ContextSignals): ScoredNode {
     concept: 0.15,
     pattern: 0.2,
     issue: 0.1,
-    session: 0.05
+    session: 0.05,
   };
 
   score += typeWeights[node.type] || 0.1;
@@ -164,8 +164,8 @@ function extractKeywords(text: string): ReadonlyArray<string> {
   const words = text
     .toLowerCase()
     .split(/\s+/)
-    .filter(w => w.length > 3) // Skip short words
-    .filter(w => !isStopWord(w));
+    .filter((w) => w.length > 3) // Skip short words
+    .filter((w) => !isStopWord(w));
 
   return [...new Set(words)]; // Deduplicate
 }
@@ -193,9 +193,30 @@ function calculateKeywordMatch(keywords: ReadonlyArray<string>, text: string): n
  */
 function isStopWord(word: string): boolean {
   const stopWords = new Set([
-    'the', 'is', 'at', 'which', 'on', 'in', 'to', 'for', 'of',
-    'and', 'or', 'but', 'with', 'from', 'this', 'that', 'these',
-    'those', 'will', 'would', 'should', 'could', 'can', 'may'
+    'the',
+    'is',
+    'at',
+    'which',
+    'on',
+    'in',
+    'to',
+    'for',
+    'of',
+    'and',
+    'or',
+    'but',
+    'with',
+    'from',
+    'this',
+    'that',
+    'these',
+    'those',
+    'will',
+    'would',
+    'should',
+    'could',
+    'can',
+    'may',
   ]);
 
   return stopWords.has(word);
@@ -204,9 +225,7 @@ function isStopWord(word: string): boolean {
 /**
  * Group scored nodes by relevance tier
  */
-export function groupByRelevance(
-  scoredNodes: ReadonlyArray<ScoredNode>
-): {
+export function groupByRelevance(scoredNodes: ReadonlyArray<ScoredNode>): {
   readonly high: ReadonlyArray<ScoredNode>;
   readonly medium: ReadonlyArray<ScoredNode>;
   readonly low: ReadonlyArray<ScoredNode>;
@@ -233,7 +252,7 @@ export function groupByRelevance(
  */
 export function formatContextResults(
   scoredNodes: ReadonlyArray<ScoredNode>,
-  limit: number
+  limit: number,
 ): string {
   const limited = scoredNodes.slice(0, limit);
 

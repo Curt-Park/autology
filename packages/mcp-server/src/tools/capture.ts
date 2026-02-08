@@ -18,61 +18,62 @@ const CaptureArgsSchema = z.object({
   tags: z.array(z.string()).default([]),
   relatedTo: z.array(z.string()).optional(),
   confidence: z.number().min(0).max(1).default(0.8),
-  references: z.array(z.string()).default([])
+  references: z.array(z.string()).default([]),
 });
 
 export function registerCaptureTool(
   _nodeStore: NodeStore,
   _graphIndex: GraphIndexStore,
-  _schemaRegistry: SchemaRegistryStore
+  _schemaRegistry: SchemaRegistryStore,
 ): Tool {
   return {
     name: 'autology_capture',
-    description: 'Capture knowledge as a node in the ontology. Automatically classifies type if not specified.',
+    description:
+      'Capture knowledge as a node in the ontology. Automatically classifies type if not specified.',
     inputSchema: {
       type: 'object',
       properties: {
         title: {
           type: 'string',
-          description: 'Short, descriptive title for the knowledge node'
+          description: 'Short, descriptive title for the knowledge node',
         },
         content: {
           type: 'string',
-          description: 'Detailed content in markdown format'
+          description: 'Detailed content in markdown format',
         },
         context: {
           type: 'string',
-          description: 'Optional contextual information (e.g., what prompted this capture)'
+          description: 'Optional contextual information (e.g., what prompted this capture)',
         },
         type: {
           type: 'string',
           enum: ['decision', 'component', 'convention', 'concept', 'session', 'pattern', 'issue'],
-          description: 'Node type (auto-classified if not provided)'
+          description: 'Node type (auto-classified if not provided)',
         },
         tags: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Tags for categorization'
+          description: 'Tags for categorization',
         },
         relatedTo: {
           type: 'array',
           items: { type: 'string' },
-          description: 'IDs of related nodes'
+          description: 'IDs of related nodes',
         },
         confidence: {
           type: 'number',
           minimum: 0,
           maximum: 1,
-          description: 'Confidence level (0.0-1.0, default 0.8)'
+          description: 'Confidence level (0.0-1.0, default 0.8)',
         },
         references: {
           type: 'array',
           items: { type: 'string' },
-          description: 'File paths referenced by this node'
-        }
+          description: 'File paths referenced by this node',
+        },
       },
-      required: ['title', 'content']
-    }
+      required: ['title', 'content'],
+    },
   };
 }
 
@@ -80,7 +81,7 @@ export async function handleCapture(
   args: Record<string, unknown>,
   nodeStore: NodeStore,
   graphIndex: GraphIndexStore,
-  _schemaRegistry: SchemaRegistryStore
+  _schemaRegistry: SchemaRegistryStore,
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   // Validate arguments
   const validated = CaptureArgsSchema.parse(args);
@@ -96,14 +97,14 @@ export async function handleCapture(
     const result = classify({
       title: validated.title,
       content: validated.content,
-      sourceContext: 'manual'
+      sourceContext: 'manual',
     });
 
     nodeType = result.type;
     classificationNote = `\nAuto-classified as '${nodeType}' (confidence: ${(result.confidence * 100).toFixed(0)}%)`;
 
     if (result.needsReview && result.alternatives) {
-      classificationNote += `\n⚠️  Low confidence. Consider these alternatives: ${result.alternatives.map(a => `${a.type} (${(a.confidence * 100).toFixed(0)}%)`).join(', ')}`;
+      classificationNote += `\n⚠️  Low confidence. Consider these alternatives: ${result.alternatives.map((a) => `${a.type} (${(a.confidence * 100).toFixed(0)}%)`).join(', ')}`;
     }
   }
 
@@ -123,7 +124,7 @@ export async function handleCapture(
     confidence: validated.confidence,
     session: sessionId,
     source: 'manual',
-    references: validated.references
+    references: validated.references,
   });
 
   // Save node
@@ -132,13 +133,7 @@ export async function handleCapture(
   // Create relations if provided
   if (validated.relatedTo && validated.relatedTo.length > 0) {
     for (const targetId of validated.relatedTo) {
-      await graphIndex.addRelation(
-        nodeId,
-        targetId,
-        'relates_to',
-        undefined,
-        validated.confidence
-      );
+      await graphIndex.addRelation(nodeId, targetId, 'relates_to', undefined, validated.confidence);
     }
   }
 
@@ -146,8 +141,8 @@ export async function handleCapture(
     content: [
       {
         type: 'text',
-        text: `✅ Created ${nodeType} node: ${nodeId}\n\nTitle: ${validated.title}\nType: ${nodeType}\nTags: ${validated.tags.join(', ') || 'none'}\nConfidence: ${validated.confidence}${classificationNote}\n\nThe node has been saved to .autology/nodes/${nodeType}s/${nodeId}.md`
-      }
-    ]
+        text: `✅ Created ${nodeType} node: ${nodeId}\n\nTitle: ${validated.title}\nType: ${nodeType}\nTags: ${validated.tags.join(', ') || 'none'}\nConfidence: ${validated.confidence}${classificationNote}\n\nThe node has been saved to .autology/nodes/${nodeType}s/${nodeId}.md`,
+      },
+    ],
   };
 }

@@ -12,13 +12,13 @@ const ContextArgsSchema = z.object({
   currentFile: z.string().optional(),
   currentTask: z.string().optional(),
   recentFiles: z.array(z.string()).optional(),
-  maxNodes: z.number().int().min(1).max(20).default(10)
+  maxNodes: z.number().int().min(1).max(20).default(10),
 });
 
 export function registerContextTool(
   _nodeStore: NodeStore,
   _graphIndex: GraphIndexStore,
-  _searchEngine: SearchEngine
+  _searchEngine: SearchEngine,
 ): Tool {
   return {
     name: 'autology_context',
@@ -28,23 +28,23 @@ export function registerContextTool(
       properties: {
         currentFile: {
           type: 'string',
-          description: 'Currently active file path'
+          description: 'Currently active file path',
         },
         currentTask: {
           type: 'string',
-          description: 'Description of current task'
+          description: 'Description of current task',
         },
         recentFiles: {
           type: 'array',
           items: { type: 'string' },
-          description: 'Recently modified file paths'
+          description: 'Recently modified file paths',
         },
         maxNodes: {
           type: 'number',
-          description: 'Maximum number of nodes to return (default 10)'
-        }
-      }
-    }
+          description: 'Maximum number of nodes to return (default 10)',
+        },
+      },
+    },
   };
 }
 
@@ -52,7 +52,7 @@ export async function handleContext(
   args: Record<string, unknown>,
   nodeStore: NodeStore,
   _graphIndex: GraphIndexStore,
-  searchEngine: SearchEngine
+  searchEngine: SearchEngine,
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   const validated = ContextArgsSchema.parse(args);
 
@@ -65,7 +65,7 @@ export async function handleContext(
     for (const result of byFile) {
       relevantNodes.set(result.node.id, {
         node: result.node,
-        score: 1.0 // High score for exact file match
+        score: 1.0, // High score for exact file match
       });
     }
   }
@@ -79,7 +79,7 @@ export async function handleContext(
         if (!existing || existing.score < 0.7) {
           relevantNodes.set(result.node.id, {
             node: result.node,
-            score: 0.7 // Medium score for recent files
+            score: 0.7, // Medium score for recent files
           });
         }
       }
@@ -94,7 +94,7 @@ export async function handleContext(
       if (!existing || existing.score < result.score * 0.8) {
         relevantNodes.set(result.node.id, {
           node: result.node,
-          score: result.score * 0.8 // Scaled score from text search
+          score: result.score * 0.8, // Scaled score from text search
         });
       }
     }
@@ -104,7 +104,7 @@ export async function handleContext(
   if (relevantNodes.size < validated.maxNodes) {
     const allNodes = await nodeStore.listNodes({
       minConfidence: 0.7,
-      status: 'active'
+      status: 'active',
     });
 
     const recentNodes = allNodes
@@ -119,7 +119,7 @@ export async function handleContext(
 
         relevantNodes.set(node.id, {
           node,
-          score: recencyScore
+          score: recencyScore,
         });
       }
     }
@@ -136,9 +136,9 @@ export async function handleContext(
       content: [
         {
           type: 'text',
-          text: 'No relevant knowledge found for the current context. The ontology may be empty or no nodes match the current working context.'
-        }
-      ]
+          text: 'No relevant knowledge found for the current context. The ontology may be empty or no nodes match the current working context.',
+        },
+      ],
     };
   }
 
@@ -146,7 +146,7 @@ export async function handleContext(
     `# Relevant Knowledge (${sortedResults.length} nodes)\n`,
     validated.currentFile && `**Current File**: ${validated.currentFile}`,
     validated.currentTask && `**Current Task**: ${validated.currentTask}`,
-    '\n---\n'
+    '\n---\n',
   ].filter(Boolean);
 
   for (const { node, score } of sortedResults) {
@@ -166,7 +166,7 @@ export async function handleContext(
     // Show relations
     if (node.relations.length > 0) {
       const relations = node.relations.slice(0, 3);
-      output.push(`**Related to**: ${relations.map(r => r.target).join(', ')}`);
+      output.push(`**Related to**: ${relations.map((r) => r.target).join(', ')}`);
       if (node.relations.length > 3) {
         output.push(` (+${node.relations.length - 3} more)`);
       }
@@ -179,8 +179,8 @@ export async function handleContext(
     content: [
       {
         type: 'text',
-        text: output.join('\n')
-      }
-    ]
+        text: output.join('\n'),
+      },
+    ],
   };
 }

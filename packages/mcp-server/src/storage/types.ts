@@ -10,13 +10,13 @@ export const NODE_TYPES = [
   'concept',
   'session',
   'pattern',
-  'issue'
+  'issue',
 ] as const;
 
-export type NodeType = typeof NODE_TYPES[number];
+export type NodeType = (typeof NODE_TYPES)[number];
 
 export const NODE_STATUSES = ['active', 'needs_review', 'superseded'] as const;
-export type NodeStatus = typeof NODE_STATUSES[number];
+export type NodeStatus = (typeof NODE_STATUSES)[number];
 
 export const RELATION_TYPES = [
   'affects',
@@ -25,10 +25,10 @@ export const RELATION_TYPES = [
   'relates_to',
   'implements',
   'depends_on',
-  'derived_from'
+  'derived_from',
 ] as const;
 
-export type RelationType = typeof RELATION_TYPES[number];
+export type RelationType = (typeof RELATION_TYPES)[number];
 
 export interface Relation {
   readonly type: RelationType;
@@ -84,7 +84,7 @@ export interface SearchResult {
  */
 export function createKnowledgeNode(
   partial: Pick<KnowledgeNode, 'id' | 'type' | 'title' | 'content'> &
-    Partial<Omit<KnowledgeNode, 'id' | 'type' | 'title' | 'content' | 'created' | 'modified'>>
+    Partial<Omit<KnowledgeNode, 'id' | 'type' | 'title' | 'content' | 'created' | 'modified'>>,
 ): KnowledgeNode {
   const now = new Date().toISOString();
   return {
@@ -96,7 +96,7 @@ export function createKnowledgeNode(
     status: 'active',
     ...partial,
     created: now,
-    modified: now
+    modified: now,
   };
 }
 
@@ -105,11 +105,11 @@ export function createKnowledgeNode(
  */
 export function updateKnowledgeNode(
   node: KnowledgeNode,
-  updates: Partial<Omit<KnowledgeNode, 'id' | 'created'>>
+  updates: Partial<Omit<KnowledgeNode, 'id' | 'created'>>,
 ): KnowledgeNode {
   return {
     ...node,
     ...updates,
-    modified: new Date().toISOString()
+    modified: new Date().toISOString(),
   };
 }

@@ -41,7 +41,7 @@ export class Server {
         capabilities: {
           tools: {},
         },
-      }
+      },
     );
 
     // Get root path from environment or use default
@@ -138,28 +138,38 @@ export class Server {
     });
   }
 
-  private async handleCapture(args: Record<string, unknown>): Promise<{ content: Array<{ type: string; text: string }> }> {
+  private async handleCapture(
+    args: Record<string, unknown>,
+  ): Promise<{ content: Array<{ type: string; text: string }> }> {
     // Implementation in capture.ts
     const { handleCapture } = await import('./tools/capture.js');
     return handleCapture(args, this.nodeStore, this.graphIndex, this.schemaRegistry);
   }
 
-  private async handleQuery(args: Record<string, unknown>): Promise<{ content: Array<{ type: string; text: string }> }> {
+  private async handleQuery(
+    args: Record<string, unknown>,
+  ): Promise<{ content: Array<{ type: string; text: string }> }> {
     const { handleQuery } = await import('./tools/query.js');
     return handleQuery(args, this.searchEngine);
   }
 
-  private async handleRelate(args: Record<string, unknown>): Promise<{ content: Array<{ type: string; text: string }> }> {
+  private async handleRelate(
+    args: Record<string, unknown>,
+  ): Promise<{ content: Array<{ type: string; text: string }> }> {
     const { handleRelate } = await import('./tools/relate.js');
     return handleRelate(args, this.nodeStore, this.graphIndex);
   }
 
-  private async handleStatus(args: Record<string, unknown>): Promise<{ content: Array<{ type: string; text: string }> }> {
+  private async handleStatus(
+    args: Record<string, unknown>,
+  ): Promise<{ content: Array<{ type: string; text: string }> }> {
     const { handleStatus } = await import('./tools/status.js');
     return handleStatus(args, this.nodeStore, this.graphIndex);
   }
 
-  private async handleContext(args: Record<string, unknown>): Promise<{ content: Array<{ type: string; text: string }> }> {
+  private async handleContext(
+    args: Record<string, unknown>,
+  ): Promise<{ content: Array<{ type: string; text: string }> }> {
     const { handleContext } = await import('./tools/context.js');
     return handleContext(args, this.nodeStore, this.graphIndex, this.searchEngine);
   }
