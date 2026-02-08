@@ -23,7 +23,7 @@ export class NodeStore {
       'nodes/concepts',
       'nodes/sessions',
       'nodes/patterns',
-      'nodes/issues'
+      'nodes/issues',
     ];
 
     for (const dir of dirs) {
@@ -72,7 +72,15 @@ export class NodeStore {
    * Find a node by ID across all types
    */
   async findNode(id: string): Promise<KnowledgeNode | null> {
-    const types: NodeType[] = ['decision', 'component', 'convention', 'concept', 'session', 'pattern', 'issue'];
+    const types: NodeType[] = [
+      'decision',
+      'component',
+      'convention',
+      'concept',
+      'session',
+      'pattern',
+      'issue',
+    ];
 
     for (const type of types) {
       try {
@@ -91,7 +99,11 @@ export class NodeStore {
   /**
    * Update a node (creates new version, immutable pattern)
    */
-  async updateNode(id: string, type: NodeType, updates: Partial<KnowledgeNode>): Promise<KnowledgeNode> {
+  async updateNode(
+    id: string,
+    type: NodeType,
+    updates: Partial<KnowledgeNode>,
+  ): Promise<KnowledgeNode> {
     const existing = await this.readNode(id, type);
 
     const updated: KnowledgeNode = {
@@ -99,7 +111,7 @@ export class NodeStore {
       ...updates,
       id: existing.id, // ID cannot change
       created: existing.created, // Created timestamp cannot change
-      modified: new Date().toISOString()
+      modified: new Date().toISOString(),
     };
 
     const filePath = this.getNodePath(id, type);
@@ -133,7 +145,9 @@ export class NodeStore {
    */
   async listNodes(filter?: NodeFilter): Promise<KnowledgeNode[]> {
     const nodes: KnowledgeNode[] = [];
-    const types: NodeType[] = filter?.type ? [filter.type] : ['decision', 'component', 'convention', 'concept', 'session', 'pattern', 'issue'];
+    const types: NodeType[] = filter?.type
+      ? [filter.type]
+      : ['decision', 'component', 'convention', 'concept', 'session', 'pattern', 'issue'];
 
     for (const type of types) {
       const typeDir = join(this.rootPath, 'nodes', `${type}s`);
@@ -188,14 +202,14 @@ export class NodeStore {
     }
 
     if (filter.tags && filter.tags.length > 0) {
-      const hasAllTags = filter.tags.every(tag => node.tags.includes(tag));
+      const hasAllTags = filter.tags.every((tag) => node.tags.includes(tag));
       if (!hasAllTags) {
         return false;
       }
     }
 
     if (filter.relatedTo) {
-      const isRelated = node.relations.some(r => r.target === filter.relatedTo);
+      const isRelated = node.relations.some((r) => r.target === filter.relatedTo);
       if (!isRelated) {
         return false;
       }

@@ -34,16 +34,12 @@ export function classify(options: ClassificationOptions): ClassificationResponse
       type: options.userHint,
       confidence: 0.95,
       reasoning: 'User-specified type',
-      needsReview: false
+      needsReview: false,
     };
   }
 
   // Use heuristic classification
-  const heuristicResult = classifyNodeType(
-    options.title,
-    options.content,
-    options.sourceContext
-  );
+  const heuristicResult = classifyNodeType(options.title, options.content, options.sourceContext);
 
   // Check if we're confident enough
   if (isConfidentClassification(heuristicResult)) {
@@ -51,7 +47,7 @@ export function classify(options: ClassificationOptions): ClassificationResponse
       type: heuristicResult.type,
       confidence: heuristicResult.confidence,
       reasoning: heuristicResult.reasoning,
-      needsReview: false
+      needsReview: false,
     };
   }
 
@@ -64,11 +60,11 @@ export function classify(options: ClassificationOptions): ClassificationResponse
     type: heuristicResult.type,
     confidence: heuristicResult.confidence,
     reasoning: `${heuristicResult.reasoning} (low confidence - review recommended)`,
-    alternatives: alternatives.map(a => ({
+    alternatives: alternatives.map((a) => ({
       type: a.type,
-      confidence: a.confidence
+      confidence: a.confidence,
     })),
-    needsReview: true
+    needsReview: true,
   };
 }
 
@@ -76,9 +72,9 @@ export function classify(options: ClassificationOptions): ClassificationResponse
  * Batch classify multiple nodes
  */
 export function classifyBatch(
-  items: ReadonlyArray<Omit<ClassificationOptions, 'useLLMFallback'>>
+  items: ReadonlyArray<Omit<ClassificationOptions, 'useLLMFallback'>>,
 ): ReadonlyArray<ClassificationResponse> {
-  return items.map(item => classify(item));
+  return items.map((item) => classify(item));
 }
 
 /**
@@ -87,7 +83,7 @@ export function classifyBatch(
 export function reclassify(
   currentType: NodeType,
   title: string,
-  content: string
+  content: string,
 ): ClassificationResponse | null {
   const result = classify({ title, content });
 

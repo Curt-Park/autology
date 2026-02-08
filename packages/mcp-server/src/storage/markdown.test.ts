@@ -64,11 +64,13 @@ Content`;
         content: '# Test Decision\n\nThis is the content.',
         tags: ['test', 'decision'],
         confidence: 0.9,
-        relations: [{
-          type: 'affects',
-          target: 'other-node',
-          confidence: 0.8
-        }]
+        relations: [
+          {
+            type: 'affects',
+            target: 'other-node',
+            confidence: 0.8,
+          },
+        ],
       });
 
       const markdown = serializeNode(node);
@@ -88,7 +90,7 @@ Content`;
         type: 'concept',
         title: 'Simple Concept',
         content: 'Simple content.',
-        tags: ['simple']
+        tags: ['simple'],
       });
 
       const markdown = serializeNode(node);
@@ -110,9 +112,9 @@ Content`;
         confidence: 0.95,
         relations: [
           { type: 'uses', target: 'dep-1', confidence: 0.9 },
-          { type: 'affects', target: 'dep-2', description: 'Test relation', confidence: 0.8 }
+          { type: 'affects', target: 'dep-2', description: 'Test relation', confidence: 0.8 },
         ],
-        references: ['src/test.ts', 'src/test2.ts']
+        references: ['src/test.ts', 'src/test2.ts'],
       });
 
       const serialized = serializeNode(original);

@@ -11,13 +11,17 @@
     "test": "npm run test --workspaces",
     "dev": "npm run dev --workspace=@autology/mcp-server",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"packages/**/*.ts\" \"*.json\" \"*.config.*\"",
+    "format:check": "prettier --check \"packages/**/*.ts\" \"*.json\" \"*.config.*\""
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"
   },

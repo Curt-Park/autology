@@ -13,13 +13,10 @@ const RelateArgsSchema = z.object({
   type: RelationTypeSchema,
   description: z.string().optional(),
   bidirectional: z.boolean().default(false),
-  confidence: z.number().min(0).max(1).default(0.8)
+  confidence: z.number().min(0).max(1).default(0.8),
 });
 
-export function registerRelateTool(
-  _nodeStore: NodeStore,
-  _graphIndex: GraphIndexStore
-): Tool {
+export function registerRelateTool(_nodeStore: NodeStore, _graphIndex: GraphIndexStore): Tool {
   return {
     name: 'autology_relate',
     description: 'Create a relationship between two knowledge nodes',
@@ -28,41 +25,49 @@ export function registerRelateTool(
       properties: {
         source: {
           type: 'string',
-          description: 'Source node ID'
+          description: 'Source node ID',
         },
         target: {
           type: 'string',
-          description: 'Target node ID'
+          description: 'Target node ID',
         },
         type: {
           type: 'string',
-          enum: ['affects', 'uses', 'supersedes', 'relates_to', 'implements', 'depends_on', 'derived_from'],
-          description: 'Type of relationship'
+          enum: [
+            'affects',
+            'uses',
+            'supersedes',
+            'relates_to',
+            'implements',
+            'depends_on',
+            'derived_from',
+          ],
+          description: 'Type of relationship',
         },
         description: {
           type: 'string',
-          description: 'Optional description of the relationship'
+          description: 'Optional description of the relationship',
         },
         bidirectional: {
           type: 'boolean',
-          description: 'Create reverse relationship as well (default false)'
+          description: 'Create reverse relationship as well (default false)',
         },
         confidence: {
           type: 'number',
           minimum: 0,
           maximum: 1,
-          description: 'Confidence level (0.0-1.0, default 0.8)'
-        }
+          description: 'Confidence level (0.0-1.0, default 0.8)',
+        },
       },
-      required: ['source', 'target', 'type']
-    }
+      required: ['source', 'target', 'type'],
+    },
   };
 }
 
 export async function handleRelate(
   args: Record<string, unknown>,
   nodeStore: NodeStore,
-  graphIndex: GraphIndexStore
+  graphIndex: GraphIndexStore,
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   const validated = RelateArgsSchema.parse(args);
 
@@ -83,7 +88,7 @@ export async function handleRelate(
     validated.target,
     validated.type,
     validated.description,
-    validated.confidence
+    validated.confidence,
   );
 
   // Create reverse relation if bidirectional
@@ -93,7 +98,7 @@ export async function handleRelate(
       validated.source,
       validated.type,
       validated.description ? `Reverse: ${validated.description}` : undefined,
-      validated.confidence
+      validated.confidence,
     );
   }
 
@@ -103,7 +108,7 @@ export async function handleRelate(
     `${sourceNode.title} (${validated.source})`,
     `  ${validated.type.toUpperCase()}`,
     `${targetNode.title} (${validated.target})`,
-    ``
+    ``,
   ];
 
   if (validated.description) {
@@ -118,8 +123,8 @@ export async function handleRelate(
     content: [
       {
         type: 'text',
-        text: output.join('\n')
-      }
-    ]
+        text: output.join('\n'),
+      },
+    ],
   };
 }

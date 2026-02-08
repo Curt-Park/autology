@@ -12,17 +12,14 @@ export function generateNodeId(title: string, type: string): string {
   const slug = slugify(title, {
     lower: true,
     strict: true,
-    trim: true
+    trim: true,
   });
 
   // Truncate to reasonable length
   const truncated = slug.substring(0, 50);
 
   // Add short hash for collision resistance
-  const hash = createHash('sha256')
-    .update(`${type}:${title}`)
-    .digest('hex')
-    .substring(0, 8);
+  const hash = createHash('sha256').update(`${type}:${title}`).digest('hex').substring(0, 8);
 
   return `${truncated}-${hash}`;
 }

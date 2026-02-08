@@ -12,7 +12,7 @@ export const RelationSchema = z.object({
   type: RelationTypeSchema,
   target: z.string().min(1),
   description: z.string().optional(),
-  confidence: z.number().min(0).max(1)
+  confidence: z.number().min(0).max(1),
 });
 
 export const KnowledgeNodeSchema = z.object({
@@ -28,7 +28,7 @@ export const KnowledgeNodeSchema = z.object({
   session: z.string().optional(),
   source: z.enum(['manual', 'hook_write', 'hook_commit', 'hook_session']).default('manual'),
   references: z.array(z.string()).default([]),
-  status: NodeStatusSchema.default('active')
+  status: NodeStatusSchema.default('active'),
 });
 
 export const NodeFilterSchema = z.object({
@@ -37,17 +37,19 @@ export const NodeFilterSchema = z.object({
   status: NodeStatusSchema.optional(),
   minConfidence: z.number().min(0).max(1).optional(),
   relatedTo: z.string().optional(),
-  searchQuery: z.string().optional()
+  searchQuery: z.string().optional(),
 });
 
 export const GraphIndexSchema = z.object({
   version: z.string(),
   lastUpdated: z.string().datetime(),
-  relations: z.array(z.object({
-    source: z.string(),
-    target: z.string(),
-    type: RelationTypeSchema,
-    description: z.string().optional(),
-    confidence: z.number().min(0).max(1)
-  }))
+  relations: z.array(
+    z.object({
+      source: z.string(),
+      target: z.string(),
+      type: RelationTypeSchema,
+      description: z.string().optional(),
+      confidence: z.number().min(0).max(1),
+    }),
+  ),
 });

@@ -20,15 +20,15 @@ export function parseNode(content: string): KnowledgeNode {
           parse: (str: string) => {
             // Use JSON parse to avoid date parsing
             return yaml.load(str, { schema: yaml.JSON_SCHEMA }) as Record<string, unknown>;
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Validate frontmatter structure
     const node = KnowledgeNodeSchema.parse({
       ...data,
-      content: markdownContent.trim()
+      content: markdownContent.trim(),
     });
 
     return node;
@@ -58,22 +58,22 @@ export function serializeNode(node: KnowledgeNode): string {
     status: node.status,
     ...(node.references.length > 0 && { references: node.references }),
     ...(node.relations.length > 0 && {
-      relations: node.relations.map(r => {
+      relations: node.relations.map((r) => {
         if (r.description !== undefined) {
           return {
             type: r.type,
             target: r.target,
             description: r.description,
-            confidence: r.confidence
+            confidence: r.confidence,
           };
         }
         return {
           type: r.type,
           target: r.target,
-          confidence: r.confidence
+          confidence: r.confidence,
         };
-      })
-    })
+      }),
+    }),
   };
 
   // Generate markdown content
@@ -96,7 +96,7 @@ export function serializeNode(node: KnowledgeNode): string {
 
   // Clean frontmatter to remove undefined values
   const cleanedFrontmatter = Object.fromEntries(
-    Object.entries(frontmatter).filter(([_, v]) => v !== undefined)
+    Object.entries(frontmatter).filter(([_, v]) => v !== undefined),
   );
 
   // Use gray-matter to serialize
@@ -110,7 +110,7 @@ export function serializeNode(node: KnowledgeNode): string {
 function formatRelationType(type: string): string {
   return type
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 

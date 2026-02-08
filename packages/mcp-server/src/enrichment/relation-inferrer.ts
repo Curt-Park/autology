@@ -17,7 +17,7 @@ export interface InferredRelation {
  */
 export function inferRelations(
   newNode: KnowledgeNode,
-  existingNodes: ReadonlyArray<KnowledgeNode>
+  existingNodes: ReadonlyArray<KnowledgeNode>,
 ): ReadonlyArray<InferredRelation> {
   const inferred: InferredRelation[] = [];
 
@@ -28,7 +28,11 @@ export function inferRelations(
     // Check various relation signals
     const tagOverlap = calculateTagOverlap(newNode.tags, existing.tags);
     const fileOverlap = calculateFileOverlap(newNode.references, existing.references);
-    const sameSession = !!(newNode.session && newNode.session === existing.session && newNode.session.length > 0);
+    const sameSession = !!(
+      newNode.session &&
+      newNode.session === existing.session &&
+      newNode.session.length > 0
+    );
     const titleSimilarity = calculateTitleSimilarity(newNode.title, existing.title);
 
     // Infer specific relation types
@@ -36,7 +40,7 @@ export function inferRelations(
       tagOverlap,
       fileOverlap,
       sameSession,
-      titleSimilarity
+      titleSimilarity,
     });
 
     if (relation) {
@@ -63,7 +67,7 @@ interface RelationSignals {
 function inferSpecificRelation(
   source: KnowledgeNode,
   target: KnowledgeNode,
-  signals: RelationSignals
+  signals: RelationSignals,
 ): InferredRelation | null {
   // Rule 1: Decision affects component
   if (source.type === 'decision' && target.type === 'component') {
@@ -73,7 +77,7 @@ function inferSpecificRelation(
         target: target.id,
         type: 'affects',
         confidence: 0.7 + signals.tagOverlap * 0.2,
-        reasoning: `Decision affects component (tag overlap: ${(signals.tagOverlap * 100).toFixed(0)}%)`
+        reasoning: `Decision affects component (tag overlap: ${(signals.tagOverlap * 100).toFixed(0)}%)`,
       };
     }
   }
@@ -86,7 +90,7 @@ function inferSpecificRelation(
         target: target.id,
         type: 'implements',
         confidence: 0.75,
-        reasoning: 'Component implements pattern'
+        reasoning: 'Component implements pattern',
       };
     }
   }
@@ -99,20 +103,23 @@ function inferSpecificRelation(
         target: target.id,
         type: 'uses',
         confidence: 0.8,
-        reasoning: `Shared file references: ${signals.fileOverlap} file(s)`
+        reasoning: `Shared file references: ${signals.fileOverlap} file(s)`,
       };
     }
   }
 
   // Rule 4: Decision supersedes decision
   if (source.type === 'decision' && target.type === 'decision') {
-    if (containsSupersession(source.content, target.title) || containsSupersession(source.title, target.title)) {
+    if (
+      containsSupersession(source.content, target.title) ||
+      containsSupersession(source.title, target.title)
+    ) {
       return {
         source: source.id,
         target: target.id,
         type: 'supersedes',
         confidence: 0.85,
-        reasoning: 'Decision supersedes previous decision'
+        reasoning: 'Decision supersedes previous decision',
       };
     }
   }
@@ -125,7 +132,7 @@ function inferSpecificRelation(
         target: target.id,
         type: 'relates_to',
         confidence: 0.65,
-        reasoning: 'Convention relates to component'
+        reasoning: 'Convention relates to component',
       };
     }
   }
@@ -137,7 +144,7 @@ function inferSpecificRelation(
       target: target.id,
       type: 'relates_to',
       confidence: 0.6,
-      reasoning: 'Created in same session with shared tags'
+      reasoning: 'Created in same session with shared tags',
     };
   }
 
@@ -148,7 +155,7 @@ function inferSpecificRelation(
       target: target.id,
       type: 'relates_to',
       confidence: 0.55 + signals.tagOverlap * 0.15,
-      reasoning: `High tag overlap: ${(signals.tagOverlap * 100).toFixed(0)}%`
+      reasoning: `High tag overlap: ${(signals.tagOverlap * 100).toFixed(0)}%`,
     };
   }
 
@@ -158,16 +165,13 @@ function inferSpecificRelation(
 /**
  * Calculate tag overlap ratio
  */
-function calculateTagOverlap(
-  tags1: ReadonlyArray<string>,
-  tags2: ReadonlyArray<string>
-): number {
+function calculateTagOverlap(tags1: ReadonlyArray<string>, tags2: ReadonlyArray<string>): number {
   if (tags1.length === 0 || tags2.length === 0) return 0;
 
-  const set1 = new Set(tags1.map(t => t.toLowerCase()));
-  const set2 = new Set(tags2.map(t => t.toLowerCase()));
+  const set1 = new Set(tags1.map((t) => t.toLowerCase()));
+  const set2 = new Set(tags2.map((t) => t.toLowerCase()));
 
-  const intersection = new Set([...set1].filter(t => set2.has(t)));
+  const intersection = new Set([...set1].filter((t) => set2.has(t)));
   const union = new Set([...set1, ...set2]);
 
   return intersection.size / union.size;
@@ -176,28 +180,35 @@ function calculateTagOverlap(
 /**
  * Calculate file reference overlap
  */
-function calculateFileOverlap(
-  refs1: ReadonlyArray<string>,
-  refs2: ReadonlyArray<string>
-): number {
+function calculateFileOverlap(refs1: ReadonlyArray<string>, refs2: ReadonlyArray<string>): number {
   if (refs1.length === 0 || refs2.length === 0) return 0;
 
   const set1 = new Set(refs1);
   const set2 = new Set(refs2);
 
-  return [...set1].filter(r => set2.has(r)).length;
+  return [...set1].filter((r) => set2.has(r)).length;
 }
 
 /**
  * Calculate title similarity (simple word overlap)
  */
 function calculateTitleSimilarity(title1: string, title2: string): number {
-  const words1 = new Set(title1.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-  const words2 = new Set(title2.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+  const words1 = new Set(
+    title1
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
+  const words2 = new Set(
+    title2
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 3),
+  );
 
   if (words1.size === 0 || words2.size === 0) return 0;
 
-  const intersection = new Set([...words1].filter(w => words2.has(w)));
+  const intersection = new Set([...words1].filter((w) => words2.has(w)));
   const union = new Set([...words1, ...words2]);
 
   return intersection.size / union.size;
@@ -210,9 +221,11 @@ function containsPatternReference(content: string, patternName: string): boolean
   const contentLower = content.toLowerCase();
   const patternLower = patternName.toLowerCase();
 
-  return contentLower.includes(patternLower) ||
-         contentLower.includes(patternLower.replace(' pattern', '')) ||
-         contentLower.includes(patternLower.replace('-', ' '));
+  return (
+    contentLower.includes(patternLower) ||
+    contentLower.includes(patternLower.replace(' pattern', '')) ||
+    contentLower.includes(patternLower.replace('-', ' '))
+  );
 }
 
 /**
@@ -223,8 +236,13 @@ function containsSupersession(content: string, targetTitle: string): boolean {
   const targetLower = targetTitle.toLowerCase();
 
   const supersessionKeywords = [
-    'supersedes', 'replaces', 'instead of', 'rather than',
-    'deprecates', 'obsoletes', 'upgrades from'
+    'supersedes',
+    'replaces',
+    'instead of',
+    'rather than',
+    'deprecates',
+    'obsoletes',
+    'upgrades from',
   ];
 
   for (const keyword of supersessionKeywords) {
@@ -241,9 +259,9 @@ function containsSupersession(content: string, targetTitle: string): boolean {
  */
 export function filterByConfidence(
   relations: ReadonlyArray<InferredRelation>,
-  minConfidence: number
+  minConfidence: number,
 ): ReadonlyArray<InferredRelation> {
-  return relations.filter(r => r.confidence >= minConfidence);
+  return relations.filter((r) => r.confidence >= minConfidence);
 }
 
 /**
@@ -251,7 +269,7 @@ export function filterByConfidence(
  */
 export function groupByAction(
   relations: ReadonlyArray<InferredRelation>,
-  autoCreateThreshold: number = 0.7
+  autoCreateThreshold: number = 0.7,
 ): {
   readonly autoCreate: ReadonlyArray<InferredRelation>;
   readonly suggest: ReadonlyArray<InferredRelation>;

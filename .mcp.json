@@ -2,9 +2,7 @@
   "mcpServers": {
     "autology": {
       "command": "node",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/packages/mcp-server/dist/index.js"
-      ],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/packages/mcp-server/dist/index.js"],
       "env": {
         "AUTOLOGY_ROOT": ".autology"
       }

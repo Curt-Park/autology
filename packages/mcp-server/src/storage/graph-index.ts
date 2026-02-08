@@ -75,20 +75,21 @@ export class GraphIndexStore {
     target: string,
     type: RelationType,
     description: string | undefined,
-    confidence: number = 0.8
+    confidence: number = 0.8,
   ): Promise<void> {
     // Check if relation already exists
     const exists = this.index.relations.some(
-      r => r.source === source && r.target === target && r.type === type
+      (r) => r.source === source && r.target === target && r.type === type,
     );
 
     if (exists) {
       // Update existing relation
-      const updatedRelations = this.index.relations.map(r => {
+      const updatedRelations = this.index.relations.map((r) => {
         if (r.source === source && r.target === target && r.type === type) {
-          const updated: typeof r = description !== undefined
-            ? { source, target, type, description, confidence }
-            : { source, target, type, confidence };
+          const updated: typeof r =
+            description !== undefined
+              ? { source, target, type, description, confidence }
+              : { source, target, type, confidence };
           return updated;
         }
         return r;
@@ -96,19 +97,20 @@ export class GraphIndexStore {
 
       this.index = {
         ...this.index,
-        relations: updatedRelations as ReadonlyArray<typeof updatedRelations[number]>,
-        lastUpdated: new Date().toISOString()
+        relations: updatedRelations as ReadonlyArray<(typeof updatedRelations)[number]>,
+        lastUpdated: new Date().toISOString(),
       };
     } else {
       // Add new relation
-      const newRelation = description !== undefined
-        ? { source, target, type, description, confidence } as const
-        : { source, target, type, confidence } as const;
+      const newRelation =
+        description !== undefined
+          ? ({ source, target, type, description, confidence } as const)
+          : ({ source, target, type, confidence } as const);
 
       this.index = {
         ...this.index,
         relations: [...this.index.relations, newRelation] as ReadonlyArray<typeof newRelation>,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       };
     }
 
@@ -122,9 +124,9 @@ export class GraphIndexStore {
     this.index = {
       ...this.index,
       relations: this.index.relations.filter(
-        r => !(r.source === source && r.target === target && r.type === type)
+        (r) => !(r.source === source && r.target === target && r.type === type),
       ),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
 
     await this.save();
@@ -136,10 +138,8 @@ export class GraphIndexStore {
   async removeNodeRelations(nodeId: string): Promise<void> {
     this.index = {
       ...this.index,
-      relations: this.index.relations.filter(
-        r => r.source !== nodeId && r.target !== nodeId
-      ),
-      lastUpdated: new Date().toISOString()
+      relations: this.index.relations.filter((r) => r.source !== nodeId && r.target !== nodeId),
+      lastUpdated: new Date().toISOString(),
     };
 
     await this.save();
@@ -186,7 +186,7 @@ export class GraphIndexStore {
     readonly description?: string | undefined;
     readonly confidence: number;
   }> {
-    return this.index.relations.filter(r => r.source === nodeId) as ReadonlyArray<{
+    return this.index.relations.filter((r) => r.source === nodeId) as ReadonlyArray<{
       readonly source: string;
       readonly target: string;
       readonly type: RelationType;
@@ -205,7 +205,7 @@ export class GraphIndexStore {
     readonly description?: string | undefined;
     readonly confidence: number;
   }> {
-    return this.index.relations.filter(r => r.target === nodeId) as ReadonlyArray<{
+    return this.index.relations.filter((r) => r.target === nodeId) as ReadonlyArray<{
       readonly source: string;
       readonly target: string;
       readonly type: RelationType;
@@ -238,14 +238,17 @@ export class GraphIndexStore {
     readonly totalRelations: number;
     readonly relationsByType: Record<RelationType, number>;
   } {
-    const relationsByType = this.index.relations.reduce((acc, r) => {
-      acc[r.type] = (acc[r.type] || 0) + 1;
-      return acc;
-    }, {} as Record<RelationType, number>);
+    const relationsByType = this.index.relations.reduce(
+      (acc, r) => {
+        acc[r.type] = (acc[r.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<RelationType, number>,
+    );
 
     return {
       totalRelations: this.index.relations.length,
-      relationsByType
+      relationsByType,
     };
   }
 
@@ -263,7 +266,7 @@ export class GraphIndexStore {
     return {
       version: '1.0.0',
       lastUpdated: new Date().toISOString(),
-      relations: []
+      relations: [],
     };
   }
 }

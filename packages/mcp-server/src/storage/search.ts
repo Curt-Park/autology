@@ -9,20 +9,24 @@ import type { GraphIndexStore } from './graph-index.js';
 export class SearchEngine {
   constructor(
     private readonly nodeStore: NodeStore,
-    private readonly graphIndex: GraphIndexStore
+    private readonly graphIndex: GraphIndexStore,
   ) {}
 
   /**
    * Search nodes with filtering and ranking
    */
-  async search(filter?: NodeFilter, limit: number = 50, offset: number = 0): Promise<SearchResult[]> {
+  async search(
+    filter?: NodeFilter,
+    limit: number = 50,
+    offset: number = 0,
+  ): Promise<SearchResult[]> {
     // Get all nodes matching basic filter
     const nodes = await this.nodeStore.listNodes(filter);
 
     // Calculate relevance scores
-    const results: SearchResult[] = nodes.map(node => ({
+    const results: SearchResult[] = nodes.map((node) => ({
       node,
-      score: this.calculateRelevance(node, filter)
+      score: this.calculateRelevance(node, filter),
     }));
 
     // Sort by relevance score (descending)
@@ -53,9 +57,10 @@ export class SearchEngine {
     const results: SearchResult[] = [];
 
     for (const node of nodes) {
-      const hasMatch = mode === 'all'
-        ? tags.every(tag => node.tags.includes(tag))
-        : tags.some(tag => node.tags.includes(tag));
+      const hasMatch =
+        mode === 'all'
+          ? tags.every((tag) => node.tags.includes(tag))
+          : tags.some((tag) => node.tags.includes(tag));
 
       if (hasMatch) {
         const score = this.calculateTagScore(node.tags, tags);
@@ -73,7 +78,7 @@ export class SearchEngine {
     const nodes = await this.nodeStore.listNodes();
     const results: SearchResult[] = [];
     const queryLower = query.toLowerCase();
-    const queryTerms = queryLower.split(/\s+/).filter(t => t.length > 0);
+    const queryTerms = queryLower.split(/\s+/).filter((t) => t.length > 0);
 
     for (const node of nodes) {
       const score = this.calculateTextScore(node, queryTerms);
@@ -93,7 +98,7 @@ export class SearchEngine {
     const results: SearchResult[] = [];
 
     for (const node of nodes) {
-      if (node.references.some(ref => ref.includes(filePath))) {
+      if (node.references.some((ref) => ref.includes(filePath))) {
         results.push({ node, score: 1.0 });
       }
     }
@@ -131,7 +136,7 @@ export class SearchEngine {
 
     // Boost for relation matches
     if (filter.relatedTo) {
-      const hasRelation = node.relations.some(r => r.target === filter.relatedTo);
+      const hasRelation = node.relations.some((r) => r.target === filter.relatedTo);
       if (hasRelation) {
         score += 0.3;
       }
@@ -153,7 +158,7 @@ export class SearchEngine {
       return 0;
     }
 
-    const matches = searchTags.filter(tag => nodeTags.includes(tag)).length;
+    const matches = searchTags.filter((tag) => nodeTags.includes(tag)).length;
     return matches / searchTags.length;
   }
 
@@ -183,7 +188,7 @@ export class SearchEngine {
     depth: number,
     maxDepth: number,
     visited: Set<string>,
-    results: Map<string, SearchResult>
+    results: Map<string, SearchResult>,
   ): Promise<void> {
     if (depth >= maxDepth || visited.has(nodeId)) {
       return;

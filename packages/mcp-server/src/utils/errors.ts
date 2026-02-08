@@ -3,7 +3,10 @@
  */
 
 export class AutologyError extends Error {
-  constructor(message: string, public readonly code: string) {
+  constructor(
+    message: string,
+    public readonly code: string,
+  ) {
     super(message);
     this.name = 'AutologyError';
   }

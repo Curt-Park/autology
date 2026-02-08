@@ -8,13 +8,10 @@ import type { GraphIndexStore } from '../storage/graph-index.js';
 import type { NodeType } from '../storage/types.js';
 
 const StatusArgsSchema = z.object({
-  detail: z.enum(['summary', 'full']).default('summary')
+  detail: z.enum(['summary', 'full']).default('summary'),
 });
 
-export function registerStatusTool(
-  _nodeStore: NodeStore,
-  _graphIndex: GraphIndexStore
-): Tool {
+export function registerStatusTool(_nodeStore: NodeStore, _graphIndex: GraphIndexStore): Tool {
   return {
     name: 'autology_status',
     description: 'Get current status and statistics of the ontology',
@@ -24,17 +21,17 @@ export function registerStatusTool(
         detail: {
           type: 'string',
           enum: ['summary', 'full'],
-          description: 'Level of detail (summary or full)'
-        }
-      }
-    }
+          description: 'Level of detail (summary or full)',
+        },
+      },
+    },
   };
 }
 
 export async function handleStatus(
   args: Record<string, unknown>,
   nodeStore: NodeStore,
-  graphIndex: GraphIndexStore
+  graphIndex: GraphIndexStore,
 ): Promise<{ content: Array<{ type: string; text: string }> }> {
   const validated = StatusArgsSchema.parse(args);
 
@@ -47,7 +44,7 @@ export async function handleStatus(
   const nodesByConfidence: { low: number; medium: number; high: number } = {
     low: 0,
     medium: 0,
-    high: 0
+    high: 0,
   };
 
   for (const node of allNodes) {
@@ -75,7 +72,7 @@ export async function handleStatus(
     '# autology Ontology Status\n',
     `**Total Nodes**: ${allNodes.length}`,
     `**Total Relations**: ${graphStats.totalRelations}\n`,
-    '## Nodes by Type\n'
+    '## Nodes by Type\n',
   ];
 
   for (const [type, count] of Object.entries(nodesByType)) {
@@ -112,7 +109,7 @@ export async function handleStatus(
     }
 
     // Nodes needing review
-    const needsReview = allNodes.filter(n => n.status === 'needs_review');
+    const needsReview = allNodes.filter((n) => n.status === 'needs_review');
     if (needsReview.length > 0) {
       output.push(`\n## ⚠️  Nodes Needing Review: ${needsReview.length}\n`);
       for (const node of needsReview.slice(0, 5)) {
@@ -128,8 +125,8 @@ export async function handleStatus(
     content: [
       {
         type: 'text',
-        text: output.join('\n')
-      }
-    ]
+        text: output.join('\n'),
+      },
+    ],
   };
 }

@@ -41,7 +41,7 @@ describe('NodeStore', () => {
         '/test-autology/nodes/concepts',
         '/test-autology/nodes/sessions',
         '/test-autology/nodes/patterns',
-        '/test-autology/nodes/issues'
+        '/test-autology/nodes/issues',
       ];
 
       for (const dir of dirs) {
@@ -56,7 +56,7 @@ describe('NodeStore', () => {
         id: 'test-node-12345678',
         type: 'decision',
         title: 'Test Decision',
-        content: 'Test content'
+        content: 'Test content',
       });
 
       await store.createNode(node);
@@ -70,7 +70,7 @@ describe('NodeStore', () => {
         id: 'duplicate-node-12345678',
         type: 'decision',
         title: 'Duplicate',
-        content: 'Content'
+        content: 'Content',
       });
 
       await store.createNode(node);
@@ -86,7 +86,7 @@ describe('NodeStore', () => {
         type: 'component',
         title: 'Read Test',
         content: 'Test content',
-        tags: ['test']
+        tags: ['test'],
       });
 
       await store.createNode(original);
@@ -109,7 +109,7 @@ describe('NodeStore', () => {
         id: 'find-test-12345678',
         type: 'convention',
         title: 'Find Test',
-        content: 'Content'
+        content: 'Content',
       });
 
       await store.createNode(node);
@@ -131,17 +131,17 @@ describe('NodeStore', () => {
         id: 'update-test-12345678',
         type: 'decision',
         title: 'Original Title',
-        content: 'Original content'
+        content: 'Original content',
       });
 
       await store.createNode(original);
 
       // Wait 10ms to ensure modified timestamp changes
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const updated = await store.updateNode('update-test-12345678', 'decision', {
         title: 'Updated Title',
-        content: 'Updated content'
+        content: 'Updated content',
       });
 
       expect(updated.title).toBe('Updated Title');
@@ -149,12 +149,14 @@ describe('NodeStore', () => {
       expect(updated.id).toBe(original.id);
       expect(updated.created).toBe(original.created);
       expect(updated.modified).not.toBe(original.modified);
-      expect(new Date(updated.modified).getTime()).toBeGreaterThan(new Date(original.modified).getTime());
+      expect(new Date(updated.modified).getTime()).toBeGreaterThan(
+        new Date(original.modified).getTime(),
+      );
     });
 
     it('should throw error for non-existent node', async () => {
       await expect(
-        store.updateNode('non-existent', 'decision', { title: 'New Title' })
+        store.updateNode('non-existent', 'decision', { title: 'New Title' }),
       ).rejects.toThrow(NodeNotFoundError);
     });
   });
@@ -165,7 +167,7 @@ describe('NodeStore', () => {
         id: 'delete-test-12345678',
         type: 'issue',
         title: 'Delete Test',
-        content: 'To be deleted'
+        content: 'To be deleted',
       });
 
       await store.createNode(node);
@@ -183,32 +185,38 @@ describe('NodeStore', () => {
   describe('listNodes', () => {
     beforeEach(async () => {
       // Create test nodes
-      await store.createNode(createKnowledgeNode({
-        id: 'list-1-12345678',
-        type: 'decision',
-        title: 'Decision 1',
-        content: 'Content 1',
-        tags: ['tag1'],
-        confidence: 0.9
-      }));
+      await store.createNode(
+        createKnowledgeNode({
+          id: 'list-1-12345678',
+          type: 'decision',
+          title: 'Decision 1',
+          content: 'Content 1',
+          tags: ['tag1'],
+          confidence: 0.9,
+        }),
+      );
 
-      await store.createNode(createKnowledgeNode({
-        id: 'list-2-12345678',
-        type: 'decision',
-        title: 'Decision 2',
-        content: 'Content 2',
-        tags: ['tag2'],
-        confidence: 0.7
-      }));
+      await store.createNode(
+        createKnowledgeNode({
+          id: 'list-2-12345678',
+          type: 'decision',
+          title: 'Decision 2',
+          content: 'Content 2',
+          tags: ['tag2'],
+          confidence: 0.7,
+        }),
+      );
 
-      await store.createNode(createKnowledgeNode({
-        id: 'list-3-12345678',
-        type: 'component',
-        title: 'Component 1',
-        content: 'Content 3',
-        tags: ['tag1'],
-        confidence: 0.8
-      }));
+      await store.createNode(
+        createKnowledgeNode({
+          id: 'list-3-12345678',
+          type: 'component',
+          title: 'Component 1',
+          content: 'Content 3',
+          tags: ['tag1'],
+          confidence: 0.8,
+        }),
+      );
     });
 
     it('should list all nodes without filter', async () => {
@@ -219,19 +227,19 @@ describe('NodeStore', () => {
     it('should filter by type', async () => {
       const nodes = await store.listNodes({ type: 'decision' });
       expect(nodes).toHaveLength(2);
-      expect(nodes.every(n => n.type === 'decision')).toBe(true);
+      expect(nodes.every((n) => n.type === 'decision')).toBe(true);
     });
 
     it('should filter by tags', async () => {
       const nodes = await store.listNodes({ tags: ['tag1'] });
       expect(nodes).toHaveLength(2);
-      expect(nodes.every(n => n.tags.includes('tag1'))).toBe(true);
+      expect(nodes.every((n) => n.tags.includes('tag1'))).toBe(true);
     });
 
     it('should filter by confidence', async () => {
       const nodes = await store.listNodes({ minConfidence: 0.8 });
       expect(nodes).toHaveLength(2);
-      expect(nodes.every(n => n.confidence >= 0.8)).toBe(true);
+      expect(nodes.every((n) => n.confidence >= 0.8)).toBe(true);
     });
 
     it('should filter by search query', async () => {
