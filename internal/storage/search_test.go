@@ -10,8 +10,8 @@ func TestSearchEngineSearch(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -24,8 +24,8 @@ func TestSearchEngineSearch(t *testing.T) {
 	node2.Confidence = 0.3
 	node2.Tags = []string{"build"}
 
-	nodeStore.CreateNode(node1)
-	nodeStore.CreateNode(node2)
+	_ = nodeStore.CreateNode(node1)
+	_ = nodeStore.CreateNode(node2)
 
 	// Test basic search
 	results, err := engine.Search(nil, 10, 0)
@@ -75,8 +75,8 @@ func TestSearchEngineFindRelated(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -85,13 +85,13 @@ func TestSearchEngineFindRelated(t *testing.T) {
 	node2 := CreateKnowledgeNode("related-2", NodeTypeComponent, "Node 2", "Content")
 	node3 := CreateKnowledgeNode("related-3", NodeTypeConcept, "Node 3", "Content")
 
-	nodeStore.CreateNode(node1)
-	nodeStore.CreateNode(node2)
-	nodeStore.CreateNode(node3)
+	_ = nodeStore.CreateNode(node1)
+	_ = nodeStore.CreateNode(node2)
+	_ = nodeStore.CreateNode(node3)
 
 	// Create relations: 1 -> 2 -> 3
-	graphIndex.AddRelation("related-1", "related-2", RelationTypeAffects, "", 0.8)
-	graphIndex.AddRelation("related-2", "related-3", RelationTypeUses, "", 0.8)
+	_ = graphIndex.AddRelation("related-1", "related-2", RelationTypeAffects, "", 0.8)
+	_ = graphIndex.AddRelation("related-2", "related-3", RelationTypeUses, "", 0.8)
 
 	// Find related nodes from node 1 with depth 1
 	results, err := engine.FindRelated("related-1", 1)
@@ -126,8 +126,8 @@ func TestSearchEngineFindByTags(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -141,9 +141,9 @@ func TestSearchEngineFindByTags(t *testing.T) {
 	node3 := CreateKnowledgeNode("tag-3", NodeTypeConcept, "Node 3", "Content")
 	node3.Tags = []string{"python"}
 
-	nodeStore.CreateNode(node1)
-	nodeStore.CreateNode(node2)
-	nodeStore.CreateNode(node3)
+	_ = nodeStore.CreateNode(node1)
+	_ = nodeStore.CreateNode(node2)
+	_ = nodeStore.CreateNode(node3)
 
 	// Test "all" mode
 	results, err := engine.FindByTags([]string{"go", "testing"}, "all")
@@ -180,8 +180,8 @@ func TestSearchEngineFullTextSearch(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -190,9 +190,9 @@ func TestSearchEngineFullTextSearch(t *testing.T) {
 	node2 := CreateKnowledgeNode("text-2", NodeTypeComponent, "Build System", "The build uses make and go build")
 	node3 := CreateKnowledgeNode("text-3", NodeTypeConcept, "Deployment", "Deployment uses docker")
 
-	nodeStore.CreateNode(node1)
-	nodeStore.CreateNode(node2)
-	nodeStore.CreateNode(node3)
+	_ = nodeStore.CreateNode(node1)
+	_ = nodeStore.CreateNode(node2)
+	_ = nodeStore.CreateNode(node3)
 
 	// Test single term
 	results, err := engine.FullTextSearch("testing", 10)
@@ -235,8 +235,8 @@ func TestSearchEngineFindByFileReference(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -247,8 +247,8 @@ func TestSearchEngineFindByFileReference(t *testing.T) {
 	node2 := CreateKnowledgeNode("file-2", NodeTypeComponent, "Node 2", "Content")
 	node2.References = []string{"src/server/main.go"}
 
-	nodeStore.CreateNode(node1)
-	nodeStore.CreateNode(node2)
+	_ = nodeStore.CreateNode(node1)
+	_ = nodeStore.CreateNode(node2)
 
 	// Test exact match
 	results, err := engine.FindByFileReference("node_store.go")
@@ -282,8 +282,8 @@ func TestSearchEngineScoring(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -300,8 +300,8 @@ func TestSearchEngineScoring(t *testing.T) {
 	node2.Tags = []string{}
 	node2.Modified = now.AddDate(-1, 0, 0) // 1 year old
 
-	nodeStore.CreateNode(node1)
-	nodeStore.CreateNode(node2)
+	_ = nodeStore.CreateNode(node1)
+	_ = nodeStore.CreateNode(node2)
 
 	// Search with query that matches node1 better
 	query := "testing"
@@ -337,8 +337,8 @@ func TestSearchEngineCalculateRelevance(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -403,8 +403,8 @@ func TestSearchEngineCalculateTagScore(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 
@@ -444,8 +444,8 @@ func TestSearchEngineCalculateTextScore(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
 	graphIndex := NewGraphIndexStore(tmpDir)
-	nodeStore.Initialize()
-	graphIndex.Load()
+	_ = nodeStore.Initialize()
+	_ = graphIndex.Load()
 
 	engine := NewSearchEngine(nodeStore, graphIndex)
 

@@ -273,11 +273,7 @@ func containsPatternReference(content, patternName string) bool {
 
 	// Try with spaces instead of hyphens
 	withSpaces := strings.Replace(patternLower, "-", " ", -1)
-	if strings.Contains(contentLower, withSpaces) {
-		return true
-	}
-
-	return false
+	return strings.Contains(contentLower, withSpaces)
 }
 
 // containsSupersession checks if content indicates supersession

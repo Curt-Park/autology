@@ -39,7 +39,7 @@ func TestNodeStoreInitialize(t *testing.T) {
 func TestNodeStoreCreateAndRead(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewNodeStore(tmpDir)
-	store.Initialize()
+	_ = store.Initialize()
 
 	node := CreateKnowledgeNode(
 		"test-create-123",
@@ -72,7 +72,7 @@ func TestNodeStoreCreateAndRead(t *testing.T) {
 func TestNodeStoreUpdate(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewNodeStore(tmpDir)
-	store.Initialize()
+	_ = store.Initialize()
 
 	original := CreateKnowledgeNode(
 		"test-update-123",
@@ -81,7 +81,7 @@ func TestNodeStoreUpdate(t *testing.T) {
 		"Original content",
 	)
 
-	store.CreateNode(original)
+	_ = store.CreateNode(original)
 
 	// Update
 	updated := UpdateKnowledgeNode(original, map[string]interface{}{
@@ -107,7 +107,7 @@ func TestNodeStoreUpdate(t *testing.T) {
 func TestNodeStoreDelete(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewNodeStore(tmpDir)
-	store.Initialize()
+	_ = store.Initialize()
 
 	node := CreateKnowledgeNode(
 		"test-delete-123",
@@ -116,7 +116,7 @@ func TestNodeStoreDelete(t *testing.T) {
 		"Test content",
 	)
 
-	store.CreateNode(node)
+	_ = store.CreateNode(node)
 
 	// Delete
 	err := store.DeleteNode(node.ID, node.Type)
@@ -134,7 +134,7 @@ func TestNodeStoreDelete(t *testing.T) {
 func TestNodeStoreFindNode(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewNodeStore(tmpDir)
-	store.Initialize()
+	_ = store.Initialize()
 
 	node := CreateKnowledgeNode(
 		"test-find-123",
@@ -143,7 +143,7 @@ func TestNodeStoreFindNode(t *testing.T) {
 		"Test content",
 	)
 
-	store.CreateNode(node)
+	_ = store.CreateNode(node)
 
 	// Find without knowing type
 	found, err := store.FindNode(node.ID)
@@ -159,7 +159,7 @@ func TestNodeStoreFindNode(t *testing.T) {
 func TestNodeStoreListByType(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewNodeStore(tmpDir)
-	store.Initialize()
+	_ = store.Initialize()
 
 	// Create multiple nodes
 	for i := 0; i < 3; i++ {
@@ -169,7 +169,7 @@ func TestNodeStoreListByType(t *testing.T) {
 			fmt.Sprintf("Decision %d", i),
 			"Content",
 		)
-		store.CreateNode(node)
+		_ = store.CreateNode(node)
 	}
 
 	// List

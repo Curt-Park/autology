@@ -25,7 +25,7 @@ func TestGraphIndexLoad(t *testing.T) {
 func TestGraphIndexAddRelation(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewGraphIndexStore(tmpDir)
-	store.Load()
+	_ = store.Load()
 
 	err := store.AddRelation("node-1", "node-2", RelationTypeAffects, "test relation", 0.9)
 	if err != nil {
@@ -52,10 +52,10 @@ func TestGraphIndexAddRelation(t *testing.T) {
 func TestGraphIndexUpdateRelation(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewGraphIndexStore(tmpDir)
-	store.Load()
+	_ = store.Load()
 
 	// Add initial relation
-	store.AddRelation("node-1", "node-2", RelationTypeAffects, "initial", 0.8)
+	_ = store.AddRelation("node-1", "node-2", RelationTypeAffects, "initial", 0.8)
 
 	// Update same relation
 	err := store.AddRelation("node-1", "node-2", RelationTypeAffects, "updated", 0.9)
@@ -80,9 +80,9 @@ func TestGraphIndexUpdateRelation(t *testing.T) {
 func TestGraphIndexRemoveRelation(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewGraphIndexStore(tmpDir)
-	store.Load()
+	_ = store.Load()
 
-	store.AddRelation("node-1", "node-2", RelationTypeAffects, "", 0.8)
+	_ = store.AddRelation("node-1", "node-2", RelationTypeAffects, "", 0.8)
 
 	err := store.RemoveRelation("node-1", "node-2", RelationTypeAffects)
 	if err != nil {
@@ -99,12 +99,12 @@ func TestGraphIndexRemoveRelation(t *testing.T) {
 func TestGraphIndexRemoveNodeRelations(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewGraphIndexStore(tmpDir)
-	store.Load()
+	_ = store.Load()
 
 	// Add multiple relations
-	store.AddRelation("node-1", "node-2", RelationTypeAffects, "", 0.8)
-	store.AddRelation("node-1", "node-3", RelationTypeUses, "", 0.8)
-	store.AddRelation("node-4", "node-1", RelationTypeDependsOn, "", 0.8)
+	_ = store.AddRelation("node-1", "node-2", RelationTypeAffects, "", 0.8)
+	_ = store.AddRelation("node-1", "node-3", RelationTypeUses, "", 0.8)
+	_ = store.AddRelation("node-4", "node-1", RelationTypeDependsOn, "", 0.8)
 
 	err := store.RemoveNodeRelations("node-1")
 	if err != nil {
@@ -121,11 +121,11 @@ func TestGraphIndexRemoveNodeRelations(t *testing.T) {
 func TestGraphIndexGetNodeRelations(t *testing.T) {
 	tmpDir := t.TempDir()
 	store := NewGraphIndexStore(tmpDir)
-	store.Load()
+	_ = store.Load()
 
 	// Add outgoing and incoming relations
-	store.AddRelation("node-1", "node-2", RelationTypeAffects, "", 0.8)
-	store.AddRelation("node-3", "node-1", RelationTypeUses, "", 0.8)
+	_ = store.AddRelation("node-1", "node-2", RelationTypeAffects, "", 0.8)
+	_ = store.AddRelation("node-3", "node-1", RelationTypeUses, "", 0.8)
 
 	relations := store.GetNodeRelations("node-1")
 	if len(relations) != 2 {
@@ -156,8 +156,8 @@ func TestGraphIndexPersistence(t *testing.T) {
 
 	// Create store and add relation
 	store1 := NewGraphIndexStore(tmpDir)
-	store1.Load()
-	store1.AddRelation("node-1", "node-2", RelationTypeAffects, "test", 0.8)
+	_ = store1.Load()
+	_ = store1.AddRelation("node-1", "node-2", RelationTypeAffects, "test", 0.8)
 
 	// Create new store and load
 	store2 := NewGraphIndexStore(tmpDir)

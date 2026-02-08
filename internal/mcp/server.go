@@ -201,9 +201,9 @@ func (s *Server) sendResult(w *bufio.Writer, id interface{}, result interface{})
 	}
 
 	data, _ := json.Marshal(resp)
-	w.Write(data)
-	w.WriteByte('\n')
-	w.Flush()
+	_, _ = w.Write(data)
+	_ = w.WriteByte('\n')
+	_ = w.Flush()
 }
 
 // sendError sends a JSON-RPC error
@@ -219,9 +219,9 @@ func (s *Server) sendError(w *bufio.Writer, id interface{}, code int, message st
 	}
 
 	jsonData, _ := json.Marshal(resp)
-	w.Write(jsonData)
-	w.WriteByte('\n')
-	w.Flush()
+	_, _ = w.Write(jsonData)
+	_ = w.WriteByte('\n')
+	_ = w.Flush()
 }
 
 // registerTools registers all MCP tools
@@ -369,7 +369,7 @@ func (s *Server) handleCapture(args map[string]interface{}) (interface{}, error)
 
 	// Save relations to graph index
 	for _, rel := range node.Relations {
-		s.graphIndex.AddRelation(node.ID, rel.Target, rel.Type, rel.Description, rel.Confidence)
+		_ = s.graphIndex.AddRelation(node.ID, rel.Target, rel.Type, rel.Description, rel.Confidence)
 	}
 
 	return fmt.Sprintf("✓ Captured: %s (%s)\nID: %s\nRelations: %d auto-created, %d suggested",
@@ -430,7 +430,7 @@ func (s *Server) handleStatus(args map[string]interface{}) (interface{}, error) 
 		total += count
 	}
 
-	output := fmt.Sprintf("# Autology Knowledge Graph Status\n\n")
+	output := "# Autology Knowledge Graph Status\n\n"
 	output += fmt.Sprintf("**Total Nodes**: %d\n\n", total)
 	output += "**By Type**:\n"
 	for _, nodeType := range storage.NodeTypes {

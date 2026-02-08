@@ -316,10 +316,9 @@ func TestKeywordMatching(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := ClassifyNodeType(tt.text, "", "")
 
-			// We can't directly test keyword matching, but we can verify
-			// that the classification works with known patterns
-			if tt.shouldMatch && result.Type == storage.NodeTypeDecision {
-				// Expected behavior for decision keywords
+			// Verify the classification produces a valid result
+			if result.Type == "" {
+				t.Errorf("Expected non-empty type, got empty")
 			}
 		})
 	}
