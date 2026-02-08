@@ -1,0 +1,39 @@
+{
+  "name": "autology",
+  "owner": {
+    "name": "Autology Contributors"
+  },
+  "metadata": {
+    "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge"
+  },
+  "plugins": [
+    {
+      "name": "autology",
+      "source": "./",
+      "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge",
+      "author": {
+        "name": "Autology Contributors"
+      },
+      "homepage": "https://github.com/Curt-Park/autology",
+      "repository": "https://github.com/Curt-Park/autology",
+      "license": "MIT",
+      "keywords": [
+        "knowledge-management",
+        "ontology",
+        "adr",
+        "documentation",
+        "learning",
+        "transparency"
+      ],
+      "category": "workflow",
+      "tags": [
+        "knowledge-management",
+        "ontology",
+        "adr",
+        "documentation",
+        "learning",
+        "transparency"
+      ]
+    }
+  ]
+}
