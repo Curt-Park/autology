@@ -8,11 +8,11 @@ import (
 
 func TestClassifyNodeType(t *testing.T) {
 	tests := []struct {
-		name        string
-		title       string
-		content     string
-		context     string
-		expectType  storage.NodeType
+		name          string
+		title         string
+		content       string
+		context       string
+		expectType    storage.NodeType
 		minConfidence float64
 	}{
 		{
@@ -94,11 +94,11 @@ func TestClassifyNodeType(t *testing.T) {
 
 func TestClassifyNodeTypeWithContext(t *testing.T) {
 	tests := []struct {
-		name        string
-		title       string
-		content     string
-		context     string
-		expectType  storage.NodeType
+		name       string
+		title      string
+		content    string
+		context    string
+		expectType storage.NodeType
 	}{
 		{
 			name:       "hook_write boosts component",
@@ -301,9 +301,9 @@ func TestGenerateReasoning(t *testing.T) {
 
 func TestKeywordMatching(t *testing.T) {
 	tests := []struct {
-		name       string
-		text       string
-		keyword    string
+		name        string
+		text        string
+		keyword     string
 		shouldMatch bool
 	}{
 		{"Exact match", "we decided to use go", "decided", true},

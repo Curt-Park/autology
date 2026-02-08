@@ -6,10 +6,10 @@ import (
 
 // ClassificationOptions defines options for node classification
 type ClassificationOptions struct {
-	Title         string
-	Content       string
-	SourceContext string             // "hook_write", "hook_commit", "hook_session", "manual"
-	UserHint      *storage.NodeType  // User can provide a type hint
+	Title          string
+	Content        string
+	SourceContext  string            // "hook_write", "hook_commit", "hook_session", "manual"
+	UserHint       *storage.NodeType // User can provide a type hint
 	UseLLMFallback bool              // Reserved for future LLM integration
 }
 
