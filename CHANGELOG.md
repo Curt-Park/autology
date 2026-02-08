@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/Curt-Park/autology/compare/autology-v0.3.2...autology-v0.3.3) (2026-02-08)
+
+
+### Bug Fixes
+
+* change SessionEnd hook from prompt to command type ([#17](https://github.com/Curt-Park/autology/issues/17)) ([4752983](https://github.com/Curt-Park/autology/commit/475298339fed4dc6a251bb4bfe68d8464a0ebf43))
+
 ## [0.3.2](https://github.com/Curt-Park/autology/compare/autology-v0.3.1...autology-v0.3.2) (2026-02-08)
 
 
