@@ -60,8 +60,11 @@ jobs:
           # Linux AMD64
           GOOS=linux GOARCH=amd64 go build -o bin/autology-linux-amd64 ./cmd/autology
 
+          # Linux ARM64
+          GOOS=linux GOARCH=arm64 go build -o bin/autology-linux-arm64 ./cmd/autology
+
           # Windows AMD64
-          GOOS=windows GOARCH=amd64 go build -o bin/autology-windows.exe ./cmd/autology
+          GOOS=windows GOARCH=amd64 go build -o bin/autology-windows-amd64.exe ./cmd/autology
 
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v1
@@ -71,4 +74,5 @@ jobs:
             bin/autology-darwin-arm64
             bin/autology-darwin-amd64
             bin/autology-linux-amd64
-            bin/autology-windows.exe
+            bin/autology-linux-arm64
+            bin/autology-windows-amd64.exe

@@ -1,11 +1,10 @@
-node_modules/
 dist/
-bin/
+.claude-plugin/bin/
 *.log
 .DS_Store
 coverage/
 .env
 .env.local
-*.tsbuildinfo
 .autology/
 docs/plans
+coverage.out

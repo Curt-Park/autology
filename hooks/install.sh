@@ -60,11 +60,9 @@ if [ -x "${BIN_DIR}/${LOCAL_BINARY}" ]; then
   echo "   Binary: ${BIN_DIR}/${LOCAL_BINARY}"
   echo ""
   echo "You can now use autology tools in Claude Code:"
-  echo "  - autology_capture"
-  echo "  - autology_query"
-  echo "  - autology_relate"
-  echo "  - autology_status"
-  echo "  - autology_context"
+  echo "  - autology_capture  (Create knowledge nodes with auto-classification)"
+  echo "  - autology_query    (Search and filter nodes)"
+  echo "  - autology_status   (View knowledge graph statistics)"
 else
   echo "❌ Installation failed. Binary is not executable."
   exit 1

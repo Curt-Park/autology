@@ -2,31 +2,15 @@
   "name": "autology",
   "version": "0.1.0",
   "private": true,
-  "description": "Living Ontology Plugin for Claude Code",
-  "workspaces": [
-    "packages/*"
-  ],
+  "description": "Living Ontology for Claude Code - Go Implementation",
   "scripts": {
-    "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "dev": "npm run dev --workspace=@autology/mcp-server",
-    "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
-    "format": "prettier --write \"packages/**/*.ts\" \"*.json\" \"*.config.*\"",
-    "format:check": "prettier --check \"packages/**/*.ts\" \"*.json\" \"*.config.*\""
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
-    "@vitest/coverage-v8": "^1.6.1",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.8.1",
-    "typescript": "^5.3.3",
-    "vitest": "^1.2.0"
+    "build": "mkdir -p .claude-plugin/bin && go build -o .claude-plugin/bin/autology ./cmd/autology",
+    "test": "go test ./internal/...",
+    "test:coverage": "go test -coverprofile=coverage.out ./internal/... && go tool cover -func=coverage.out",
+    "clean": "rm -f .claude-plugin/bin/autology coverage.out",
+    "install": "go mod download"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "go": ">=1.23"
   }
 }
