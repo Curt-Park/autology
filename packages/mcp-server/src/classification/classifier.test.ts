@@ -145,11 +145,7 @@ describe('reclassify', () => {
   });
 
   it('should not suggest reclassification with same type even if confident', () => {
-    const result = reclassify(
-      'decision',
-      'Decision Choice',
-      'We decided to select this option',
-    );
+    const result = reclassify('decision', 'Decision Choice', 'We decided to select this option');
 
     expect(result).toBeNull();
   });

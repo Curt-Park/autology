@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  classifyNodeType,
-  isConfidentClassification,
-  suggestAlternatives,
-} from './heuristics.js';
+import { classifyNodeType, isConfidentClassification, suggestAlternatives } from './heuristics.js';
 
 describe('classifyNodeType', () => {
   it('should classify decision node', () => {

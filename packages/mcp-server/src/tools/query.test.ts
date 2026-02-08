@@ -89,9 +89,7 @@ describe('query tool', () => {
           tags: ['architecture', 'database'],
           confidence: 0.9,
           status: 'active',
-          relations: [
-            { type: 'affects', target: 'node-2-12345678', confidence: 0.8 },
-          ],
+          relations: [{ type: 'affects', target: 'node-2-12345678', confidence: 0.8 }],
         }),
         score: 0.95,
       },

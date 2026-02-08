@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-  scoreNodesForContext,
-  groupByRelevance,
-  formatContextResults,
-} from './context-builder.js';
+import { scoreNodesForContext, groupByRelevance, formatContextResults } from './context-builder.js';
 import { createKnowledgeNode } from '../storage/types.js';
 import type { ContextSignals } from './context-builder.js';
 
@@ -185,9 +181,9 @@ describe('scoreNodesForContext', () => {
     const supersededScore = scored.find((s) => s.node.id === 'superseded-12345678')!.score;
 
     expect(activeScore).toBeGreaterThan(supersededScore);
-    expect(
-      scored.find((s) => s.node.status === 'superseded')!.reasons,
-    ).toContain('Superseded (low priority)');
+    expect(scored.find((s) => s.node.status === 'superseded')!.reasons).toContain(
+      'Superseded (low priority)',
+    );
   });
 
   it('should boost well-connected nodes', () => {
@@ -220,9 +216,9 @@ describe('scoreNodesForContext', () => {
 
     expect(connectedScore).toBeGreaterThan(isolatedScore);
     expect(
-      scored.find((s) => s.node.id === 'connected-12345678')!.reasons.some((r) =>
-        r.includes('Well-connected'),
-      ),
+      scored
+        .find((s) => s.node.id === 'connected-12345678')!
+        .reasons.some((r) => r.includes('Well-connected')),
     ).toBe(true);
   });
 
@@ -248,9 +244,21 @@ describe('scoreNodesForContext', () => {
 describe('groupByRelevance', () => {
   it('should group nodes into high/medium/low tiers', () => {
     const nodes = [
-      { node: createKnowledgeNode({ id: '1', type: 'decision', title: 'A', content: 'C' }), score: 1.5, reasons: [] },
-      { node: createKnowledgeNode({ id: '2', type: 'decision', title: 'B', content: 'C' }), score: 0.8, reasons: [] },
-      { node: createKnowledgeNode({ id: '3', type: 'decision', title: 'C', content: 'C' }), score: 0.3, reasons: [] },
+      {
+        node: createKnowledgeNode({ id: '1', type: 'decision', title: 'A', content: 'C' }),
+        score: 1.5,
+        reasons: [],
+      },
+      {
+        node: createKnowledgeNode({ id: '2', type: 'decision', title: 'B', content: 'C' }),
+        score: 0.8,
+        reasons: [],
+      },
+      {
+        node: createKnowledgeNode({ id: '3', type: 'decision', title: 'C', content: 'C' }),
+        score: 0.3,
+        reasons: [],
+      },
     ];
 
     const grouped = groupByRelevance(nodes);
@@ -275,8 +283,16 @@ describe('groupByRelevance', () => {
 
   it('should handle all nodes in same tier', () => {
     const nodes = [
-      { node: createKnowledgeNode({ id: '1', type: 'decision', title: 'A', content: 'C' }), score: 1.2, reasons: [] },
-      { node: createKnowledgeNode({ id: '2', type: 'decision', title: 'B', content: 'C' }), score: 1.5, reasons: [] },
+      {
+        node: createKnowledgeNode({ id: '1', type: 'decision', title: 'A', content: 'C' }),
+        score: 1.2,
+        reasons: [],
+      },
+      {
+        node: createKnowledgeNode({ id: '2', type: 'decision', title: 'B', content: 'C' }),
+        score: 1.5,
+        reasons: [],
+      },
     ];
 
     const grouped = groupByRelevance(nodes);

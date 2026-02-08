@@ -91,9 +91,7 @@ describe('context tool', () => {
     });
 
     vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([]);
-    vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([
-      { node: taskNode, score: 0.9 },
-    ]);
+    vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([{ node: taskNode, score: 0.9 }]);
     vi.mocked(mockNodeStore.listNodes).mockResolvedValue([]);
 
     const result = await handleContext(
@@ -141,12 +139,8 @@ describe('context tool', () => {
       content: 'Content',
     });
 
-    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([
-      { node, score: 1.0 },
-    ]);
-    vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([
-      { node, score: 0.8 },
-    ]);
+    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([{ node, score: 1.0 }]);
+    vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([{ node, score: 0.8 }]);
     vi.mocked(mockNodeStore.listNodes).mockResolvedValue([]);
 
     const result = await handleContext(
@@ -172,12 +166,8 @@ describe('context tool', () => {
       content: 'Content',
     });
 
-    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([
-      { node, score: 1.0 },
-    ]);
-    vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([
-      { node, score: 0.5 },
-    ]);
+    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([{ node, score: 1.0 }]);
+    vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([{ node, score: 0.5 }]);
     vi.mocked(mockNodeStore.listNodes).mockResolvedValue([]);
 
     const result = await handleContext(
@@ -239,9 +229,7 @@ describe('context tool', () => {
       content: 'Content',
     });
 
-    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([
-      { node, score: 1.0 },
-    ]);
+    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([{ node, score: 1.0 }]);
     vi.mocked(mockSearchEngine.fullTextSearch).mockResolvedValue([]);
     vi.mocked(mockNodeStore.listNodes).mockResolvedValue([]);
 
@@ -267,14 +255,10 @@ describe('context tool', () => {
       content: 'This is the full content of the test decision',
       tags: ['test', 'example'],
       references: ['src/file1.ts', 'src/file2.ts'],
-      relations: [
-        { type: 'affects', target: 'other-12345678', confidence: 0.9 },
-      ],
+      relations: [{ type: 'affects', target: 'other-12345678', confidence: 0.9 }],
     });
 
-    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([
-      { node, score: 1.0 },
-    ]);
+    vi.mocked(mockSearchEngine.findByFileReference).mockResolvedValue([{ node, score: 1.0 }]);
     vi.mocked(mockNodeStore.listNodes).mockResolvedValue([]);
 
     const result = await handleContext(

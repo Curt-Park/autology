@@ -83,7 +83,13 @@ describe('GraphIndexStore', () => {
 
   describe('addRelation', () => {
     it('should add new relation to index', async () => {
-      await store.addRelation('node-a-12345678', 'node-b-12345678', 'affects', 'Test relation', 0.9);
+      await store.addRelation(
+        'node-a-12345678',
+        'node-b-12345678',
+        'affects',
+        'Test relation',
+        0.9,
+      );
 
       const index = store.getIndex();
       expect(index.relations).toHaveLength(1);
