@@ -9,16 +9,16 @@
 │  Hooks          │  Skills        │  Agents              │
 │  - SessionStart │  /tutorial     │  autology-explorer   │
 │  - PostToolUse  │  /capture      │                      │
-│  - Stop         │  /explore      │                      │
+│  - SessionEnd   │  /explore      │                      │
 ├─────────────────────────────────────────────────────────┤
-│                    MCP Server                           │
-│  6 Tools: capture, query, relate, context, status, delete │
+│              MCP Server (Go Implementation)             │
+│        3 Tools: capture, query, status                  │
 ├─────────────────────────────────────────────────────────┤
 │                 Storage Layer                           │
 │  • NodeStore (CRUD)                                     │
 │  • GraphIndex (relationships)                           │
 │  • SearchEngine (query)                                 │
-│  • MarkdownSerializer (Obsidian-compatible)             │
+│  • Markdown Serialization (Obsidian-compatible)         │
 └─────────────────────────────────────────────────────────┘
                             ↓
                     .autology/nodes/
@@ -59,123 +59,122 @@
 
 ### Node Schema
 
-```typescript
-{
-  id: string                    // UUID v4
-  type: NodeType                // One of 7 types
-  title: string                 // < 100 chars
-  content: string               // Markdown
-  tags: string[]                // Categorization
-  relations: Relation[]         // Typed edges
-  confidence: number            // 0.0-1.0
-  created: string               // ISO 8601
-  modified: string              // ISO 8601
-  session?: string              // Session ID
-  source: 'manual' | 'hook_*'   // Origin
-  references: string[]          // File paths
-  status: NodeStatus            // active/needs_review/superseded
+```go
+type KnowledgeNode struct {
+    ID          string       // UUID v4
+    Type        NodeType     // One of 7 types
+    Title       string       // < 100 chars
+    Content     string       // Markdown
+    Tags        []string     // Categorization
+    Relations   []Relation   // Typed edges
+    Confidence  float64      // 0.0-1.0
+    Created     time.Time    // ISO 8601
+    Modified    time.Time    // ISO 8601
+    Session     string       // Session ID (optional)
+    Source      string       // "manual" or "hook_*"
+    References  []string     // File paths
+    Status      NodeStatus   // active/needs_review/superseded
 }
 ```
 
-## MCP Tools
+## MCP Tools (Go Implementation)
 
 ### `autology_capture`
-**Purpose**: Create a knowledge node
+**Purpose**: Create a knowledge node with automatic classification
 
 **Input**:
-```typescript
+```json
 {
-  title: string
-  content: string
-  type: NodeType
-  tags?: string[]
-  confidence?: number           // default: 0.8
-  references?: string[]
-  relatedTo?: string[]          // Node IDs for relates_to edges
+  "title": "string (required)",
+  "content": "string (required, markdown format)",
+  "type": "string (optional, one of: decision, component, convention, concept, pattern, issue, session)",
+  "tags": ["string"] (optional, array of tags)
 }
 ```
 
-**Output**: Node ID
+**Output**:
+```json
+{
+  "id": "uuid-v4",
+  "type": "classified-type",
+  "confidence": 0.8
+}
+```
 
 **Behavior**:
+- If `type` is provided, uses it directly
+- If `type` is omitted, automatically classifies based on title and content using heuristic patterns
 - Validates all fields
 - Generates UUID v4 ID
 - Stores as markdown in `.autology/nodes/{type}s/{id}.md`
 - Updates graph index
-- Returns node ID
+- Returns node ID and classification info
 
 ### `autology_query`
-**Purpose**: Search nodes
+**Purpose**: Search knowledge nodes with filtering and ranking
 
 **Input**:
-```typescript
+```json
 {
-  type?: NodeType
-  tags?: string[]
-  status?: NodeStatus
-  minConfidence?: number
-  relatedTo?: string            // Node ID
-  query?: string                // Full-text search
+  "query": "string (optional, full-text search)",
+  "type": "string (optional, filter by node type)",
+  "tags": ["string"] (optional, filter by tags - all must match),
+  "limit": 10 (optional, default: 10, maximum results)
 }
 ```
 
-**Output**: Array of matching nodes
-
-### `autology_relate`
-**Purpose**: Connect two nodes
-
-**Input**:
-```typescript
-{
-  source: string                // Node ID
-  target: string                // Node ID
-  type: RelationType
-  description?: string
-  bidirectional?: boolean       // default: false
-}
+**Output**: Array of matching nodes with scores
+```json
+[
+  {
+    "node": { /* KnowledgeNode object */ },
+    "score": 0.85
+  }
+]
 ```
 
-**Output**: Success confirmation
-
-### `autology_context`
-**Purpose**: Get context-aware recommendations
-
-**Input**:
-```typescript
-{
-  currentTask: string
-  recentFiles?: string[]
-  maxResults?: number           // default: 10
-}
-```
-
-**Output**: Ranked array of relevant nodes
+**Behavior**:
+- Performs full-text search if `query` is provided
+- Filters by type and tags if specified
+- Ranks results by relevance score
+- Returns up to `limit` results
 
 ### `autology_status`
-**Purpose**: Get ontology statistics
+**Purpose**: Get knowledge graph statistics
 
-**Input**:
-```typescript
+**Input**: None (empty object `{}`)
+
+**Output**: Statistics summary
+```json
 {
-  detail?: 'summary' | 'full'   // default: 'summary'
+  "totalNodes": 42,
+  "nodesByType": {
+    "decision": 10,
+    "component": 8,
+    "convention": 5,
+    "concept": 12,
+    "pattern": 4,
+    "issue": 2,
+    "session": 1
+  },
+  "totalRelations": 67,
+  "relationsByType": {
+    "affects": 15,
+    "uses": 20,
+    "supersedes": 3,
+    "relates_to": 18,
+    "implements": 6,
+    "depends_on": 4,
+    "derived_from": 1
+  }
 }
 ```
 
-**Output**: Node counts, relation counts, statistics by type/status
-
-### `autology_delete`
-**Purpose**: Remove a node
-
-**Input**:
-```typescript
-{
-  nodeId: string
-}
-```
-
-**Output**: Success confirmation
-
-**Behavior**: Deletes markdown file and removes from graph index
+**Behavior**:
+- Scans all nodes in storage
+- Counts nodes by type and status
+- Counts relations by type
+- Returns comprehensive statistics
 
 ## Hooks
 

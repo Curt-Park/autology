@@ -21,9 +21,14 @@
   "agents": "agents",
   "mcpServers": {
     "autology": {
-      "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/packages/mcp-server/dist/index.js"]
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/autology",
+      "env": {
+        "AUTOLOGY_ROOT": ".autology"
+      }
     }
+  },
+  "install": {
+    "postInstall": "hooks/install.sh"
   },
   "engines": {
     "claude-code": ">=1.0.0"

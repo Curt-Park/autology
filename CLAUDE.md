@@ -4,11 +4,12 @@
 
 **Documentation and code must always be synchronized.**
 
-### Three Documentation Levels
+### Four Documentation Levels
 
 1. **`docs/PHILOSOPHY.md`** - Why we exist
 2. **`docs/SPEC.md`** - What we implement
 3. **`docs/GUIDE.md`** - How users interact
+4. **`docs/MCP.md`** - How it works internally
 
 ### When to Update `docs/PHILOSOPHY.md`
 
@@ -35,6 +36,16 @@
 - Hook triggers changed
 - MCP tool usage changed
 - Workflow examples changed
+
+### When to Update `docs/MCP.md`
+
+**Must update**:
+- Search/ranking algorithm changed
+- Classification patterns/rules changed
+- Relation inference logic changed
+- Storage implementation changed
+- Performance characteristics changed
+- Internal data flow changed
 
 **Don't update (any doc)**:
 - Internal refactoring (same behavior)

@@ -79,96 +79,90 @@ Autology provides three interaction modes:
 
 ### `autology_capture`
 
-Create a knowledge node.
+Create a knowledge node with automatic classification.
 
-```typescript
+```json
 {
-  title: string
-  content: string
-  type: 'decision' | 'component' | 'convention' | 'concept' | 'pattern' | 'issue' | 'session'
-  tags?: string[]
-  confidence?: number        // 0.0-1.0, default 0.8
-  references?: string[]      // File paths
-  relatedTo?: string[]       // Node IDs
+  "title": "Decision Title (required)",
+  "content": "Markdown content (required)",
+  "type": "decision|component|convention|concept|pattern|issue|session (optional)",
+  "tags": ["tag1", "tag2"] (optional)
 }
 ```
 
-**Returns**: Node ID
+**Behavior**:
+- If `type` is omitted, automatically classifies based on content
+- Validates all fields and generates UUID v4 ID
+- Stores as markdown in `.autology/nodes/{type}s/{id}.md`
+
+**Returns**:
+```json
+{
+  "id": "uuid-v4",
+  "type": "classified-type",
+  "confidence": 0.8
+}
+```
+
+**Example**:
+```json
+{
+  "title": "Use JWT for authentication",
+  "content": "## Context\n...\n## Decision\n...",
+  "tags": ["auth", "security"]
+}
+```
 
 ---
 
 ### `autology_query`
 
-Search knowledge nodes.
+Search knowledge nodes with filtering and ranking.
 
-```typescript
+```json
 {
-  type?: NodeType
-  tags?: string[]
-  status?: 'active' | 'needs_review' | 'superseded'
-  minConfidence?: number
-  relatedTo?: string         // Node ID
-  query?: string             // Full-text search
+  "query": "search text (optional)",
+  "type": "decision|component|convention|concept|pattern|issue|session (optional)",
+  "tags": ["tag1", "tag2"] (optional, all must match),
+  "limit": 10 (optional, default: 10)
 }
 ```
 
-**Returns**: Array of matching nodes
+**Returns**: Array of matching nodes with relevance scores
 
----
-
-### `autology_relate`
-
-Connect two nodes.
-
-```typescript
+**Example**:
+```json
 {
-  source: string             // Node ID
-  target: string             // Node ID
-  type: 'affects' | 'uses' | 'supersedes' | 'relates_to' | 'implements' | 'depends_on' | 'derived_from'
-  description?: string
-  bidirectional?: boolean    // default: false
+  "query": "authentication",
+  "type": "decision",
+  "limit": 5
 }
 ```
-
----
-
-### `autology_context`
-
-Get context-aware recommendations.
-
-```typescript
-{
-  currentTask: string
-  recentFiles?: string[]
-  maxResults?: number        // default: 10
-}
-```
-
-**Returns**: Ranked array of relevant nodes
 
 ---
 
 ### `autology_status`
 
-View ontology statistics.
+Get knowledge graph statistics.
 
-```typescript
+**Input**: None (empty object)
+
+**Returns**: Comprehensive statistics including node counts by type, relation counts by type, and total counts
+
+**Example Output**:
+```json
 {
-  detail?: 'summary' | 'full'  // default: 'summary'
-}
-```
-
-**Returns**: Node counts, relation counts, statistics
-
----
-
-### `autology_delete`
-
-Remove a node.
-
-```typescript
-{
-  nodeId: string
+  "totalNodes": 42,
+  "nodesByType": {
+    "decision": 10,
+    "component": 8,
+    ...
+  },
+  "totalRelations": 67,
+  "relationsByType": {
+    "affects": 15,
+    ...
+  }
 }
 ```
 
@@ -339,4 +333,4 @@ Open `.autology/nodes/` as Obsidian vault for:
 - Use graph view in Obsidian
 - Follow wiki links between nodes
 - Search by tags for themes
-- Use `autology_context` when stuck
+- Use `autology_query` for full-text search
