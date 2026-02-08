@@ -1,6 +1,6 @@
 {
   "name": "autology",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge",
   "author": {
     "name": "Autology Contributors"
@@ -16,8 +16,12 @@
     "learning",
     "transparency"
   ],
-  "skills": ["./skills/"],
-  "agents": ["./agents/autology-explorer.md"],
+  "skills": [
+    "./skills/"
+  ],
+  "agents": [
+    "./agents/autology-explorer.md"
+  ],
   "mcpServers": {
     "autology": {
       "command": "${CLAUDE_PLUGIN_ROOT}/bin/autology",
