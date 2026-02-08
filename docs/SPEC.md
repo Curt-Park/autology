@@ -209,12 +209,14 @@ type KnowledgeNode struct {
 **Trigger**: Claude Code session terminates
 
 **Behavior**:
-1. Summarize session activities
-2. Suggest: "Capture session summary?"
-3. If approved, create session node with:
+1. Display reminder message to user
+2. Suggest resuming session with `claude -r` and running `/autology:capture`
+3. User can manually create session node with:
    - Files modified
    - Decisions made
    - Issues encountered
+
+**Note**: SessionEnd hooks can only use `type: "command"`, not `type: "prompt"`. They cannot block session termination or interactively prompt the user.
 
 ## Skills
 

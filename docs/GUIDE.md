@@ -207,9 +207,11 @@ Get knowledge graph statistics.
 **Trigger**: Claude Code session terminates
 
 **Behavior**:
-- Summarizes session activities
-- Suggests: "Capture session summary?"
-- Creates session node with files modified, decisions made, issues encountered
+- Displays reminder tip to user
+- Suggests resuming with `claude -r` and running `/autology:capture`
+- User can manually create session node with files modified, decisions made, issues encountered
+
+**Note**: This hook only provides a reminder and cannot interactively prompt for capture. To capture before exiting, use `/autology:capture` manually before `/exit`.
 
 ## Node Types
 
