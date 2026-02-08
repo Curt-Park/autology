@@ -1,0 +1,21 @@
+name: Check PR title
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  title-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: deepakputhraya/action-pr-title@master
+        with:
+          regex: '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: (.+)'
+          allowed_prefixes: 'feat,fix,docs,style,refactor,perf,test,build,ci,chore,revert'
+          disallowed_prefixes: ''
+          prefix_case_sensitive: false
+          min_length: 10
+          max_length: 72
+          verbal_description: 'Conventional Commit message compatible with release-please (e.g., "feat: Add new feature", "fix: Fix bug")'
+          github_token: ${{ github.token }}

@@ -1,136 +1,96 @@
-# autology
+# Autology
 
-**Living Ontology Plugin for Claude Code**
+**Living Ontology for Claude Code**
 
-autology captures and reuses knowledge from AI coding sessions, creating a bidirectional knowledge loop that makes AI-assisted development more transparent and effective.
+## The Crisis
 
-## Problem
+AI agents boost productivity but create a paradox:
 
-AI coding agents boost productivity but reduce knowledge transparency and developer capability. Code gets written without understanding, decisions happen without documentation, and organizational knowledge doesn't accumulate.
+```
+Productivity ↑ + Transparency ↓ + Knowledge Accumulation ↓ = Crisis of Understanding
+```
 
-## Solution
+Developers don't fully understand AI-generated code. Teams can't track what's actually happening. Organizations repeat mistakes. Skills atrophy.
 
-autology automatically captures:
-- **Decisions**: Architectural choices and design decisions
-- **Components**: Code structure and module relationships
-- **Conventions**: Coding standards and patterns
-- **Concepts**: Domain knowledge and business logic
-- **Issues**: Known problems and technical debt
+## The Goal
 
-And makes them available:
-- **Automatically** via hooks (file changes, commits, session start)
-- **Explicitly** via skills (`/autology:capture`, `/autology:explore`)
-- **Visually** in Obsidian (graph view, wiki links)
+**Maintain AI productivity while expanding, not contracting, human understanding.**
+
+Not "code faster"—but "understand deeper while coding faster."
+
+## How It Works
+
+Autology captures the "why" behind decisions and feeds it back into future sessions:
+
+```
+Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → Future Sessions
+                                     ↑                                           ↓
+                                     └────────────── Learning Loop ───────────────┘
+```
+
+**Three interaction modes**:
+1. **Automatic**: Hooks capture as you work (file changes, commits, sessions)
+2. **Interactive**: Skills for explicit capture (`/autology:capture`, `/autology:explore`, `/autology:tutorial`)
+3. **Programmatic**: MCP tools for automation (`autology_capture`, `autology_query`, `autology_relate`, etc.)
+
+**Knowledge types** (7): decisions (ADR format), components, conventions, concepts, patterns, issues, sessions
+
+**Relationships** (7): `affects`, `uses`, `supersedes`, `relates_to`, `implements`, `depends_on`, `derived_from`
+
+**Storage**: Obsidian-compatible markdown in `.autology/nodes/`
+
+## Example
+
+**Without Autology**:
+```
+Dev: "Claude, add authentication"
+→ Code appears
+→ Dev: "Looks good" (doesn't understand JWT)
+→ Next dev: "Why JWT?" (no answer)
+```
+
+**With Autology**:
+```
+Dev: "Claude, add authentication"
+→ Code appears
+→ Hook: "Capture decision?"
+→ ADR: Context (stateless for microservices), Decision (JWT RS256),
+       Alternatives (sessions, OAuth), Consequences (complexity vs scaling)
+→ Next dev: /autology:explore authentication
+→ Sees reasoning, builds on knowledge
+```
 
 ## Installation
 
-```bash
-# From your project directory
-git clone <autology-repo> .autology-plugin
-cd .autology-plugin
-npm install
-npm run build
+### Claude Code
 
-# Load the plugin
-claude --plugin-dir .autology-plugin
+```bash
+/plugin marketplace add Curt-Park/autology
+/plugin install autology@autology
 ```
 
-## Usage
-
-### Automatic Capture
-
-Knowledge is automatically captured when:
-- You edit files (meaningful changes detected)
-- You make git commits (decisions recorded)
-- You start new sessions (previous knowledge injected)
-
-### Manual Capture
+## Quick Start
 
 ```bash
-# Capture a decision
-/autology:capture "We chose JWT for auth because it's stateless"
+# Learn the model
+/autology:tutorial
 
-# Explore the ontology
-/autology:explore
+# Capture a decision
+/autology:capture "We chose PostgreSQL for ACID guarantees"
+
+# Explore
 /autology:explore decisions
 ```
 
-### Browse in Obsidian
+## Philosophy
 
-Open `.autology/` as an Obsidian vault to:
-- Visualize knowledge graph
-- Follow wiki-style links
-- Search and filter nodes
-- See relationships
+When AI writes code, humans should **understand more, not less**.
 
-## Project Structure
+When productivity increases, knowledge should **compound, not evaporate**.
 
-```
-autology/
-├── packages/mcp-server/     # MCP server (storage + tools)
-├── hooks/                   # Auto-capture hooks
-├── skills/                  # User-facing skills
-├── agents/                  # Specialized agents
-└── docs/                    # Documentation
-```
+When decisions are made, reasoning should be **transparent, not opaque**.
 
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Build
-npm run build
-
-# Test
-npm run test
-
-# Test with coverage
-npm run test:coverage
-```
-
-## Status
-
-**Phase 1: ✅ Complete** - Storage layer with Obsidian-compatible markdown
-- Core types and validation
-- Markdown serialization
-- Node CRUD operations
-- Graph index
-- Search engine
-- 80%+ test coverage
-
-**Phase 2: ✅ Complete** - MCP server and tools
-- 5 MCP tools (capture, query, relate, status, context)
-- Zod validation
-- Proper error handling
-- Clean TypeScript compilation
-
-**Phase 3: ✅ Complete** - Hooks for automatic capture
-- PostToolUse(Write/Edit) hook with debouncing and staleness detection
-- PostToolUse(Bash) hook for git commit detection
-- SessionStart hook for knowledge injection (Read loop)
-- Stop hook for session summaries
-- Comprehensive test suite
-
-**Phase 4: ✅ Complete** - Skills for explicit interaction
-- `/autology:capture` skill with ADR guidance
-- `/autology:explore` skill for natural language queries
-- autology-explorer agent for deep analysis
-
-**Phase 5: ✅ Complete** - Auto-classification and full validation
-- Heuristic classifier with 7 node types
-- Automatic relation inference
-- Context-aware relevance scoring
-- End-to-end knowledge cycle validated
-
-## 🎯 MVP Complete!
-
-The bidirectional knowledge loop is fully functional:
-✅ **Write**: Hooks automatically capture knowledge
-✅ **Browse**: Obsidian-compatible markdown with wiki links
-✅ **Read**: SessionStart hook injects relevant knowledge
-✅ **Test Coverage**: 80%+ with all tests passing
+Autology ensures AI serves human intelligence, not replaces it.
 
 ## License
 

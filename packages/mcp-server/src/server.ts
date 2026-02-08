@@ -8,6 +8,7 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import { createRequire } from 'node:module';
 import { join } from 'path';
 import { NodeStore } from './storage/node-store.js';
 import { GraphIndexStore } from './storage/graph-index.js';
@@ -18,6 +19,9 @@ import { registerQueryTool } from './tools/query.js';
 import { registerRelateTool } from './tools/relate.js';
 import { registerStatusTool } from './tools/status.js';
 import { registerContextTool } from './tools/context.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json') as { readonly version: string };
 
 export class Server {
   private mcpServer: McpServer;
@@ -31,7 +35,7 @@ export class Server {
     this.mcpServer = new McpServer(
       {
         name: 'autology',
-        version: '0.1.0',
+        version: pkg.version,
       },
       {
         capabilities: {
