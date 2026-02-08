@@ -16,9 +16,8 @@
     "learning",
     "transparency"
   ],
-  "hooks": "hooks/hooks.json",
-  "skills": "skills",
-  "agents": "agents",
+  "skills": ["./skills/"],
+  "agents": ["./agents/autology-explorer.md"],
   "mcpServers": {
     "autology": {
       "command": "${CLAUDE_PLUGIN_ROOT}/bin/autology",
