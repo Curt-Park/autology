@@ -76,3 +76,59 @@ func TestKnowledgeNodeFields(t *testing.T) {
 		t.Errorf("expected Type = decision, got %s", node.Type)
 	}
 }
+
+func TestCreateKnowledgeNode(t *testing.T) {
+	node := CreateKnowledgeNode(
+		"test-id",
+		NodeTypeDecision,
+		"Test Title",
+		"Test content",
+	)
+
+	if node.ID != "test-id" {
+		t.Errorf("expected ID = test-id, got %s", node.ID)
+	}
+	if node.Type != NodeTypeDecision {
+		t.Errorf("expected Type = decision, got %s", node.Type)
+	}
+	if node.Title != "Test Title" {
+		t.Errorf("expected Title = Test Title, got %s", node.Title)
+	}
+	if node.Confidence != 0.8 {
+		t.Errorf("expected Confidence = 0.8, got %f", node.Confidence)
+	}
+	if node.Source != "manual" {
+		t.Errorf("expected Source = manual, got %s", node.Source)
+	}
+	if node.Status != NodeStatusActive {
+		t.Errorf("expected Status = active, got %s", node.Status)
+	}
+	if len(node.Tags) != 0 {
+		t.Errorf("expected empty Tags, got %d", len(node.Tags))
+	}
+	if len(node.Relations) != 0 {
+		t.Errorf("expected empty Relations, got %d", len(node.Relations))
+	}
+}
+
+func TestUpdateKnowledgeNode(t *testing.T) {
+	original := CreateKnowledgeNode("id", NodeTypeDecision, "Title", "Content")
+
+	updated := UpdateKnowledgeNode(original, map[string]interface{}{
+		"title": "New Title",
+		"tags":  []string{"new-tag"},
+	})
+
+	if updated.ID != original.ID {
+		t.Errorf("ID should be preserved")
+	}
+	if updated.Created != original.Created {
+		t.Errorf("Created should be preserved")
+	}
+	if updated.Title != "New Title" {
+		t.Errorf("expected Title = New Title, got %s", updated.Title)
+	}
+	if updated.Modified == original.Modified {
+		t.Errorf("Modified timestamp should be updated")
+	}
+}

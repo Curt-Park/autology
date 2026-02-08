@@ -90,3 +90,46 @@ type KnowledgeNode struct {
 	References []string   `json:"references" yaml:"references"`
 	Status     NodeStatus `json:"status" yaml:"status"`
 }
+
+// CreateKnowledgeNode creates a new node with default values
+func CreateKnowledgeNode(id string, nodeType NodeType, title, content string) KnowledgeNode {
+	now := time.Now()
+	return KnowledgeNode{
+		ID:         id,
+		Type:       nodeType,
+		Title:      title,
+		Content:    content,
+		Tags:       []string{},
+		Relations:  []Relation{},
+		Confidence: 0.8,
+		Created:    now,
+		Modified:   now,
+		Source:     "manual",
+		References: []string{},
+		Status:     NodeStatusActive,
+	}
+}
+
+// UpdateKnowledgeNode creates a new node with updated fields (immutable pattern)
+func UpdateKnowledgeNode(node KnowledgeNode, updates map[string]interface{}) KnowledgeNode {
+	updated := node
+	updated.Modified = time.Now()
+
+	if title, ok := updates["title"].(string); ok {
+		updated.Title = title
+	}
+	if content, ok := updates["content"].(string); ok {
+		updated.Content = content
+	}
+	if tags, ok := updates["tags"].([]string); ok {
+		updated.Tags = tags
+	}
+	if status, ok := updates["status"].(NodeStatus); ok {
+		updated.Status = status
+	}
+	if confidence, ok := updates["confidence"].(float64); ok {
+		updated.Confidence = confidence
+	}
+
+	return updated
+}
