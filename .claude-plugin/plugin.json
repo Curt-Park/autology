@@ -1,0 +1,13 @@
+{
+  "name": "autology",
+  "version": "0.1.0",
+  "description": "Living Ontology Plugin for Claude Code - Captures and reuses knowledge from AI coding sessions",
+  "author": "autology contributors",
+  "main": "packages/mcp-server/dist/index.js",
+  "hooks": "hooks/hooks.json",
+  "skills": "skills",
+  "agents": "agents",
+  "engines": {
+    "claude-code": ">=1.0.0"
+  }
+}
