@@ -11,7 +11,7 @@
     "test": "npm run test --workspaces",
     "dev": "npm run dev --workspace=@autology/mcp-server",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
     "format": "prettier --write \"packages/**/*.ts\" \"*.json\" \"*.config.*\"",
     "format:check": "prettier --check \"packages/**/*.ts\" \"*.json\" \"*.config.*\""
   },
