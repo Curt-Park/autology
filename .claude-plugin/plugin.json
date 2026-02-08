@@ -25,11 +25,5 @@
         "AUTOLOGY_ROOT": ".autology"
       }
     }
-  },
-  "install": {
-    "postInstall": "hooks/install.sh"
-  },
-  "engines": {
-    "claude-code": ">=1.0.0"
   }
 }
