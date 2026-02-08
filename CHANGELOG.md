@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/Curt-Park/autology/compare/autology-v0.3.0...autology-v0.3.1) (2026-02-08)
+
+
+### Bug Fixes
+
+* change Stop hook to SessionEnd for correct timing ([#12](https://github.com/Curt-Park/autology/issues/12)) ([16f1923](https://github.com/Curt-Park/autology/commit/16f19234598190d2ad7b5149726568ef56ca1ff1))
+
 ## [0.3.0](https://github.com/Curt-Park/autology/compare/autology-v0.2.0...autology-v0.3.0) (2026-02-08)
 
 
