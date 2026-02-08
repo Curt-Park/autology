@@ -205,8 +205,8 @@ type KnowledgeNode struct {
 2. Suggest: "Save commit as session node?"
 3. If approved, create session node with commit details
 
-### Stop
-**Trigger**: Claude Code session ends
+### SessionEnd
+**Trigger**: Claude Code session terminates
 
 **Behavior**:
 1. Summarize session activities

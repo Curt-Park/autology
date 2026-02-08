@@ -202,9 +202,9 @@ Get knowledge graph statistics.
 
 ---
 
-### Stop
+### SessionEnd
 
-**Trigger**: Claude Code session ends
+**Trigger**: Claude Code session terminates
 
 **Behavior**:
 - Summarizes session activities
@@ -308,7 +308,7 @@ Open `.autology/nodes/` as Obsidian vault for:
    → Approve: Session saved
 
 3. Session ends
-   → Stop hook: "Capture session summary?"
+   → SessionEnd hook: "Capture session summary?"
    → Approve: Summary saved with links to created nodes
 ```
 
