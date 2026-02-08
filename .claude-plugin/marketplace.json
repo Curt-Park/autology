@@ -1,0 +1,34 @@
+{
+  "name": "autology",
+  "owner": {
+    "name": "Autology Contributors",
+    "email": "curt.park@navercorp.com"
+  },
+  "metadata": {
+    "description": "Official Autology marketplace - Living Ontology for preserving human understanding in AI-driven development",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "autology",
+      "source": ".",
+      "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge",
+      "version": "0.1.0",
+      "author": {
+        "name": "Autology Contributors"
+      },
+      "homepage": "https://github.com/Curt-Park/autology",
+      "repository": "https://github.com/Curt-Park/autology",
+      "license": "MIT",
+      "keywords": [
+        "knowledge-management",
+        "ontology",
+        "adr",
+        "documentation",
+        "learning",
+        "transparency"
+      ],
+      "category": "productivity"
+    }
+  ]
+}

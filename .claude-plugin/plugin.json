@@ -1,12 +1,30 @@
 {
   "name": "autology",
   "version": "0.1.0",
-  "description": "Living Ontology Plugin for Claude Code - Captures and reuses knowledge from AI coding sessions",
-  "author": "autology contributors",
-  "main": "packages/mcp-server/dist/index.js",
+  "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge",
+  "author": {
+    "name": "Autology Contributors"
+  },
+  "homepage": "https://github.com/Curt-Park/autology",
+  "repository": "https://github.com/Curt-Park/autology",
+  "license": "MIT",
+  "keywords": [
+    "knowledge-management",
+    "ontology",
+    "adr",
+    "documentation",
+    "learning",
+    "transparency"
+  ],
   "hooks": "hooks/hooks.json",
   "skills": "skills",
   "agents": "agents",
+  "mcpServers": {
+    "autology": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/packages/mcp-server/dist/index.js"]
+    }
+  },
   "engines": {
     "claude-code": ">=1.0.0"
   }
