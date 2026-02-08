@@ -91,6 +91,22 @@ type KnowledgeNode struct {
 	Status     NodeStatus `json:"status" yaml:"status"`
 }
 
+// GraphRelation represents a relation in the graph index
+type GraphRelation struct {
+	Source      string       `json:"source"`
+	Target      string       `json:"target"`
+	Type        RelationType `json:"type"`
+	Description string       `json:"description,omitempty"`
+	Confidence  float64      `json:"confidence"`
+}
+
+// GraphIndex stores all relationships between nodes
+type GraphIndex struct {
+	Version     string          `json:"version"`
+	LastUpdated string          `json:"lastUpdated"` // ISO 8601 timestamp
+	Relations   []GraphRelation `json:"relations"`
+}
+
 // CreateKnowledgeNode creates a new node with default values
 func CreateKnowledgeNode(id string, nodeType NodeType, title, content string) KnowledgeNode {
 	now := time.Now()
