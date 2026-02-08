@@ -72,14 +72,6 @@ Dev: "Claude, add authentication"
 
 The plugin will automatically download the correct binary for your platform (macOS, Linux, or Windows).
 
-## Upgrading
-
-To upgrade to the latest version:
-
-```bash
-/plugin upgrade autology@autology
-```
-
 ## Quick Start
 
 ```bash
