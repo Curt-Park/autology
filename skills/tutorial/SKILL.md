@@ -551,8 +551,8 @@ Example:
 - `git commit -m "Add authentication"`
 - → "Save this commit as a session node?"
 
-### 4. **Stop Hook** 🏁
-**When**: When a Claude Code session ends
+### 4. **SessionEnd Hook** 🏁
+**When**: When a Claude Code session terminates
 **Role**: Suggest capturing session summary
 **Effect**: Everything learned in one session is organized and saved
 
@@ -567,7 +567,7 @@ Example:
 
 1. **Capture**
    - Manual: `/autology:capture` or `autology_capture` tool
-   - Automatic: PostToolUse and Stop hooks suggest capture
+   - Automatic: PostToolUse and SessionEnd hooks suggest capture
 
 2. **Connect**
    - Create relations between nodes with `autology_relate`
