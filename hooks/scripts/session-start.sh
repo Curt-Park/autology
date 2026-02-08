@@ -3,6 +3,15 @@
 
 set -euo pipefail
 
+# Check if MCP binary exists, if not, run install script
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  BINARY_PATH="${CLAUDE_PLUGIN_ROOT}/bin/autology"
+  if [ ! -f "$BINARY_PATH" ] && [ -f "${CLAUDE_PLUGIN_ROOT}/hooks/install.sh" ]; then
+    # Binary doesn't exist, run install script
+    bash "${CLAUDE_PLUGIN_ROOT}/hooks/install.sh" >/dev/null 2>&1 || true
+  fi
+fi
+
 # Check if .autology directory exists
 if [ ! -d ".autology" ] || [ ! -d ".autology/nodes" ]; then
   # No ontology exists yet, allow silently
