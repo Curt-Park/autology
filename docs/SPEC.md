@@ -208,13 +208,18 @@ type KnowledgeNode struct {
 ### SessionEnd
 **Trigger**: Claude Code session terminates
 
-**Behavior**:
-1. Summarize session activities
-2. Suggest: "Capture session summary?"
-3. If approved, create session node with:
-   - Files modified
-   - Decisions made
-   - Issues encountered
+**Implementation**:
+- Type: `command` (script execution)
+- Script: `hooks/scripts/session-end.sh`
+- Output: stderr message visible to user
+- Cannot block termination
+- Cannot use `type: "prompt"` or `type: "agent"`
+
+**Technical Constraints**:
+- Runs during session cleanup phase
+- No decision control available
+- No interactive prompts supported
+- Async execution not meaningful (session already ending)
 
 ## Skills
 

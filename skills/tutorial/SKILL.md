@@ -553,12 +553,14 @@ Example:
 
 ### 4. **SessionEnd Hook** 🏁
 **When**: When a Claude Code session terminates
-**Role**: Suggest capturing session summary
-**Effect**: Everything learned in one session is organized and saved
+**Role**: Remind user they can capture session summary
+**Effect**: Provides tip to resume session and capture work
 
 Example:
-- Session ends → "Summarize and save today's work?"
-- → Suggests classification as decision, component, issue, etc.
+- Session ends → Shows tip: "Resume with `claude -r` and run `/autology:capture`"
+- User can then manually capture session summary
+
+**Note**: SessionEnd cannot interactively prompt (only command hooks supported). For automatic capture, use Stop hook or PostToolUse(git commit) hook.
 ```
 
 4. **Knowledge Lifecycle Review**:
@@ -567,7 +569,8 @@ Example:
 
 1. **Capture**
    - Manual: `/autology:capture` or `autology_capture` tool
-   - Automatic: PostToolUse and SessionEnd hooks suggest capture
+   - Automatic: PostToolUse(git commit) hook suggests capture
+   - Reminder: SessionEnd hook reminds to capture after session ends
 
 2. **Connect**
    - Create relations between nodes with `autology_relate`

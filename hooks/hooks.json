@@ -37,8 +37,9 @@
       {
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "If this session involved meaningful code changes or decisions, use autology_capture to save a session summary with type='session'. Include what was accomplished, key decisions made, and any lessons learned. If no significant work was done or you already saved a summary, respond with {\"decision\": \"allow\"}."
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-end.sh",
+            "timeout": 5000
           }
         ]
       }
