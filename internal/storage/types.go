@@ -107,6 +107,22 @@ type GraphIndex struct {
 	Relations   []GraphRelation `json:"relations"`
 }
 
+// NodeFilter defines search criteria for nodes
+type NodeFilter struct {
+	Type          *NodeType   // Filter by node type
+	Tags          []string    // Filter by tags (all must match)
+	Status        *NodeStatus // Filter by status
+	MinConfidence *float64    // Minimum confidence threshold
+	RelatedTo     *string     // Filter by relation to node ID
+	SearchQuery   *string     // Full-text search query
+}
+
+// SearchResult represents a search result with relevance score
+type SearchResult struct {
+	Node  KnowledgeNode
+	Score float64 // Relevance score 0.0 to 1.0
+}
+
 // CreateKnowledgeNode creates a new node with default values
 func CreateKnowledgeNode(id string, nodeType NodeType, title, content string) KnowledgeNode {
 	now := time.Now()

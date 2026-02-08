@@ -172,3 +172,102 @@ func (ns *NodeStore) ListByType(nodeType NodeType) ([]KnowledgeNode, error) {
 
 	return nodes, nil
 }
+
+// ListNodes lists all nodes with optional filtering
+func (ns *NodeStore) ListNodes(filter *NodeFilter) ([]KnowledgeNode, error) {
+	var types []NodeType
+	if filter != nil && filter.Type != nil {
+		types = []NodeType{*filter.Type}
+	} else {
+		types = NodeTypes
+	}
+
+	nodes := make([]KnowledgeNode, 0)
+	for _, nodeType := range types {
+		dir := filepath.Join(ns.rootPath, "nodes", string(nodeType)+"s")
+
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			continue
+		}
+
+		files, err := os.ReadDir(dir)
+		if err != nil {
+			continue
+		}
+
+		for _, file := range files {
+			if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
+				id := strings.TrimSuffix(file.Name(), ".md")
+				node, err := ns.ReadNode(id, nodeType)
+				if err != nil {
+					continue // Skip invalid files
+				}
+
+				if ns.matchesFilter(node, filter) {
+					nodes = append(nodes, node)
+				}
+			}
+		}
+	}
+
+	return nodes, nil
+}
+
+// matchesFilter checks if a node matches the filter criteria
+func (ns *NodeStore) matchesFilter(node KnowledgeNode, filter *NodeFilter) bool {
+	if filter == nil {
+		return true
+	}
+
+	if filter.Type != nil && node.Type != *filter.Type {
+		return false
+	}
+
+	if filter.Status != nil && node.Status != *filter.Status {
+		return false
+	}
+
+	if filter.MinConfidence != nil && node.Confidence < *filter.MinConfidence {
+		return false
+	}
+
+	if len(filter.Tags) > 0 {
+		for _, filterTag := range filter.Tags {
+			found := false
+			for _, nodeTag := range node.Tags {
+				if nodeTag == filterTag {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return false
+			}
+		}
+	}
+
+	if filter.RelatedTo != nil {
+		found := false
+		for _, rel := range node.Relations {
+			if rel.Target == *filter.RelatedTo {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+
+	if filter.SearchQuery != nil {
+		query := strings.ToLower(*filter.SearchQuery)
+		searchableText := strings.ToLower(
+			node.Title + " " + node.Content + " " + strings.Join(node.Tags, " "),
+		)
+		if !strings.Contains(searchableText, query) {
+			return false
+		}
+	}
+
+	return true
+}

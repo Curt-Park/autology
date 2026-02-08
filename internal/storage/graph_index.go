@@ -164,6 +164,26 @@ func (gis *GraphIndexStore) GetNodeRelations(nodeID string) []NodeRelationWithDi
 	return result
 }
 
+// GetRelatedNodes gets all unique node IDs related to a given node (both directions)
+func (gis *GraphIndexStore) GetRelatedNodes(nodeID string) []string {
+	related := make(map[string]bool)
+
+	for _, rel := range gis.index.Relations {
+		if rel.Source == nodeID {
+			related[rel.Target] = true
+		} else if rel.Target == nodeID {
+			related[rel.Source] = true
+		}
+	}
+
+	result := make([]string, 0, len(related))
+	for id := range related {
+		result = append(result, id)
+	}
+
+	return result
+}
+
 // createEmptyIndex creates an empty graph index
 func createEmptyIndex() GraphIndex {
 	return GraphIndex{

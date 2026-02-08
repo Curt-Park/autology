@@ -9,7 +9,7 @@
 │  Hooks          │  Skills        │  Agents              │
 │  - SessionStart │  /tutorial     │  autology-explorer   │
 │  - PostToolUse  │  /capture      │                      │
-│  - Stop         │  /explore      │                      │
+│  - SessionEnd   │  /explore      │                      │
 ├─────────────────────────────────────────────────────────┤
 │                    MCP Server                           │
 │  6 Tools: capture, query, relate, context, status, delete │
