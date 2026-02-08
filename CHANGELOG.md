@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/Curt-Park/autology/compare/autology-v0.3.1...autology-v0.3.2) (2026-02-08)
+
+
+### Bug Fixes
+
+* remove stale .mcp.json referencing non-existent Node.js server ([#15](https://github.com/Curt-Park/autology/issues/15)) ([b385562](https://github.com/Curt-Park/autology/commit/b38556253f612a9230506176b7de2b8d7394d90a))
+
 ## [0.3.1](https://github.com/Curt-Park/autology/compare/autology-v0.3.0...autology-v0.3.1) (2026-02-08)
 
 
