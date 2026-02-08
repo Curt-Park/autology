@@ -62,36 +62,28 @@ Doc change → Update code → Update tests → Verify → Commit all
 ## Verification
 
 ```bash
-npm run build        # Must succeed
-npm run test         # Must pass
+go build -o .claude-plugin/bin/autology ./cmd/autology  # Must succeed
+go test ./internal/...                                   # Must pass
 ```
 
 ## Type System
 
 ### Immutability (CRITICAL)
 
-All data uses `Readonly<>` and `ReadonlyArray<>`. No exceptions.
-
-```typescript
-// CORRECT
-readonly tags: ReadonlyArray<string>
-
-// WRONG - rejected
-tags: string[]
-```
+All data structures must be immutable. Never mutate existing objects.
 
 ### Core Types
 
-Defined in `src/storage/types.ts`:
+Defined in `internal/storage/types.go`:
 - **NODE_TYPES**: 7 types (decision, component, convention, concept, pattern, issue, session)
 - **NODE_STATUSES**: 3 states (active, needs_review, superseded)
 - **RELATION_TYPES**: 7 relations (affects, uses, supersedes, relates_to, implements, depends_on, derived_from)
 
 Adding types requires updates in:
-1. `types.ts`
+1. `internal/storage/types.go`
 2. `docs/SPEC.md`
-3. `classification/heuristics.ts`
-4. `storage/node-store.ts`
+3. `internal/classification/heuristics.go`
+4. `internal/storage/node-store.go`
 
 ## File Organization
 
@@ -104,12 +96,12 @@ Adding types requires updates in:
 **Minimum**: 80% coverage (statements, branches, functions, lines)
 
 ```bash
-npm run test:coverage
+go test -cover ./internal/...
 ```
 
 ## Error Handling
 
-Use custom errors from `src/utils/errors.ts`:
+Use custom errors from `internal/storage/errors.go`:
 - `ValidationError` - Invalid input with field details
 - `NotFoundError` - Node doesn't exist with ID
 - `StorageError` - File system issues with path
@@ -130,10 +122,26 @@ Required:
 - Valid markdown content
 - UTF-8 encoding
 
+## Pull Request Guidelines
+
+**Always read `.github/PULL_REQUEST_TEMPLATE.md` before creating PRs.**
+
+Structure (max 30 lines):
+1. **Background**: Why is this change needed?
+2. **Goal**: What does this PR achieve?
+3. **Key Changes**: Bullet points of main changes
+4. **Verification**: How to verify it works
+
+Example verification:
+```bash
+go build -o .claude-plugin/bin/autology ./cmd/autology
+go test ./internal/...
+```
+
 ## Pre-Commit Checklist
 
 ```bash
-npm run build && npm run test
+go build -o .claude-plugin/bin/autology ./cmd/autology && go test ./internal/...
 
 # Did you update documentation?
 # - PHILOSOPHY.md: If goals/principles changed
