@@ -31,3 +31,35 @@
 **Should Trigger**: NO
 **Expected Tool**: None (direct edit)
 **Rationale**: No architectural/design context needed
+
+## Category 2: Implementation Guidance
+
+### Scenario 2.1: Feature Implementation Start
+**Query**: "I'm adding user authentication, what components will this affect?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` + `autology_relate` for impact analysis
+**Rationale**: Contains "affect" (impact analysis keyword)
+
+### Scenario 2.2: Dependency Check
+**Query**: "Before I refactor this, what depends on it?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_relate` for dependency graph
+**Rationale**: Contains "depends on" (relation keyword)
+
+### Scenario 2.3: Pattern Following
+**Query**: "What patterns should I follow for this new API endpoint?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` with type="pattern"
+**Rationale**: Contains "patterns" + "follow" (convention query)
+
+### Scenario 2.4: Component Relationship
+**Query**: "How does the auth service connect to the database layer?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` for components + `autology_relate`
+**Rationale**: Requires understanding of component relations
+
+### Scenario 2.5: Negative Case - Direct Code Request
+**Query**: "Write a function to validate email addresses"
+**Should Trigger**: NO
+**Expected Tool**: None (direct implementation)
+**Rationale**: No ontology context needed, pure implementation
