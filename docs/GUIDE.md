@@ -4,7 +4,7 @@
 
 Autology provides three interaction modes:
 
-1. **Automatic (Hooks)** - Captures knowledge as you work
+1. **Automatic (Agents)** - Proactively provides ontology context
 2. **Interactive (Skills)** - Explicit commands for capture/exploration
 3. **Programmatic (MCP Tools)** - API for automation
 
@@ -26,7 +26,7 @@ Autology provides three interaction modes:
 2. Capture first node
 3. Create relationships
 4. Search and query
-5. Learn automation (hooks)
+5. Learn automation (agents)
 
 ---
 
@@ -166,55 +166,62 @@ Get knowledge graph statistics.
 }
 ```
 
-## Hooks
+## Automation with Agents
 
-### SessionStart
+Autology uses the **autology-explorer agent** to proactively provide ontology context.
 
-**Trigger**: Claude Code session begins
+### When the Agent Triggers
 
-**Behavior**:
-- Loads recent active nodes (last 30 days)
-- Injects top 10 relevant nodes as context
-- Formats: "Previous knowledge: [summaries]"
+The agent automatically activates when you ask questions about:
 
----
+**Architecture & Design**:
+- "Why did we choose this database?"
+- "What's our error handling convention?"
+- "Show me past API design decisions"
 
-### PostToolUse (Write/Edit)
+**Implementation Planning**:
+- "What will adding auth affect?"
+- "What depends on this component?"
+- "What patterns should I follow?"
 
-**Trigger**: File created or modified
+**Quality & Review**:
+- "Does this follow our patterns?"
+- "What conventions am I missing?"
+- "Are there similar solutions?"
 
-**Behavior**:
-- Debounces 2 seconds
-- Checks staleness (>1 hour since last suggestion)
-- Analyzes significance (>10 lines or key files)
-- Suggests: "Capture [type] node?"
+**Knowledge Discovery**:
+- "What's missing from our docs?"
+- "Are there outdated decisions?"
+- "Show me isolated nodes"
 
----
+**Evolution Analysis**:
+- "How did our testing strategy evolve?"
+- "What changed since project start?"
+- "Show me the decision timeline"
 
-### PostToolUse (Bash - git commit)
+### What the Agent Does
 
-**Trigger**: `git commit` executed
+1. Analyzes your query for ontology relevance
+2. Searches knowledge nodes with `autology_query`
+3. Explores relations with graph analysis
+4. Provides context from past decisions
+5. Suggests related patterns and conventions
 
-**Behavior**:
-- Parses commit message
-- Suggests: "Save commit as session node?"
-- Creates session node with commit details
+### Manual Invocation
 
----
+If the agent doesn't trigger automatically:
 
-### SessionEnd
-
-**What You'll See**: When you exit a session, a tip message appears:
 ```
-💡 Tip: To capture this session's summary in your knowledge graph:
-   1. Resume session: claude -r
-   2. Run: /autology:capture
+Use the autology-explorer agent to analyze [your question]
 ```
 
-**Recommended Workflow**:
-1. **Before exiting**: Use `/autology:capture` to save important work
-2. **After exiting**: If you forgot, resume with `claude -r` and capture then
-3. **Alternative**: Use the PostToolUse(git commit) hook for automatic capture on commits
+Or use skills:
+- `/autology:explore` - Search and query
+- `/autology:capture` - Guided capture
+
+### Reliability
+
+Agent triggering is under empirical testing. Current reliability: [TBD - see tests/agent-triggering/]
 
 ## Node Types
 
@@ -301,27 +308,29 @@ Open `.autology/nodes/` as Obsidian vault for:
 # Read full context, then build on existing knowledge
 ```
 
-### Workflow 3: Automatic Capture
+### Workflow 3: Agent-Assisted Development
 
 ```
-1. Edit src/auth.ts
-   → PostToolUse hook: "Capture AuthService component?"
-   → Approve: Node created
+1. Query: "How should I implement authentication?"
+   → autology-explorer triggers
+   → Finds JWT Auth Decision and Security Conventions
+   → Suggests patterns to follow
 
-2. Git commit: "feat: add JWT authentication"
-   → PostToolUse hook: "Save as session node?"
-   → Approve: Session saved
+2. Query: "Does this implementation follow our patterns?"
+   → autology-explorer triggers
+   → Compares against existing conventions
+   → Identifies gaps or inconsistencies
 
-3. Session ends
-   → SessionEnd hook: "Capture session summary?"
-   → Approve: Summary saved with links to created nodes
+3. Use /autology:capture to document new patterns
+   → Creates component node for AuthService
+   → Links to related decisions and conventions
 ```
 
 ## Tips
 
 **For Regular Use**:
 - Use skills for interactive work
-- Let hooks capture automatically
+- Let agents provide context automatically
 - Review in Obsidian weekly
 - Update superseded decisions
 - Mark low-confidence nodes for review
