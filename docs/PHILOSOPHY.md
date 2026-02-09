@@ -57,12 +57,12 @@ Traditional documentation evaporates. Autology makes knowledge **compound**:
 ### 4. Bidirectional Loop
 
 ```
-Write Loop:   Code changes → Auto-capture → Knowledge graph
+Write Loop:   Code changes → Manual capture → Knowledge graph
 Browse Loop:  Knowledge graph → Obsidian → Visualization
-Read Loop:    Knowledge graph → SessionStart → New sessions
+Read Loop:    Knowledge graph → Agent (on query) → Contextual responses
 ```
 
-Knowledge flows in both directions: captured from work, injected into future work.
+Knowledge flows bidirectionally: captured from work, retrieved when queried through natural language.
 
 ## Key Principles
 

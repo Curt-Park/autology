@@ -206,7 +206,7 @@ type KnowledgeNode struct {
 2. Capture first node
 3. Create relationships
 4. Search and query
-5. Learn automation (hooks)
+5. Learn automation (agents)
 
 **Behavior**: Step-by-step with user confirmation
 

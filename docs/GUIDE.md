@@ -221,7 +221,27 @@ Or use skills:
 
 ### Reliability
 
-Agent triggering is under empirical testing. Current reliability: [TBD - see tests/agent-triggering/]
+**Status**: Experimental (as of 2026-02-09)
+
+**Baseline Comparison**:
+- Previous hooks: 90%+ reliability (SessionStart: 100%, PostToolUse: ~90-95%)
+- Current agents: Under validation (target: ≥80%)
+
+**Test Framework**: See `tests/agent-triggering/` for comprehensive testing
+- 25 scenarios across 5 categories
+- Results to be documented after empirical validation
+
+**Known Limitations**:
+- No automatic context injection at session start
+- No proactive capture suggestions after file edits
+- Requires explicit user queries with trigger keywords
+
+**Manual Fallback**: If agent doesn't trigger automatically, explicitly request:
+```
+Use the autology-explorer agent to analyze [your question]
+```
+
+**Restoration Plan**: If reliability < 80%, hooks can be restored from `docs/legacy/hooks-backup-2026-02-09.md`
 
 ## Node Types
 

@@ -285,9 +285,7 @@ Based on tag overlap and content similarity:
 
 - `autology_query`: Search and filter nodes
 - `autology_status`: Get ontology statistics
-- `autology_relate`: Create relations (for repairs)
 - `autology_capture`: Create nodes (for filling gaps)
-- `autology_context`: Get contextual nodes
 
 ## Best Practices
 
