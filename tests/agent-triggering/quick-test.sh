@@ -26,7 +26,7 @@ FOUND=0
 TOTAL=${#KEYWORDS[@]}
 
 for keyword in "${KEYWORDS[@]}"; do
-    if grep -qi "$keyword" "$AGENT_FILE" | head -5; then
+    if head -5 "$AGENT_FILE" | grep -qi "$keyword"; then
         echo "✅ Found: $keyword"
         ((FOUND++))
     else
