@@ -9,3 +9,4 @@ coverage/
 docs/plans
 docs/legacy
 coverage.out
+tests/agents/results-*.txt
