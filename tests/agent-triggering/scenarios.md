@@ -127,3 +127,35 @@
 **Should Trigger**: NO
 **Expected Tool**: Glob tool (file system operation)
 **Rationale**: No ontology needed, pure file search
+
+## Category 5: Evolution & Timeline
+
+### Scenario 5.1: Strategy Evolution
+**Query**: "How did our testing strategy evolve?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` + timeline analysis
+**Rationale**: Contains "evolve" (temporal keyword)
+
+### Scenario 5.2: Project History
+**Query**: "What changed since we started this project?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` with date sorting
+**Rationale**: Contains "changed" + temporal scope
+
+### Scenario 5.3: Decision Timeline
+**Query**: "Show me the timeline of database decisions"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` with type="decision" + chronological sort
+**Rationale**: Contains "timeline" (exact match)
+
+### Scenario 5.4: Supersession Chain
+**Query**: "What replaced our old authentication approach?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` for supersedes relations
+**Rationale**: Contains "replaced" (supersession keyword)
+
+### Scenario 5.5: Negative Case - Git History
+**Query**: "Show me the last 10 commits"
+**Should Trigger**: NO
+**Expected Tool**: Bash with git log
+**Rationale**: Git history, not ontology timeline
