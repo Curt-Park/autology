@@ -95,3 +95,35 @@
 **Should Trigger**: NO
 **Expected Tool**: None (direct bash execution)
 **Rationale**: No ontology consultation needed
+
+## Category 4: Knowledge Gaps
+
+### Scenario 4.1: Documentation Accuracy
+**Query**: "Is this documentation still accurate?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` + status check for superseded nodes
+**Rationale**: Requires checking if knowledge is outdated
+
+### Scenario 4.2: Missing Documentation
+**Query**: "What's missing from our architectural overview?"
+**Should Trigger**: YES
+**Expected Tool**: Agent gap analysis (autology_status + query)
+**Rationale**: Contains "missing" (gap detection keyword)
+
+### Scenario 4.3: Superseded Decisions
+**Query**: "Do we have any outdated decisions about caching?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` with status="superseded"
+**Rationale**: Contains "outdated" (staleness keyword)
+
+### Scenario 4.4: Orphaned Nodes
+**Query**: "Are there any isolated decisions without connections?"
+**Should Trigger**: YES
+**Expected Tool**: Graph analysis via `autology_query` + relation check
+**Rationale**: Requires graph structure analysis
+
+### Scenario 4.5: Negative Case - File Search
+**Query**: "Find all TypeScript files in the src directory"
+**Should Trigger**: NO
+**Expected Tool**: Glob tool (file system operation)
+**Rationale**: No ontology needed, pure file search
