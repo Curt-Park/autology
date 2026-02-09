@@ -25,7 +25,7 @@
 - Node/relation/status types changed
 - MCP tool signature changed
 - Validation rules changed
-- Hook behavior changed
+- Agent trigger behavior changed
 - Data model (KnowledgeNode schema) changed
 - Storage format changed
 
@@ -33,7 +33,7 @@
 
 **Must update**:
 - Skill behavior changed
-- Hook triggers changed
+- Agent triggers changed
 - MCP tool usage changed
 - Workflow examples changed
 
@@ -145,7 +145,7 @@ go build -o .claude-plugin/bin/autology ./cmd/autology && go test ./internal/...
 
 # Did you update documentation?
 # - PHILOSOPHY.md: If goals/principles changed
-# - SPEC.md: If types/tools/hooks/schema changed
+# - SPEC.md: If types/tools/agents/schema changed
 # - GUIDE.md: If skills/workflows/usage changed
 
 git commit -m "type: description"
