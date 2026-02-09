@@ -192,7 +192,7 @@ type KnowledgeNode struct {
 4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
 5. **Evolution**: "How did X evolve?", "What changed since..."
 
-**Reliability**: Under empirical testing (see `tests/agent-triggering/`)
+**Reliability**: Under empirical testing (see `tests/agents/`)
 
 **Fallback**: If reliability < 80%, hooks may be restored from `docs/legacy/hooks-backup-2026-02-09.md`
 
