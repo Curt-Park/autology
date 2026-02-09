@@ -5,7 +5,14 @@
 echo "=== Agent Triggering Quick Test ==="
 echo ""
 
-AGENT_FILE="agents/autology-explorer.md"
+# Find repository root
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+if [ -z "$REPO_ROOT" ]; then
+    echo "❌ ERROR: Not in a git repository"
+    exit 1
+fi
+
+AGENT_FILE="$REPO_ROOT/agents/autology-explorer.md"
 KEYWORDS=("architecture" "decisions" "patterns" "conventions" "impact" "gaps" "evolution")
 
 if [ ! -f "$AGENT_FILE" ]; then
