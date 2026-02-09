@@ -1,4 +1,4 @@
-.PHONY: all build test test-coverage clean install run fmt check help
+.PHONY: all build test test-coverage test-agents clean install run fmt check help
 
 # Default target
 all: build
@@ -25,6 +25,11 @@ test-coverage:
 # View coverage in browser
 coverage-html: test-coverage
 	@go tool cover -html=coverage.out
+
+# Run agent triggering tests
+test-agents:
+	@echo "Running agent triggering tests..."
+	@bash tests/agents/run.sh
 
 # Install dependencies
 install:
@@ -61,6 +66,7 @@ help:
 	@echo "  make test           - Run all tests"
 	@echo "  make test-coverage  - Run tests with coverage report"
 	@echo "  make coverage-html  - View coverage in browser"
+	@echo "  make test-agents    - Run agent triggering tests"
 	@echo "  make install        - Download dependencies"
 	@echo "  make clean          - Remove build artifacts"
 	@echo "  make run            - Build and run the MCP server"
