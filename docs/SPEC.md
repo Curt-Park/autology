@@ -6,10 +6,16 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    Claude Code                          │
 ├─────────────────────────────────────────────────────────┤
-│  Hooks          │  Skills        │  Agents              │
-│  - SessionStart │  /tutorial     │  autology-explorer   │
-│  - PostToolUse  │  /capture      │                      │
-│  - SessionEnd   │  /explore      │                      │
+│  Hooks (Deterministic)                                  │
+│  - PostToolUse: git commit/PR → suggest capture         │
+│  - PreCompact: context compaction → suggest capture     │
+│  - SessionEnd: session end → show capture tips          │
+├─────────────────────────────────────────────────────────┤
+│  Skills         │  Agents (Contextual)                  │
+│  /tutorial      │  autology-explorer                    │
+│  /capture       │  - Triggers on architecture questions │
+│  /explore       │  - Triggers on design decisions       │
+│                 │  - Suggests capture during analysis   │
 ├─────────────────────────────────────────────────────────┤
 │              MCP Server (Go Implementation)             │
 │        3 Tools: capture, query, status                  │
@@ -176,50 +182,49 @@ type KnowledgeNode struct {
 - Counts relations by type
 - Returns comprehensive statistics
 
-## Hooks
+## Hybrid Triggering Strategy
 
-### SessionStart
-**Trigger**: Claude Code session begins
+Autology uses **two complementary triggering mechanisms** for knowledge capture and exploration:
 
-**Behavior**:
-1. Load recent active nodes (last 30 days)
-2. Analyze for relevance to project
-3. Inject top 10 nodes as context
-4. Format: "Previous knowledge: [node titles with brief summaries]"
+### 1. Hook-Based Triggering (Deterministic)
 
-### PostToolUse(Write/Edit)
-**Trigger**: File created or modified
+**Location**: `hooks/hooks.json`
 
-**Behavior**:
-1. Debounce 2 seconds (avoid spam)
-2. Check staleness (>1 hour since last similar suggestion)
-3. Analyze change significance (>10 lines or key files)
-4. Suggest: "Capture [inferred type] node?"
-5. If approved, guide through capture
+**Triggers**:
 
-### PostToolUse(Bash - git commit)
-**Trigger**: `git commit` command executed
+| Hook Event | Matcher | Action |
+|------------|---------|--------|
+| `PostToolUse` | `tool == "Bash" && tool_input.command matches "(git commit\|gh pr create\|gh pr merge)"` | Suggest capture after git commit/PR events |
+| `PreCompact` | `*` (all events) | Suggest capture before context compaction |
+| `SessionEnd` | No matcher | Show capture tips on session end |
 
-**Behavior**:
-1. Parse commit message
-2. Suggest: "Save commit as session node?"
-3. If approved, create session node with commit details
+**Implementation**: Go subcommands in `internal/hooks/`
+- `autology hook post-commit`: Detects git events, notifies user, provides context to Claude
+- `autology hook pre-compact`: Suggests capture before compaction
+- `autology hook session-end`: Shows resume + capture workflow tips
 
-### SessionEnd
-**Trigger**: Claude Code session terminates
+**Reliability**: 100% (deterministic matching)
 
-**Implementation**:
-- Type: `command` (script execution)
-- Script: `hooks/scripts/session-end.sh`
-- Output: stderr message visible to user
-- Cannot block termination
-- Cannot use `type: "prompt"` or `type: "agent"`
+### 2. Agent-Based Triggering (Contextual)
 
-**Technical Constraints**:
-- Runs during session cleanup phase
-- No decision control available
-- No interactive prompts supported
-- Async execution not meaningful (session already ending)
+**Agent**: `autology-explorer`
+
+**Trigger Method**: Pattern matching on query content during conversation
+
+**Description Keywords**: architecture, decisions, patterns, conventions, relationships, impact, gaps, evolution, timeline, quality
+
+**Expected Triggers**:
+1. **Architecture/Design**: "Why did we choose...", "What's our convention..."
+2. **Implementation**: "What will this affect?", "What depends on..."
+3. **Quality/Review**: "Does this follow our patterns?", "What conventions..."
+4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
+5. **Evolution**: "How did X evolve?", "What changed since..."
+
+**Proactive Capture**: Agent may suggest `/autology:capture` when discovering capture-worthy insights during exploration
+
+**Why Both?**:
+- **Hooks**: Reliable, event-driven capture suggestions (git operations, compaction)
+- **Agents**: Context-aware, conversational capture suggestions (questions, analysis)
 
 ## Skills
 
@@ -231,7 +236,7 @@ type KnowledgeNode struct {
 2. Capture first node
 3. Create relationships
 4. Search and query
-5. Learn automation (hooks)
+5. Learn automation (agents)
 
 **Behavior**: Step-by-step with user confirmation
 

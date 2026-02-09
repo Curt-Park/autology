@@ -6,150 +6,102 @@
 
 ### Four Documentation Levels
 
-1. **`docs/PHILOSOPHY.md`** - Why we exist
-2. **`docs/SPEC.md`** - What we implement
-3. **`docs/GUIDE.md`** - How users interact
-4. **`docs/MCP.md`** - How it works internally
+1. **`docs/PHILOSOPHY.md`** - Why we exist (goals, principles)
+2. **`docs/SPEC.md`** - What we implement (types, tools, schemas)
+3. **`docs/GUIDE.md`** - How users interact (skills, workflows)
+4. **`docs/MCP.md`** - How it works internally (algorithms, storage)
 
-### When to Update `docs/PHILOSOPHY.md`
+### When to Update Each Doc
 
-**Must update**:
-- Project goals changed
-- Core principles changed
-- Target problems changed
-- Success criteria changed
+| Change Type | Update |
+|-------------|--------|
+| Goals, principles, problems | PHILOSOPHY.md |
+| Types, tool signatures, schemas, agents | SPEC.md |
+| Skills, workflows, examples | GUIDE.md |
+| Algorithms, storage, internals | MCP.md |
 
-### When to Update `docs/SPEC.md`
-
-**Must update**:
-- Node/relation/status types changed
-- MCP tool signature changed
-- Validation rules changed
-- Hook behavior changed
-- Data model (KnowledgeNode schema) changed
-- Storage format changed
-
-### When to Update `docs/GUIDE.md`
-
-**Must update**:
-- Skill behavior changed
-- Hook triggers changed
-- MCP tool usage changed
-- Workflow examples changed
-
-### When to Update `docs/MCP.md`
-
-**Must update**:
-- Search/ranking algorithm changed
-- Classification patterns/rules changed
-- Relation inference logic changed
-- Storage implementation changed
-- Performance characteristics changed
-- Internal data flow changed
-
-**Don't update (any doc)**:
-- Internal refactoring (same behavior)
-- Bug fixes (restoring spec behavior)
-- Performance optimizations
+**Don't update**: Internal refactoring, bug fixes, optimizations (same behavior)
 
 ### Protocol
 
 ```
-Code change → Update docs → Run tests → Commit all
-Doc change → Update code → Update tests → Verify → Commit all
+Code change → Update docs → Verify → Commit all
+Doc change → Update code → Test → Commit all
 ```
 
-## Verification
+## Change Impact Assessment
 
+**Lesson from PR #19**: Manual discovery misses references. Use systematic search.
+
+**Step 1: Find all references**
 ```bash
-go build -o .claude-plugin/bin/autology ./cmd/autology  # Must succeed
-go test ./internal/...                                   # Must pass
+grep -r "COMPONENT_NAME" docs/ agents/ skills/ --include="*.md"
 ```
 
-## Type System
+**Step 2: Update or justify**
+- Update if stale
+- Document why still valid if keeping
 
-### Immutability (CRITICAL)
-
-All data structures must be immutable. Never mutate existing objects.
-
-### Core Types
-
-Defined in `internal/storage/types.go`:
-- **NODE_TYPES**: 7 types (decision, component, convention, concept, pattern, issue, session)
-- **NODE_STATUSES**: 3 states (active, needs_review, superseded)
-- **RELATION_TYPES**: 7 relations (affects, uses, supersedes, relates_to, implements, depends_on, derived_from)
-
-Adding types requires updates in:
-1. `internal/storage/types.go`
-2. `docs/SPEC.md`
-3. `internal/classification/heuristics.go`
-4. `internal/storage/node-store.go`
-
-## File Organization
-
-- **Target**: 200-400 lines per file
-- **Hard limit**: 800 lines
-- **Rule**: One concern per file
-
-## Testing
-
-**Minimum**: 80% coverage (statements, branches, functions, lines)
-
+**Step 3: Check conceptual impacts**
 ```bash
-go test -cover ./internal/...
+# Example: Removing hooks → "Bidirectional Loop" concept changed
+grep -i "loop\|flow" docs/PHILOSOPHY.md
 ```
 
-## Error Handling
-
-Use custom errors from `internal/storage/errors.go`:
-- `ValidationError` - Invalid input with field details
-- `NotFoundError` - Node doesn't exist with ID
-- `StorageError` - File system issues with path
-
-## ADR Format
-
-Every `decision` node requires:
-1. **Context**: Why?
-2. **Decision**: What?
-3. **Alternatives**: What else?
-4. **Consequences**: Implications?
-
-## Obsidian Compatibility
-
-Required:
-- YAML frontmatter with all fields
-- Wiki-style `[[links]]` for relations
-- Valid markdown content
-- UTF-8 encoding
-
-## Pull Request Guidelines
-
-**Always read `.github/PULL_REQUEST_TEMPLATE.md` before creating PRs.**
-
-Structure (max 30 lines):
-1. **Background**: Why is this change needed?
-2. **Goal**: What does this PR achieve?
-3. **Key Changes**: Bullet points of main changes
-4. **Verification**: How to verify it works
-
-Example verification:
+**Step 4: Verify implementation matches docs**
 ```bash
+# Example: MCP tools count
+grep "autology_" agents/*.md              # What docs claim
+grep "s.tools\[" internal/mcp/server.go   # What code has
+# These MUST match!
+```
+
+## Pre-Commit Verification
+
+**Reality**: Static scripts can't verify semantic correctness. **Humans must verify docs accurately describe code.**
+
+**Before `git commit`**:
+
+```bash
+# 1. No placeholders
+grep -r '\[TBD\]\|\[TODO\]\|FIXME' docs/ agents/
+# Expected: No results
+
+# 2. No stale references (replace REMOVED_FEATURE)
+grep -r "REMOVED_FEATURE" docs/ agents/
+# Expected: No results
+
+# 3. Build succeeds
 go build -o .claude-plugin/bin/autology ./cmd/autology
-go test ./internal/...
+
+# 4. Tests pass
+make check
+
+# 5. Semantic accuracy (CRITICAL - Manual only)
+# Read updated docs - do they accurately describe implementation?
 ```
 
-## Pre-Commit Checklist
+**Check 5 cannot be automated.** Verify in code review.
+
+## Code Review Requirements
+
+**Reviewer checklist** (verify doc-code sync):
 
 ```bash
-go build -o .claude-plugin/bin/autology ./cmd/autology && go test ./internal/...
-
-# Did you update documentation?
-# - PHILOSOPHY.md: If goals/principles changed
-# - SPEC.md: If types/tools/hooks/schema changed
-# - GUIDE.md: If skills/workflows/usage changed
-
-git commit -m "type: description"
+/review checck the code and docs are well-synchronized
 ```
+
+**What to verify**:
+
+1. **PHILOSOPHY.md**: Core concepts (Loop, Flow, Principle) still accurate?
+2. **SPEC.md vs code**:
+   - `grep "s.tools\[" internal/mcp/server.go` count = SPEC.md tool count?
+   - `internal/storage/types.go` types = SPEC.md types?
+3. **GUIDE.md**: Examples actually work with current code?
+4. **No duplication drift**: Tutorial steps in SPEC.md, GUIDE.md, skills/ all match?
+5. **Conceptual correctness**: Does doc lie? ("automatic" but actually manual?)
+
+**Automation limit**: Checks 1-4 partially scriptable, **Check 5 requires human judgment.**
 
 ## Philosophy
 
@@ -161,4 +113,4 @@ Every change must preserve:
 
 ---
 
-**The spec is a contract, not documentation. Code violating spec is wrong.**
+**The spec is a contract. Code violating spec is wrong.**

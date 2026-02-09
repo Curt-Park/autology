@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Curt-Park/autology/internal/hooks"
 	"github.com/Curt-Park/autology/internal/mcp"
 	"github.com/Curt-Park/autology/internal/storage"
 )
@@ -12,6 +13,36 @@ import (
 const version = "0.1.0"
 
 func main() {
+	// Check if running as a hook subcommand
+	if len(os.Args) > 1 && os.Args[1] == "hook" {
+		runHook(os.Args[2:])
+		return
+	}
+
+	// Otherwise run as MCP server
+	runMCPServer()
+}
+
+func runHook(args []string) {
+	if len(args) == 0 {
+		fmt.Fprintf(os.Stderr, "Usage: autology hook <post-commit|pre-compact|session-end>\n")
+		os.Exit(1)
+	}
+
+	switch args[0] {
+	case "post-commit":
+		hooks.RunPostCommit()
+	case "pre-compact":
+		hooks.RunPreCompact()
+	case "session-end":
+		hooks.RunSessionEnd()
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown hook: %s\n", args[0])
+		os.Exit(1)
+	}
+}
+
+func runMCPServer() {
 	// Get root path from environment or use default
 	rootPath := os.Getenv("AUTOLOGY_ROOT")
 	if rootPath == "" {
