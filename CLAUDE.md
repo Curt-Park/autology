@@ -64,7 +64,7 @@ grep "s.tools\[" internal/mcp/server.go   # What code has
 
 ```bash
 # 1. No placeholders
-grep -r '\[TBD\]\|\[TODO\]\|FIXME' docs/ agents/ --exclude-dir=legacy
+grep -r '\[TBD\]\|\[TODO\]\|FIXME' docs/ agents/
 # Expected: No results
 
 # 2. No stale references (replace REMOVED_FEATURE)

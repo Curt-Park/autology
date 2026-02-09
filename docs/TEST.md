@@ -374,21 +374,6 @@ If success rate <80%:
 
 ---
 
-## Backup Plan
-
-If agent triggering proves insufficient (<80% success):
-
-**Hooks Backup**: `docs/legacy/hooks-backup-2026-02-09.md`
-
-Restoration:
-```bash
-# Restore hooks from legacy backup
-git show HEAD:docs/legacy/hooks-backup-2026-02-09.md
-# Update hooks/hooks.json with configuration
-```
-
----
-
 ## Timeline
 
 - **2026-02-09**: Hooks removed, test framework created
