@@ -1,3 +1,39 @@
 {
-  "hooks": {}
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "tool == \"Bash\" && tool_input.command matches \"(git commit|gh pr create|gh pr merge)\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/autology\" hook post-commit"
+          }
+        ],
+        "description": "Suggest knowledge capture after git commit or PR events"
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/autology\" hook pre-compact"
+          }
+        ],
+        "description": "Suggest knowledge capture before context compaction"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/autology\" hook session-end"
+          }
+        ],
+        "description": "Show knowledge capture tip on session end"
+      }
+    ]
+  }
 }

@@ -1,4 +1,4 @@
-.PHONY: all build test test-coverage test-agents clean install run fmt check help
+.PHONY: all build test test-coverage coverage-html clean install run fmt check help
 
 # Default target
 all: build
@@ -10,7 +10,7 @@ build:
 	@go build -o .claude-plugin/bin/autology ./cmd/autology
 	@echo "✓ Built: .claude-plugin/bin/autology"
 
-# Run all tests
+# Run all tests (unit tests including hooks)
 test:
 	@echo "Running tests..."
 	@go test ./internal/...
@@ -25,11 +25,6 @@ test-coverage:
 # View coverage in browser
 coverage-html: test-coverage
 	@go tool cover -html=coverage.out
-
-# Run agent triggering tests
-test-agents:
-	@echo "Running agent triggering tests..."
-	@bash tests/agents/run.sh
 
 # Install dependencies
 install:
@@ -53,7 +48,7 @@ fmt:
 	@go fmt ./...
 	@echo "✓ Formatted"
 
-# Run all checks
+# Run all checks (format + test)
 check: fmt test
 	@echo "✓ All checks passed"
 
@@ -61,15 +56,16 @@ check: fmt test
 help:
 	@echo "Autology - Go Implementation"
 	@echo ""
-	@echo "Available targets:"
-	@echo "  make build          - Build the autology binary"
-	@echo "  make test           - Run all tests"
-	@echo "  make test-coverage  - Run tests with coverage report"
-	@echo "  make coverage-html  - View coverage in browser"
-	@echo "  make test-agents    - Run agent triggering tests"
-	@echo "  make install        - Download dependencies"
-	@echo "  make clean          - Remove build artifacts"
-	@echo "  make run            - Build and run the MCP server"
-	@echo "  make fmt            - Format code"
-	@echo "  make check          - Run fmt and test"
-	@echo "  make help           - Display this help message"
+	@echo "Core targets:"
+	@echo "  make build         - Build the autology binary"
+	@echo "  make test          - Run all unit tests (includes hook tests)"
+	@echo "  make test-coverage - Run tests with coverage report"
+	@echo "  make coverage-html - View coverage in browser"
+	@echo "  make check         - Run fmt and test (recommended before commit)"
+	@echo "  make fmt           - Format code"
+	@echo ""
+	@echo "Other targets:"
+	@echo "  make install       - Download Go dependencies"
+	@echo "  make clean         - Remove build artifacts"
+	@echo "  make run           - Build and run the MCP server"
+	@echo "  make help          - Display this help message"

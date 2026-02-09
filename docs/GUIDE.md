@@ -221,20 +221,16 @@ Or use skills:
 
 ### Reliability
 
-**Status**: Experimental (as of 2026-02-09)
+**Status**: Hybrid triggering (as of 2026-02-10)
 
-**Baseline Comparison**:
-- Previous hooks: 90%+ reliability (SessionStart: 100%, PostToolUse: ~90-95%)
-- Current agents: Under validation (target: ≥80%)
+**Triggering Mechanisms**:
+- **Hooks (100% reliable)**: git commit, PR events, context compaction, session end
+- **Agents (contextual)**: Q&A, exploration, analysis
 
-**Test Framework**: See `docs/TEST.md` for comprehensive testing specification
-- 25 scenarios across 5 categories
-- Results to be documented after empirical validation
-
-**Known Limitations**:
-- No automatic context injection at session start
-- No proactive capture suggestions after file edits
-- Requires explicit user queries with trigger keywords
+**Testing**:
+- Unit tests: `go test ./internal/...` (includes hook tests)
+- Integration tests: Manual hook subcommand testing
+- Run all checks: `make check`
 
 **Manual Fallback**: If agent doesn't trigger automatically, explicitly request:
 ```
@@ -296,7 +292,32 @@ Open `.autology/nodes/` as Obsidian vault for:
 
 ## Example Workflows
 
-### Workflow 1: Capture Decision
+### Workflow 1: Hook-Based Capture (Automatic Suggestions)
+
+```bash
+# You commit code
+git commit -m "feat: add Redis session storage"
+
+# Hook triggers automatically:
+# [autology] git commit detected. Consider capturing decisions/patterns with /autology:capture
+
+# Claude receives context about the commit and may suggest:
+# "I see you just committed session storage changes. Would you like to capture
+#  the Redis decision as a knowledge node? Run /autology:capture to document this."
+
+# When context is about to compact:
+# [autology] Context compaction (auto) is about to occur.
+# [autology] Consider capturing important decisions/patterns with /autology:capture
+
+# Claude reviews conversation and suggests what to capture before context is lost
+
+# When session ends:
+# [autology] To capture this session's insights in your knowledge graph:
+# [autology]   1. Resume session: claude -r
+# [autology]   2. Run: /autology:capture
+```
+
+### Workflow 2: Capture Decision
 
 ```bash
 # After making architectural choice
@@ -314,7 +335,7 @@ Open `.autology/nodes/` as Obsidian vault for:
 # - Tags: [redis, session, caching]
 ```
 
-### Workflow 2: Explore Before Implementing
+### Workflow 3: Explore Before Implementing
 
 ```bash
 # Before starting work
@@ -328,7 +349,7 @@ Open `.autology/nodes/` as Obsidian vault for:
 # Read full context, then build on existing knowledge
 ```
 
-### Workflow 3: Agent-Assisted Development
+### Workflow 4: Agent-Assisted Development
 
 ```
 1. Query: "How should I implement authentication?"

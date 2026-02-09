@@ -281,6 +281,27 @@ Based on tag overlap and content similarity:
 4. Calculate impact scope
 5. Present dependency tree
 
+## Proactive Capture Suggestions
+
+When exploring the ontology or analyzing knowledge, you may discover insights that should be captured. In such cases:
+
+1. **Identify capture-worthy content**: Decisions mentioned in conversation, patterns observed in code, conventions discussed
+2. **Suggest capture to the user**: Recommend `/autology:capture` with a brief explanation of what should be captured
+3. **Wait for user approval**: Never auto-capture; always get explicit user consent
+4. **Guide the user**: If they approve, help them structure the content appropriately
+
+**Examples of when to suggest capture**:
+- User explains a design decision during exploration
+- Analysis reveals undocumented patterns in the codebase
+- Discussion uncovers important conventions not yet captured
+- Gap analysis identifies missing but important knowledge
+
+**How to suggest**:
+```
+Based on our discussion, I notice [insight]. This seems capture-worthy as a [type] node.
+Would you like to run /autology:capture to document this?
+```
+
 ## Tools Available
 
 - `autology_query`: Search and filter nodes

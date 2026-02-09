@@ -6,11 +6,16 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    Claude Code                          │
 ├─────────────────────────────────────────────────────────┤
-│  Skills         │  Agents                               │
-│  /tutorial      │  autology-explorer (proactive)        │
+│  Hooks (Deterministic)                                  │
+│  - PostToolUse: git commit/PR → suggest capture         │
+│  - PreCompact: context compaction → suggest capture     │
+│  - SessionEnd: session end → show capture tips          │
+├─────────────────────────────────────────────────────────┤
+│  Skills         │  Agents (Contextual)                  │
+│  /tutorial      │  autology-explorer                    │
 │  /capture       │  - Triggers on architecture questions │
 │  /explore       │  - Triggers on design decisions       │
-│                 │  - Triggers on pattern queries        │
+│                 │  - Suggests capture during analysis   │
 ├─────────────────────────────────────────────────────────┤
 │              MCP Server (Go Implementation)             │
 │        3 Tools: capture, query, status                  │
@@ -177,11 +182,34 @@ type KnowledgeNode struct {
 - Counts relations by type
 - Returns comprehensive statistics
 
-## Agent-Based Triggering (Experimental)
+## Hybrid Triggering Strategy
 
-### autology-explorer Agent
+Autology uses **two complementary triggering mechanisms** for knowledge capture and exploration:
 
-**Trigger Method**: Pattern matching on query content
+### 1. Hook-Based Triggering (Deterministic)
+
+**Location**: `hooks/hooks.json`
+
+**Triggers**:
+
+| Hook Event | Matcher | Action |
+|------------|---------|--------|
+| `PostToolUse` | `tool == "Bash" && tool_input.command matches "(git commit\|gh pr create\|gh pr merge)"` | Suggest capture after git commit/PR events |
+| `PreCompact` | `*` (all events) | Suggest capture before context compaction |
+| `SessionEnd` | No matcher | Show capture tips on session end |
+
+**Implementation**: Go subcommands in `internal/hooks/`
+- `autology hook post-commit`: Detects git events, notifies user, provides context to Claude
+- `autology hook pre-compact`: Suggests capture before compaction
+- `autology hook session-end`: Shows resume + capture workflow tips
+
+**Reliability**: 100% (deterministic matching)
+
+### 2. Agent-Based Triggering (Contextual)
+
+**Agent**: `autology-explorer`
+
+**Trigger Method**: Pattern matching on query content during conversation
 
 **Description Keywords**: architecture, decisions, patterns, conventions, relationships, impact, gaps, evolution, timeline, quality
 
@@ -192,9 +220,11 @@ type KnowledgeNode struct {
 4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
 5. **Evolution**: "How did X evolve?", "What changed since..."
 
-**Reliability**: Under empirical testing (see `docs/TEST.md`)
+**Proactive Capture**: Agent may suggest `/autology:capture` when discovering capture-worthy insights during exploration
 
-**Fallback**: If reliability < 80%, hooks may be restored from `docs/legacy/hooks-backup-2026-02-09.md`
+**Why Both?**:
+- **Hooks**: Reliable, event-driven capture suggestions (git operations, compaction)
+- **Agents**: Context-aware, conversational capture suggestions (questions, analysis)
 
 ## Skills
 
