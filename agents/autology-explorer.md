@@ -1,6 +1,6 @@
 ---
 name: autology-explorer
-description: Deep ontology analysis and exploration specialist
+description: Deep ontology analysis and exploration. Use for architecture questions, design decisions, implementation patterns, code conventions, impact analysis, knowledge gaps, relation graphs, evolution timelines, and quality assessment.
 model: sonnet
 ---
 
