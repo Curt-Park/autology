@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/Curt-Park/autology/compare/autology-v0.3.3...autology-v0.4.0) (2026-02-09)
+
+
+### Features
+
+* hybrid triggering system ([#19](https://github.com/Curt-Park/autology/issues/19)) ([80d0f55](https://github.com/Curt-Park/autology/commit/80d0f55bb6efbbd6774f0cfab291c0ac9eb0d95a))
+
 ## [0.3.3](https://github.com/Curt-Park/autology/compare/autology-v0.3.2...autology-v0.3.3) (2026-02-08)
 
 
