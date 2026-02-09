@@ -6,10 +6,11 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    Claude Code                          │
 ├─────────────────────────────────────────────────────────┤
-│  Hooks          │  Skills        │  Agents              │
-│  - SessionStart │  /tutorial     │  autology-explorer   │
-│  - PostToolUse  │  /capture      │                      │
-│  - SessionEnd   │  /explore      │                      │
+│  Skills         │  Agents                               │
+│  /tutorial      │  autology-explorer (proactive)        │
+│  /capture       │  - Triggers on architecture questions │
+│  /explore       │  - Triggers on design decisions       │
+│                 │  - Triggers on pattern queries        │
 ├─────────────────────────────────────────────────────────┤
 │              MCP Server (Go Implementation)             │
 │        3 Tools: capture, query, status                  │
@@ -176,50 +177,24 @@ type KnowledgeNode struct {
 - Counts relations by type
 - Returns comprehensive statistics
 
-## Hooks
+## Agent-Based Triggering (Experimental)
 
-### SessionStart
-**Trigger**: Claude Code session begins
+### autology-explorer Agent
 
-**Behavior**:
-1. Load recent active nodes (last 30 days)
-2. Analyze for relevance to project
-3. Inject top 10 nodes as context
-4. Format: "Previous knowledge: [node titles with brief summaries]"
+**Trigger Method**: Pattern matching on query content
 
-### PostToolUse(Write/Edit)
-**Trigger**: File created or modified
+**Description Keywords**: architecture, decisions, patterns, conventions, relationships, impact, gaps, evolution, timeline, quality
 
-**Behavior**:
-1. Debounce 2 seconds (avoid spam)
-2. Check staleness (>1 hour since last similar suggestion)
-3. Analyze change significance (>10 lines or key files)
-4. Suggest: "Capture [inferred type] node?"
-5. If approved, guide through capture
+**Expected Triggers**:
+1. **Architecture/Design**: "Why did we choose...", "What's our convention..."
+2. **Implementation**: "What will this affect?", "What depends on..."
+3. **Quality/Review**: "Does this follow our patterns?", "What conventions..."
+4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
+5. **Evolution**: "How did X evolve?", "What changed since..."
 
-### PostToolUse(Bash - git commit)
-**Trigger**: `git commit` command executed
+**Reliability**: Under empirical testing (see `tests/agent-triggering/`)
 
-**Behavior**:
-1. Parse commit message
-2. Suggest: "Save commit as session node?"
-3. If approved, create session node with commit details
-
-### SessionEnd
-**Trigger**: Claude Code session terminates
-
-**Implementation**:
-- Type: `command` (script execution)
-- Script: `hooks/scripts/session-end.sh`
-- Output: stderr message visible to user
-- Cannot block termination
-- Cannot use `type: "prompt"` or `type: "agent"`
-
-**Technical Constraints**:
-- Runs during session cleanup phase
-- No decision control available
-- No interactive prompts supported
-- Async execution not meaningful (session already ending)
+**Fallback**: If reliability < 80%, hooks may be restored from `docs/legacy/hooks-backup-2026-02-09.md`
 
 ## Skills
 
