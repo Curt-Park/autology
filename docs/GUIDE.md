@@ -227,7 +227,7 @@ Or use skills:
 - Previous hooks: 90%+ reliability (SessionStart: 100%, PostToolUse: ~90-95%)
 - Current agents: Under validation (target: ≥80%)
 
-**Test Framework**: See `tests/agents/` for comprehensive testing
+**Test Framework**: See `docs/TEST.md` for comprehensive testing specification
 - 25 scenarios across 5 categories
 - Results to be documented after empirical validation
 
