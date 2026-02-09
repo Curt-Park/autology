@@ -63,3 +63,35 @@
 **Should Trigger**: NO
 **Expected Tool**: None (direct implementation)
 **Rationale**: No ontology context needed, pure implementation
+
+## Category 3: Quality & Review
+
+### Scenario 3.1: Consistency Check
+**Query**: "Does this implementation follow our patterns?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` for patterns/conventions
+**Rationale**: Contains "follow" + "patterns" (alignment check)
+
+### Scenario 3.2: Similar Solutions
+**Query**: "Are there similar solutions I should check?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` for related components/patterns
+**Rationale**: Requires knowledge of existing solutions
+
+### Scenario 3.3: Convention Verification
+**Query**: "What conventions am I missing in this code?"
+**Should Trigger**: YES
+**Expected Tool**: `autology_query` with type="convention"
+**Rationale**: Contains "conventions" (direct match)
+
+### Scenario 3.4: ADR Completeness
+**Query**: "Is this decision documented properly as ADR?"
+**Should Trigger**: YES
+**Expected Tool**: Agent should check ADR format requirements
+**Rationale**: Requires knowledge of ADR structure rules
+
+### Scenario 3.5: Negative Case - Test Run
+**Query**: "Run the tests to see if they pass"
+**Should Trigger**: NO
+**Expected Tool**: None (direct bash execution)
+**Rationale**: No ontology consultation needed
