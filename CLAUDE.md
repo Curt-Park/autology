@@ -75,7 +75,7 @@ grep -r "REMOVED_FEATURE" docs/ agents/
 go build -o .claude-plugin/bin/autology ./cmd/autology
 
 # 4. Tests pass
-go test ./internal/...
+make check
 
 # 5. Semantic accuracy (CRITICAL - Manual only)
 # Read updated docs - do they accurately describe implementation?
@@ -88,7 +88,7 @@ go test ./internal/...
 **Reviewer checklist** (verify doc-code sync):
 
 ```bash
-/review spec과 구현이 잘 동기화 되어있는지 면밀히 검토
+/review checck the code and docs are well-synchronized
 ```
 
 **What to verify**:

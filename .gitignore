@@ -7,4 +7,5 @@ coverage/
 .env.local
 .autology/
 docs/plans
+docs/legacy
 coverage.out
