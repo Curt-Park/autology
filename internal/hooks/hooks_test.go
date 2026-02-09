@@ -97,7 +97,9 @@ func TestWriteAdditionalContext(t *testing.T) {
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 
 	var output HookOutput
 	if err := json.Unmarshal(buf.Bytes(), &output); err != nil {
@@ -129,7 +131,9 @@ func TestWriteStderr(t *testing.T) {
 	os.Stderr = oldStderr
 
 	var buf bytes.Buffer
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read stderr: %v", err)
+	}
 
 	output := buf.String()
 	if !strings.Contains(output, "[test] Message with formatting") {
