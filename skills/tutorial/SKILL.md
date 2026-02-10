@@ -28,7 +28,7 @@ The tutorial consists of 5 progressive steps:
 ### If `/autology:tutorial reset`
 
 1. Use `autology_query { "tags": ["tutorial"] }` to find all tutorial nodes
-2. For each node, use `autology_delete { "nodeId": "..." }` to remove it
+2. For each node, use `autology_delete { "id": "..." }` to remove it
 3. Confirm cleanup: "✅ Cleaned up [N] tutorial nodes."
 
 ### Step 1: What is an Ontology? — Checking Current State
@@ -356,9 +356,9 @@ Ready to continue? (yes/no)
 
 ---
 
-### Step 4: Searching Knowledge — Queries and Context
+### Step 4: Searching Knowledge — Queries
 
-**Core Concept**: Search with `autology_query`, retrieve context-aware knowledge with `autology_context`
+**Core Concept**: Search with `autology_query` to find relevant knowledge
 
 **Process**:
 
@@ -368,9 +368,7 @@ Ready to continue? (yes/no)
 
 Now that you've captured and connected knowledge, let's learn how to **find and use** it when needed!
 
-Autology provides two ways to retrieve knowledge:
-1. **autology_query**: Explicit search (search for what you want)
-2. **autology_context**: Context-based recommendations (suggest knowledge related to current work)
+Autology provides explicit search with `autology_query`:
 ```
 
 2. **Tag Search Practice**:
@@ -437,36 +435,14 @@ Answers questions like "What did we have about authentication?"
 
 5. **Context-based Retrieval Practice**:
 ```
-Finally, let's try **context-based retrieval**.
+**Note**: Context-based retrieval (`autology_context`) is planned for future versions. For now, use specific queries with tags and keywords to find related knowledge.
 
-`autology_context` analyzes your current work situation and automatically recommends relevant knowledge.
-
-For example, let's assume you're "implementing user authentication functionality".
-
-Call autology_context {
-  "currentTask": "implementing user authentication functionality",
-  "recentFiles": []
-}
-```
-
-Display results:
-```
-🎯 **Context-based Recommendations**
-
-Current task: "implementing user authentication functionality"
-
-Relevant knowledge:
-[Display relevant nodes with confidence scores]
-
-### Difference between Query and Context:
+### Query Best Practices:
 
 - **autology_query** (Search):
   - Explicit search: When you know exactly what you're looking for
   - Example: "Find JWT-related decisions"
-
-- **autology_context** (Context):
-  - Automatic recommendations: AI finds knowledge related to current work
-  - Example: "Working on auth" → auto-suggest related decisions, components, conventions
+  - Filter by type, tags, or full-text search
 
 Context is automatically activated when working with Claude Code!
 ```
@@ -577,9 +553,8 @@ Example:
    - Relation types: affects, uses, supersedes, ...
 
 3. **Retrieve**
-   - Explicit: `autology_query` (tag, type, text search)
-   - Automatic: `autology_context` (work context-based recommendations)
-   - Hooks: SessionStart auto-injects relevant knowledge
+   - Search: `autology_query` (tag, type, text search)
+   - Agents: `autology-explorer` for analysis, `autology-capture-advisor` for capture
 
 4. **Evolve**
    - New decisions supersede old decisions
@@ -616,8 +591,8 @@ Congratulations! You've learned all of Autology's core concepts:
 ✅ **Ontology Structure**: Node types, node states
 ✅ **Knowledge Capture**: `autology_capture`, ADR format
 ✅ **Knowledge Connection**: `autology_relate`, relation types
-✅ **Knowledge Search**: `autology_query`, `autology_context`
-✅ **Automation**: 4 hooks, knowledge lifecycle
+✅ **Knowledge Search**: `autology_query`
+✅ **Automation**: Hooks + 2 specialized agents
 
 ### What's Next?
 

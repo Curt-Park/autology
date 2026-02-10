@@ -12,13 +12,18 @@
 │  - SessionEnd: session end → show capture tips          │
 ├─────────────────────────────────────────────────────────┤
 │  Skills         │  Agents (Contextual)                  │
-│  /tutorial      │  autology-explorer                    │
-│  /capture       │  - Triggers on architecture questions │
-│  /explore       │  - Triggers on design decisions       │
-│                 │  - Suggests capture during analysis   │
+│  /tutorial      │  autology-explorer (R)                │
+│  /capture       │  - Architecture/design questions      │
+│  /explore       │  - Read-only analysis                 │
+│                 │                                        │
+│                 │  autology-capture-advisor (CUD)       │
+│                 │  - Capture decisions/components       │
+│                 │  - Update existing knowledge          │
+│                 │  - Manage relations                   │
 ├─────────────────────────────────────────────────────────┤
 │              MCP Server (Go Implementation)             │
-│        3 Tools: capture, query, status                  │
+│     7 Tools: query, status, capture, update,            │
+│              delete, relate, unrelate                   │
 ├─────────────────────────────────────────────────────────┤
 │                 Storage Layer                           │
 │  • NodeStore (CRUD)                                     │
@@ -182,6 +187,101 @@ type KnowledgeNode struct {
 - Counts relations by type
 - Returns comprehensive statistics
 
+### `autology_update`
+**Purpose**: Update an existing knowledge node
+
+**Input**:
+```json
+{
+  "id": "string (required, node ID)",
+  "title": "string (optional, new title)",
+  "content": "string (optional, new content in markdown)",
+  "tags": ["string"] (optional, new tags),
+  "status": "string (optional, one of: active, needs_review, superseded)",
+  "confidence": 0.9 (optional, new confidence score 0.0-1.0)
+}
+```
+
+**Output**: Success message with changed fields
+```
+"✓ Updated: [title] ([type])\nFields changed: [list]"
+```
+
+**Behavior**:
+- Finds node by ID across all types
+- Updates only provided fields (partial update)
+- Preserves all other fields
+- Updates `modified` timestamp
+- Returns error if node not found or no fields to update
+
+### `autology_delete`
+**Purpose**: Delete a knowledge node and cleanup its relations
+
+**Input**:
+```json
+{
+  "id": "string (required, node ID to delete)"
+}
+```
+
+**Output**: Success message with relation count
+```
+"✓ Deleted: [title] ([type])\nRelations removed: [count]"
+```
+
+**Behavior**:
+- Finds and deletes node file
+- Removes all relations where node is source or target
+- Returns error if node not found
+- Operation is irreversible
+
+### `autology_relate`
+**Purpose**: Create or update a relation between two nodes (upsert)
+
+**Input**:
+```json
+{
+  "source": "string (required, source node ID)",
+  "target": "string (required, target node ID)",
+  "type": "string (required, one of: affects, uses, supersedes, relates_to, implements, depends_on, derived_from)",
+  "description": "string (optional, relation description)",
+  "confidence": 0.8 (optional, default: 0.8, range: 0.0-1.0)
+}
+```
+
+**Output**: Success message
+```
+"✓ Related: [source] —[[type]]→ [target]"
+```
+
+**Behavior**:
+- Validates both source and target nodes exist
+- Upserts relation (creates if new, updates if exists)
+- Updates graph index
+- Returns error if source or target not found
+
+### `autology_unrelate`
+**Purpose**: Delete a specific relation between two nodes
+
+**Input**:
+```json
+{
+  "source": "string (required, source node ID)",
+  "target": "string (required, target node ID)",
+  "type": "string (required, relation type to remove)"
+}
+```
+
+**Output**: Success message
+```
+"✓ Removed relation: [source] —[[type]]→ [target]"
+```
+
+**Behavior**:
+- Removes specified relation from graph index
+- Does not fail if relation doesn't exist
+- Nodes themselves remain unchanged
+
 ## Hybrid Triggering Strategy
 
 Autology uses **two complementary triggering mechanisms** for knowledge capture and exploration:
@@ -207,7 +307,11 @@ Autology uses **two complementary triggering mechanisms** for knowledge capture 
 
 ### 2. Agent-Based Triggering (Contextual)
 
-**Agent**: `autology-explorer`
+Autology provides two specialized agents following the single responsibility principle:
+
+#### `autology-explorer` (Read-Only)
+
+**Model**: haiku (frequent triggering, structured MCP calls)
 
 **Trigger Method**: Pattern matching on query content during conversation
 
@@ -220,11 +324,42 @@ Autology uses **two complementary triggering mechanisms** for knowledge capture 
 4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
 5. **Evolution**: "How did X evolve?", "What changed since..."
 
-**Proactive Capture**: Agent may suggest `/autology:capture` when discovering capture-worthy insights during exploration
+**Tools**: `autology_query`, `autology_status` (read-only)
 
-**Why Both?**:
-- **Hooks**: Reliable, event-driven capture suggestions (git operations, compaction)
-- **Agents**: Context-aware, conversational capture suggestions (questions, analysis)
+**Limitations**: Cannot create, update, or delete nodes. Will suggest using `autology-capture-advisor` for write operations.
+
+#### `autology-capture-advisor` (Create/Update/Delete)
+
+**Model**: sonnet (long-context synthesis for extracting scattered decisions)
+
+**Trigger Method**: Declarative statements expressing new knowledge
+
+**Description Keywords**: chose, decided, built, created, implemented, the rule is, always, never, finished
+
+**Expected Triggers**:
+1. **Decisions**: "We chose Redis over Memcached"
+2. **Components**: "I built a new AuthService"
+3. **Conventions**: "All errors must include correlation IDs"
+4. **Concepts**: "Order lifecycle: pending → confirmed → shipped"
+5. **Patterns**: "We use the Repository pattern"
+6. **Issues**: "N+1 queries causing performance issues"
+7. **Sessions**: "Finished implementing authentication system"
+
+**Tools**: All 7 MCP tools (query, status, capture, update, delete, relate, unrelate)
+
+**Workflow**:
+1. Extract and classify knowledge from conversation
+2. Query for existing nodes (deduplication)
+3. Suggest CREATE (new) or UPDATE (existing)
+4. Get user approval before write operations
+5. Suggest relations after creation
+
+**Disambiguation**: Uses sentence form, user intent, temporal direction, and action verbs to distinguish from explorer queries.
+
+**Why Three Mechanisms?**:
+- **Hooks**: Deterministic, event-driven (git, compaction, session end)
+- **Explorer**: Context-aware read analysis (questions, exploration)
+- **Capture-Advisor**: Long-context knowledge extraction (declarative statements)
 
 ## Skills
 

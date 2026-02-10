@@ -166,13 +166,134 @@ Get knowledge graph statistics.
 }
 ```
 
+---
+
+### `autology_update`
+
+Update an existing knowledge node (partial update).
+
+```json
+{
+  "id": "node-id (required)",
+  "title": "New title (optional)",
+  "content": "New markdown content (optional)",
+  "tags": ["new", "tags"] (optional),
+  "status": "active|needs_review|superseded (optional)",
+  "confidence": 0.9 (optional)
+}
+```
+
+**Behavior**:
+- Updates only the fields you provide
+- Preserves all other fields unchanged
+- Updates `modified` timestamp automatically
+
+**Example**:
+```json
+{
+  "id": "decision-auth-2024",
+  "status": "superseded",
+  "content": "## Context\n...\n## Update\nSuperseded by OAuth2 implementation"
+}
+```
+
+---
+
+### `autology_delete`
+
+Delete a knowledge node and all its relations.
+
+```json
+{
+  "id": "node-id (required)"
+}
+```
+
+**Behavior**:
+- Permanently deletes the node file
+- Removes all relations where this node is source or target
+- Irreversible operation
+
+**Warning**: Consider marking as "superseded" instead if knowledge is being replaced.
+
+**Example**:
+```json
+{
+  "id": "decision-old-cache-2023"
+}
+```
+
+---
+
+### `autology_relate`
+
+Create or update a relation between two nodes (upsert).
+
+```json
+{
+  "source": "source-node-id (required)",
+  "target": "target-node-id (required)",
+  "type": "affects|uses|supersedes|relates_to|implements|depends_on|derived_from (required)",
+  "description": "Relation description (optional)",
+  "confidence": 0.8 (optional, default: 0.8)
+}
+```
+
+**Behavior**:
+- Validates both nodes exist
+- Creates new relation or updates existing
+- Stores in graph index
+
+**Example**:
+```json
+{
+  "source": "decision-redis-cache",
+  "target": "component-session-service",
+  "type": "affects",
+  "description": "Changes how sessions are stored",
+  "confidence": 0.95
+}
+```
+
+---
+
+### `autology_unrelate`
+
+Remove a specific relation between two nodes.
+
+```json
+{
+  "source": "source-node-id (required)",
+  "target": "target-node-id (required)",
+  "type": "relation-type (required)"
+}
+```
+
+**Behavior**:
+- Removes the specified relation from graph index
+- Nodes themselves remain unchanged
+- Does not fail if relation doesn't exist
+
+**Example**:
+```json
+{
+  "source": "decision-redis-cache",
+  "target": "component-old-cache",
+  "type": "affects"
+}
+```
+
+---
+
 ## Automation with Agents
 
-Autology uses the **autology-explorer agent** to proactively provide ontology context.
+Autology provides two specialized agents following the single responsibility principle.
 
-### When the Agent Triggers
+### `autology-explorer` (Read-Only Analysis)
 
-The agent automatically activates when you ask questions about:
+**Purpose**: Deep analysis of **existing** knowledge
+
+**When It Triggers** (interrogative questions):
 
 **Architecture & Design**:
 - "Why did we choose this database?"
@@ -199,25 +320,86 @@ The agent automatically activates when you ask questions about:
 - "What changed since project start?"
 - "Show me the decision timeline"
 
-### What the Agent Does
+**What It Does**:
+1. Searches knowledge nodes with `autology_query`
+2. Explores relations and graph structure
+3. Provides context from past decisions
+4. Identifies gaps and quality issues
+5. Suggests (but cannot create) improvements
 
-1. Analyzes your query for ontology relevance
-2. Searches knowledge nodes with `autology_query`
-3. Explores relations with graph analysis
-4. Provides context from past decisions
-5. Suggests related patterns and conventions
+**Limitations**: Read-only access. Will suggest using `autology-capture-advisor` for creating or updating nodes.
 
-### Manual Invocation
+---
 
-If the agent doesn't trigger automatically:
+### `autology-capture-advisor` (Create/Update/Delete)
 
+**Purpose**: Extract and structure knowledge from conversations
+
+**When It Triggers** (declarative statements):
+
+**Decisions**:
+- "We chose Redis over Memcached for caching"
+- "Let's use JWT for authentication"
+
+**Components**:
+- "I built a new AuthService to handle login"
+- "Created a CacheManager class"
+
+**Conventions**:
+- "All errors must include correlation IDs"
+- "We always use camelCase for variables"
+
+**Concepts**:
+- "Order lifecycle: pending → confirmed → shipped"
+- "The build process works in 3 stages"
+
+**Patterns**:
+- "We use the Repository pattern for data access"
+- "All API responses follow envelope format"
+
+**Issues**:
+- "N+1 queries causing 3s response times"
+- "Memory leak in session cleanup"
+
+**Sessions**:
+- "Finished implementing user authentication system"
+- "Completed the caching layer refactor"
+
+**What It Does**:
+1. Detects capture-worthy content from conversation
+2. Classifies node type (decision, component, etc.)
+3. Structures content appropriately (ADR for decisions, etc.)
+4. Queries for existing nodes (deduplication check)
+5. Suggests CREATE (new) or UPDATE (existing)
+6. Gets user approval before any write operation
+7. Manages relations between nodes
+
+**Workflow Example**:
 ```
-Use the autology-explorer agent to analyze [your question]
+User: "We decided to use Redis for session caching instead of PostgreSQL"
+
+Agent:
+🎯 Detected: Decision (confidence: 95%)
+Title: "Use Redis for session caching"
+
+Checking for existing nodes... Found: "Session Storage" (decision-session-2024)
+
+Suggested action: UPDATE existing node with:
+- New information about Redis choice
+- Alternative considered: PostgreSQL
+- Performance improvement metrics
+
+Update this node?
+```
+
+**Manual Invocation**:
+```
+Use the autology-capture-advisor agent to capture [knowledge]
 ```
 
 Or use skills:
-- `/autology:explore` - Search and query
 - `/autology:capture` - Guided capture
+- `/autology:explore` - Search and query
 
 ### Reliability
 
@@ -352,19 +534,64 @@ git commit -m "feat: add Redis session storage"
 ### Workflow 4: Agent-Assisted Development
 
 ```
-1. Query: "How should I implement authentication?"
-   → autology-explorer triggers
-   → Finds JWT Auth Decision and Security Conventions
+1. Exploration (autology-explorer):
+   User: "How should I implement authentication?"
+   → Explorer triggers (interrogative)
+   → Queries for JWT Auth Decision and Security Conventions
    → Suggests patterns to follow
 
-2. Query: "Does this implementation follow our patterns?"
-   → autology-explorer triggers
+2. Validation (autology-explorer):
+   User: "Does this implementation follow our patterns?"
+   → Explorer triggers (interrogative)
    → Compares against existing conventions
    → Identifies gaps or inconsistencies
 
-3. Use /autology:capture to document new patterns
-   → Creates component node for AuthService
-   → Links to related decisions and conventions
+3. Capture (autology-capture-advisor):
+   User: "I built a new AuthService that handles JWT validation"
+   → Capture-advisor triggers (declarative)
+   → Classifies as component
+   → Queries for duplicates (none found)
+   → Suggests creating node with relations to JWT Decision
+   → Creates node after user approval
+```
+
+### Workflow 5: Agent-Assisted Update
+
+```
+Scenario: You made a new decision that supersedes an old one
+
+1. User: "We switched from JWT to OAuth2 for authentication"
+
+2. Capture-advisor triggers:
+   🎯 Detected: Decision (confidence: 95%)
+
+   Checking existing nodes...
+   Found: "Use JWT for Authentication" (decision-jwt-2024)
+
+   This appears to supersede the existing decision.
+
+   Suggested actions:
+   1. Create new node: "Use OAuth2 for Authentication"
+   2. Mark old node as superseded
+   3. Create supersedes relation
+
+   Proceed? [yes/no]
+
+3. User: "yes"
+
+4. Agent executes:
+   - autology_capture {...} → Returns new-id
+   - autology_update { "id": "decision-jwt-2024", "status": "superseded" }
+   - autology_relate {
+       "source": "<new-id>",
+       "target": "decision-jwt-2024",
+       "type": "supersedes"
+     }
+
+5. Result:
+   ✓ Created: Use OAuth2 for Authentication (decision)
+   ✓ Updated: Use JWT for Authentication (superseded)
+   ✓ Related: <new-id> —[supersedes]→ decision-jwt-2024
 ```
 
 ## Tips
