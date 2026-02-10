@@ -1,4 +1,4 @@
-.PHONY: all build test test-coverage coverage-html clean install run fmt check help
+.PHONY: all build test test-coverage coverage-html clean install run fmt lint check help
 
 # Default target
 all: build
@@ -48,8 +48,20 @@ fmt:
 	@go fmt ./...
 	@echo "✓ Formatted"
 
-# Run all checks (format + test)
-check: fmt test
+# Lint code
+lint:
+	@echo "Linting Go code..."
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint run ./...; \
+		echo "✓ Linting passed (golangci-lint)"; \
+	else \
+		echo "⚠ golangci-lint not found, using go vet..."; \
+		go vet ./...; \
+		echo "✓ Linting passed (go vet)"; \
+	fi
+
+# Run all checks (format + lint + test)
+check: fmt lint test
 	@echo "✓ All checks passed"
 
 # Display help
@@ -61,8 +73,9 @@ help:
 	@echo "  make test          - Run all unit tests (includes hook tests)"
 	@echo "  make test-coverage - Run tests with coverage report"
 	@echo "  make coverage-html - View coverage in browser"
-	@echo "  make check         - Run fmt and test (recommended before commit)"
+	@echo "  make check         - Run fmt, lint, and test (recommended before commit)"
 	@echo "  make fmt           - Format code"
+	@echo "  make lint          - Lint code (golangci-lint or go vet)"
 	@echo ""
 	@echo "Other targets:"
 	@echo "  make install       - Download Go dependencies"
