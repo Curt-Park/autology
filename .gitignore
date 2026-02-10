@@ -1,5 +1,4 @@
-dist/
-.claude-plugin/bin/
+bin/
 *.log
 .DS_Store
 coverage/

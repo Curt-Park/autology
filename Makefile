@@ -6,9 +6,9 @@ all: build
 # Build the autology binary
 build:
 	@echo "Building autology..."
-	@mkdir -p .claude-plugin/bin
-	@go build -o .claude-plugin/bin/autology ./cmd/autology
-	@echo "✓ Built: .claude-plugin/bin/autology"
+	@mkdir -p ./bin
+	@go build -o ./bin/autology ./cmd/autology
+	@echo "✓ Built: ./bin/autology"
 
 # Run all tests (unit tests including hooks)
 test:
