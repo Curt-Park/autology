@@ -85,6 +85,16 @@ The plugin will automatically download the correct binary for your platform (mac
 /autology:explore decisions
 ```
 
+## Local Testing
+
+```bash
+git clone https://github.com/Curt-Park/autology.git
+cd autology
+make install  # required once at the beginning (see https://go.dev/doc/install)
+make build  # required whenever the golang code changes
+claude --plugin-dir .
+```
+
 ## Philosophy
 
 When AI writes code, humans should **understand more, not less**.
