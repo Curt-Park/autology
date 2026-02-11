@@ -1,4 +1,4 @@
-.PHONY: all build test test-coverage coverage-html clean install run fmt lint check help
+.PHONY: all build test test-coverage coverage-html clean install setup run fmt lint check help
 
 # Default target
 all: build
@@ -31,6 +31,23 @@ install:
 	@echo "Downloading Go dependencies..."
 	@go mod download
 	@echo "✓ Dependencies installed"
+
+# Setup development environment
+setup:
+	@echo "Setting up development environment..."
+	@if command -v mise >/dev/null 2>&1; then \
+		echo "✓ mise detected"; \
+		mise install; \
+		mise run setup; \
+	else \
+		echo "⚠  mise not found. Installing dependencies manually..."; \
+		echo "   (Install mise for easier setup: https://mise.jdx.dev)"; \
+		go mod download; \
+		if ! command -v golangci-lint >/dev/null 2>&1; then \
+			echo "⚠  golangci-lint not found. Install from: https://golangci-lint.run/welcome/install/"; \
+		fi; \
+	fi
+	@echo "✓ Setup complete"
 
 # Clean build artifacts
 clean:
@@ -67,6 +84,9 @@ check: fmt lint test
 # Display help
 help:
 	@echo "Autology - Go Implementation"
+	@echo ""
+	@echo "Setup:"
+	@echo "  make setup         - Setup dev environment (uses mise if available)"
 	@echo ""
 	@echo "Core targets:"
 	@echo "  make build         - Build the autology binary"
