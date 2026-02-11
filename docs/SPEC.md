@@ -15,10 +15,7 @@
 │  /tutorial      │  autology-explorer (R-Q&A)            │
 │  /capture       │  - Answer impl questions w/ synthesis │
 │  /explore       │                                        │
-│  /analyze       │  autology-analyzer (R-Meta)           │
-│                 │  - Health/gaps/quality analysis       │
-│                 │                                        │
-│                 │  autology-capture-advisor (CUD)       │
+│  /analyze       │  autology-capture-advisor (CUD)       │
 │                 │  - Capture decisions/components       │
 │                 │  - Update existing knowledge          │
 │                 │  - Manage relations                   │
@@ -329,30 +326,7 @@ Autology provides three specialized agents following the single responsibility p
 
 **Output**: Synthesized answers with node ID citations, not raw lists
 
-**Limitations**: Cannot create, update, or delete nodes. Will suggest using `autology-capture-advisor` for write operations or `autology-analyzer` for meta-analysis.
-
----
-
-#### `autology-analyzer` (Read-Only - Meta-Analysis)
-
-**Model**: haiku (fast analysis, structured outputs)
-
-**Trigger Method**: Meta-health and structural analysis questions
-
-**Description Keywords**: analyze, assess health, gaps, quality, evolution, structure, taxonomy
-
-**Expected Triggers**:
-1. **Health Assessment**: "Is ontology healthy?", "What's missing?"
-2. **Gap Detection**: "What's undocumented?", "Orphaned nodes?"
-3. **Relation Analysis**: "Show graph structure", "Hub nodes?"
-4. **Evolution**: "Growth patterns?", "Focus area shifts?"
-5. **Quality Check**: "Content completeness?", "ADR compliance?"
-
-**Tools**: `autology_query`, `autology_status` (read-only)
-
-**Output Format**: What/Why/Impact/Action structure with detailed reasoning
-
-**Capabilities**: 7 analysis types - Health, Gaps, Relations, Evolution, Quality, Tags, Impact
+**Limitations**: Cannot create, update, or delete nodes. Will suggest using `autology-capture-advisor` for write operations or `/autology:analyze` skill for meta-analysis.
 
 ---
 
@@ -384,11 +358,12 @@ Autology provides three specialized agents following the single responsibility p
 
 **Disambiguation**: Uses sentence form, user intent, temporal direction, and action verbs to distinguish from explorer queries.
 
-**Why Four Mechanisms?**:
+**Why Three Mechanisms?**:
 - **Hooks**: Deterministic, event-driven (git, compaction, session end)
 - **Explorer**: Context-aware Q&A (synthesizes answers from ontology)
-- **Analyzer**: Meta-health analysis (structural gaps, quality, evolution)
 - **Capture-Advisor**: Long-context knowledge extraction (declarative statements, CUD)
+
+**Note**: Meta-health analysis is handled by the `/autology:analyze` skill rather than a separate agent, eliminating redundancy while maintaining full capability.
 
 ## Skills
 

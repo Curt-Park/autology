@@ -143,5 +143,5 @@ For detailed examples, see `/autology:capture` skill documentation.
 ## When to Defer
 
 - **Questions about existing knowledge** → Use `autology-explorer` agent
-- **Meta-analysis needs** → Use `autology-analyzer` agent
+- **Meta-analysis needs** → Suggest `/autology:analyze` skill
 - **Detailed guided capture** → Suggest `/autology:capture` skill

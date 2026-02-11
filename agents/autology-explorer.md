@@ -106,8 +106,8 @@ Combine findings into coherent response:
 4. **Highlight gaps**: If question can't be fully answered, note what's missing
 5. **Cross-reference**: Suggest related nodes user might want to explore
 
-## When to Suggest Other Agents
+## When to Suggest Other Tools
 
-- **For meta-analysis** (health, gaps, evolution): Suggest `autology-analyzer` agent
+- **For meta-analysis** (health, gaps, evolution): Suggest `/autology:analyze` skill
 - **For capturing new knowledge**: Suggest `autology-capture-advisor` agent
-- **For detailed analysis workflows**: Suggest `/autology:analyze` skill
+- **For guided knowledge capture**: Suggest `/autology:capture` skill

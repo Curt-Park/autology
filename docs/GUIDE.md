@@ -308,33 +308,7 @@ Autology provides three specialized agents following the single responsibility p
 
 **Output**: Coherent answers with references, not raw node lists
 
-**Limitations**: Read-only access. Will suggest using `autology-analyzer` for meta-analysis or `autology-capture-advisor` for write operations.
-
----
-
-### `autology-analyzer` (Read-Only - Meta-Analysis)
-
-**Purpose**: Analyze ontology meta-health, structure, and evolution
-
-**When It Triggers** (meta-health and structural questions):
-- "Is ontology healthy?"
-- "What's missing from our knowledge base?"
-- "Show me the graph structure"
-- "What are the quality issues?"
-- "How has our ontology evolved?"
-
-**Analysis Types**:
-1. **Health Analysis**: Coverage, consistency, freshness, connectivity
-2. **Gap Detection**: Undocumented areas, orphaned nodes, missing links
-3. **Relation Graph**: Hubs, clusters, missing connections
-4. **Evolution Timeline**: Growth patterns, focus shifts
-5. **Quality Assessment**: Content depth, ADR compliance
-6. **Tag Taxonomy**: Tagging patterns, suggested standardization
-7. **Impact Analysis**: Node dependencies and change scope
-
-**Output Format**: What/Why/Impact/Action structure with detailed reasoning
-
-**Limitations**: Read-only access. Will suggest using `autology-capture-advisor` for fixing identified issues.
+**Limitations**: Read-only access. Will suggest using `/autology:analyze` skill for meta-analysis or `autology-capture-advisor` for write operations.
 
 ---
 
