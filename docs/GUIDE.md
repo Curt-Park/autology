@@ -287,47 +287,54 @@ Remove a specific relation between two nodes.
 
 ## Automation with Agents
 
-Autology provides two specialized agents following the single responsibility principle.
+Autology provides three specialized agents following the single responsibility principle.
 
-### `autology-explorer` (Read-Only Analysis)
+### `autology-explorer` (Read-Only - Q&A)
 
-**Purpose**: Deep analysis of **existing** knowledge
+**Purpose**: Answer implementation questions using existing ontology knowledge
 
-**When It Triggers** (interrogative questions):
-
-**Architecture & Design**:
-- "Why did we choose this database?"
+**When It Triggers** (interrogative questions about existing knowledge):
+- "How do we handle authentication?"
+- "Why did we choose PostgreSQL?"
 - "What's our error handling convention?"
-- "Show me past API design decisions"
-
-**Implementation Planning**:
-- "What will adding auth affect?"
-- "What depends on this component?"
-- "What patterns should I follow?"
-
-**Quality & Review**:
-- "Does this follow our patterns?"
-- "What conventions am I missing?"
-- "Are there similar solutions?"
-
-**Knowledge Discovery**:
-- "What's missing from our docs?"
-- "Are there outdated decisions?"
-- "Show me isolated nodes"
-
-**Evolution Analysis**:
-- "How did our testing strategy evolve?"
-- "What changed since project start?"
-- "Show me the decision timeline"
+- "Show me all API-related decisions"
+- "What components depend on AuthService?"
 
 **What It Does**:
-1. Searches knowledge nodes with `autology_query`
-2. Explores relations and graph structure
-3. Provides context from past decisions
-4. Identifies gaps and quality issues
-5. Suggests (but cannot create) improvements
+1. Extracts keywords from question
+2. Queries ontology with multiple targeted searches
+3. Synthesizes answer from found knowledge
+4. Cites sources with node IDs for traceability
 
-**Limitations**: Read-only access. Will suggest using `autology-capture-advisor` for creating or updating nodes.
+**Output**: Coherent answers with references, not raw node lists
+
+**Limitations**: Read-only access. Will suggest using `autology-analyzer` for meta-analysis or `autology-capture-advisor` for write operations.
+
+---
+
+### `autology-analyzer` (Read-Only - Meta-Analysis)
+
+**Purpose**: Analyze ontology meta-health, structure, and evolution
+
+**When It Triggers** (meta-health and structural questions):
+- "Is ontology healthy?"
+- "What's missing from our knowledge base?"
+- "Show me the graph structure"
+- "What are the quality issues?"
+- "How has our ontology evolved?"
+
+**Analysis Types**:
+1. **Health Analysis**: Coverage, consistency, freshness, connectivity
+2. **Gap Detection**: Undocumented areas, orphaned nodes, missing links
+3. **Relation Graph**: Hubs, clusters, missing connections
+4. **Evolution Timeline**: Growth patterns, focus shifts
+5. **Quality Assessment**: Content depth, ADR compliance
+6. **Tag Taxonomy**: Tagging patterns, suggested standardization
+7. **Impact Analysis**: Node dependencies and change scope
+
+**Output Format**: What/Why/Impact/Action structure with detailed reasoning
+
+**Limitations**: Read-only access. Will suggest using `autology-capture-advisor` for fixing identified issues.
 
 ---
 

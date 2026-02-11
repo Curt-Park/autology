@@ -12,9 +12,11 @@
 │  - SessionEnd: session end → show capture tips          │
 ├─────────────────────────────────────────────────────────┤
 │  Skills         │  Agents (Contextual)                  │
-│  /tutorial      │  autology-explorer (R)                │
-│  /capture       │  - Architecture/design questions      │
-│  /explore       │  - Read-only analysis                 │
+│  /tutorial      │  autology-explorer (R-Q&A)            │
+│  /capture       │  - Answer impl questions w/ synthesis │
+│  /explore       │                                        │
+│  /analyze       │  autology-analyzer (R-Meta)           │
+│                 │  - Health/gaps/quality analysis       │
 │                 │                                        │
 │                 │  autology-capture-advisor (CUD)       │
 │                 │  - Capture decisions/components       │
@@ -307,26 +309,52 @@ Autology uses **two complementary triggering mechanisms** for knowledge capture 
 
 ### 2. Agent-Based Triggering (Contextual)
 
-Autology provides two specialized agents following the single responsibility principle:
+Autology provides three specialized agents following the single responsibility principle:
 
-#### `autology-explorer` (Read-Only)
+#### `autology-explorer` (Read-Only - Q&A)
 
 **Model**: haiku (frequent triggering, structured MCP calls)
 
-**Trigger Method**: Pattern matching on query content during conversation
+**Trigger Method**: Interrogative forms asking about existing knowledge
 
-**Description Keywords**: architecture, decisions, patterns, conventions, relationships, impact, gaps, evolution, timeline, quality
+**Description Keywords**: How do we, why did we, what's our approach, show me decisions about
 
 **Expected Triggers**:
-1. **Architecture/Design**: "Why did we choose...", "What's our convention..."
-2. **Implementation**: "What will this affect?", "What depends on..."
-3. **Quality/Review**: "Does this follow our patterns?", "What conventions..."
-4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
-5. **Evolution**: "How did X evolve?", "What changed since..."
+1. **Implementation Questions**: "How do we handle authentication?"
+2. **Decision Rationale**: "Why did we choose PostgreSQL?"
+3. **Convention Queries**: "What's our error handling convention?"
+4. **Component Discovery**: "What components depend on AuthService?"
 
 **Tools**: `autology_query`, `autology_status` (read-only)
 
-**Limitations**: Cannot create, update, or delete nodes. Will suggest using `autology-capture-advisor` for write operations.
+**Output**: Synthesized answers with node ID citations, not raw lists
+
+**Limitations**: Cannot create, update, or delete nodes. Will suggest using `autology-capture-advisor` for write operations or `autology-analyzer` for meta-analysis.
+
+---
+
+#### `autology-analyzer` (Read-Only - Meta-Analysis)
+
+**Model**: haiku (fast analysis, structured outputs)
+
+**Trigger Method**: Meta-health and structural analysis questions
+
+**Description Keywords**: analyze, assess health, gaps, quality, evolution, structure, taxonomy
+
+**Expected Triggers**:
+1. **Health Assessment**: "Is ontology healthy?", "What's missing?"
+2. **Gap Detection**: "What's undocumented?", "Orphaned nodes?"
+3. **Relation Analysis**: "Show graph structure", "Hub nodes?"
+4. **Evolution**: "Growth patterns?", "Focus area shifts?"
+5. **Quality Check**: "Content completeness?", "ADR compliance?"
+
+**Tools**: `autology_query`, `autology_status` (read-only)
+
+**Output Format**: What/Why/Impact/Action structure with detailed reasoning
+
+**Capabilities**: 7 analysis types - Health, Gaps, Relations, Evolution, Quality, Tags, Impact
+
+---
 
 #### `autology-capture-advisor` (Create/Update/Delete)
 
@@ -356,10 +384,11 @@ Autology provides two specialized agents following the single responsibility pri
 
 **Disambiguation**: Uses sentence form, user intent, temporal direction, and action verbs to distinguish from explorer queries.
 
-**Why Three Mechanisms?**:
+**Why Four Mechanisms?**:
 - **Hooks**: Deterministic, event-driven (git, compaction, session end)
-- **Explorer**: Context-aware read analysis (questions, exploration)
-- **Capture-Advisor**: Long-context knowledge extraction (declarative statements)
+- **Explorer**: Context-aware Q&A (synthesizes answers from ontology)
+- **Analyzer**: Meta-health analysis (structural gaps, quality, evolution)
+- **Capture-Advisor**: Long-context knowledge extraction (declarative statements, CUD)
 
 ## Skills
 

@@ -21,6 +21,7 @@
   ],
   "agents": [
     "./agents/autology-explorer.md",
+    "./agents/autology-analyzer.md",
     "./agents/autology-capture-advisor.md"
   ],
   "mcpServers": {
