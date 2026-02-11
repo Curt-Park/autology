@@ -91,7 +91,6 @@ type KnowledgeNode struct {
 	Status     NodeStatus `json:"status" yaml:"status"`
 }
 
-
 // NodeFilter defines search criteria for nodes
 type NodeFilter struct {
 	Type          *NodeType   // Filter by node type

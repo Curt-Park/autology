@@ -1,147 +1,150 @@
 ---
 name: autology:analyze
-description: Holistic ontology health check with prioritized recommendations
+description: Doc-code cross-reference verification to find synchronization issues
 ---
 
-This skill provides a comprehensive health assessment of your knowledge ontology with structured reports following the What/Why/Impact/Action framework.
+This skill verifies that documentation nodes accurately describe the actual codebase, following the core principle in CLAUDE.md: **Documentation and code must always be synchronized.**
 
 ## Usage
 
-`/autology:analyze` — Run comprehensive ontology health check
+`/autology:analyze` — Run doc-code verification analysis
 
 ## Process
 
-1. **Gather Statistics**: `autology_status { "detail": "full" }` — Overall ontology metrics
-2. **Query All Nodes**: `autology_query {}` — Retrieve complete node graph
-3. **Analyze 7 Health Dimensions**:
-   - **Empty/thin nodes**: Content < 50 words
-   - **Broken wikilinks**: `[[target]]` where target doesn't exist
-   - **Orphan nodes**: Zero relations
-   - **Knowledge gaps**: Type distribution imbalances
-   - **Stale nodes**: `needs_review` status or >90 days unchanged
-   - **Tag consistency**: Duplicate/inconsistent tags
-   - **ADR compliance**: Decision nodes missing Context/Decision/Alternatives/Consequences
-4. **Score Each Dimension**: 0-100 scale
-5. **Calculate Overall Health**: Weighted average of dimension scores
-6. **Generate Prioritized Actions**: Ranked by impact and effort
+1. **Query All Nodes**: `autology_query { limit: 100 }` — Retrieve complete ontology (IDs, titles, types, tags, content, wikilinks)
+2. **Survey Repository**: Use Glob + Read to inventory actual codebase components:
+   - `agents/*.md` — Agent count and names
+   - `skills/*/SKILL.md` — Skill count and names
+   - `hooks/hooks.json` — Hook types configured
+   - `internal/mcp/server.go` — MCP tool registrations
+   - `.claude-plugin/plugin.json` — Declared plugin components
+   - `internal/*/` — Go package structure
+3. **Knowledge Gaps**: Cross-reference ontology vs codebase to find:
+   - **Code → No Doc**: Significant components exist but no node documents them
+   - **Doc → No Code**: Nodes describe things that don't exist (deleted features, removed files)
+   - **Doc ≠ Code**: Nodes exist and code exists but they disagree (wrong paths, incorrect counts, outdated architecture)
+4. **Broken Wikilinks**: Extract all `[[target]]` patterns, verify each target exists in ontology
+5. **Missing Wikilinks**: Find node pairs that should reference each other:
+   - **Shared tags**: 2+ tags in common, no wikilink between them
+   - **Title mention**: Node A's content mentions node B's title but has no `[[B]]` link
+   - **MOC completeness**: MOC nodes should link to all nodes sharing their domain tag
 
 ## Output Format
 
+No scores. No statistics. No priority rankings. Each finding is a concrete fact with a specific fix.
+
 ```markdown
-# Ontology Health Report
+# Ontology Analysis Report
 
-## Overall Score: [X]/100
+## 1. Knowledge Gaps
 
-## Health Dimensions
+### Code → No Doc
+[Components that exist in code but have no covering documentation]
 
-### 1. Content Completeness: [X]/100
+#### [Component Name]
+**What**: brief description
+**Where**: `path/to/code`
+**Suggested action**: `/autology:capture` as [type] with tags [...]
 
-**Finding**: [Quantified observation with specific numbers]
-**Why**: [Root cause analysis]
-**Impact**: [Consequences on knowledge usability]
-**Action**:
-  1. [Specific actionable step]
-  2. [Next step]
-  ...
-**Evidence**: [Specific node IDs or patterns]
+### Doc → No Code
+[Nodes that describe things no longer in the codebase]
 
-### 2. Link Integrity: [X]/100
+#### [Node Title] (`node-id`)
+**Claim**: what the node says exists
+**Reality**: doesn't exist / was removed
+**Fix**: update or delete the node
 
-[Same structure...]
+### Doc ≠ Code
+[Nodes whose content contradicts the actual implementation]
 
-### 3. Connectivity: [X]/100
+#### [Node Title] (`node-id`)
+**Claim**: what the node says
+**Reality**: what the code actually shows
+**Fix**: specific correction
 
-[Same structure...]
+## 2. Broken Wikilinks
+| Source Node | Broken Link | Context |
+|-------------|-------------|---------|
+| `node-id` | `[[target]]` | where it appears |
 
-### 4. Knowledge Coverage: [X]/100
-
-[Same structure...]
-
-### 5. Freshness: [X]/100
-
-[Same structure...]
-
-### 6. Tag Taxonomy: [X]/100
-
-[Same structure...]
-
-### 7. ADR Compliance: [X]/100
-
-[Same structure...]
-
-## Priority Actions (Ranked by Impact)
-
-1. **[HIGH]** [Action with highest impact-to-effort ratio]
-2. **[HIGH]** [Next priority]
-3. **[MEDIUM]** [Medium priority actions]
-4. **[LOW]** [Nice-to-have improvements]
+## 3. Missing Wikilinks
+| Node A | Node B | Reason |
+|--------|--------|--------|
+| `id-a` | `id-b` | shared tags / title mention / MOC gap |
 
 ## Summary
-
-[1-2 sentence overall health assessment]
-[Key recommendation for immediate action]
+- Knowledge gaps: N (code→no doc: X, doc→no code: Y, doc≠code: Z)
+- Broken wikilinks: N
+- Missing wikilinks: N
 ```
 
 ## Analysis Guidelines
 
-### Scoring Rubric
+### Knowledge Gaps Detection
 
-Each dimension scored 0-100:
+#### Code → No Doc
 
-- **90-100**: Excellent health, minor optimizations possible
-- **70-89**: Good health, some improvements recommended
-- **50-69**: Moderate issues, action recommended
-- **30-49**: Significant issues, action required
-- **0-29**: Critical issues, immediate action required
+Survey these codebase areas for undocumented components:
 
-### Dimension Details
+1. **Agents**: `agents/*.md` — Count files, check if each has a corresponding node
+2. **Skills**: `skills/*/SKILL.md` — Count skills, verify each is documented
+3. **Hooks**: `hooks/hooks.json` — Parse hook types, check if hook system is documented
+4. **MCP Tools**: `internal/mcp/server.go` — Count `s.tools[...]` registrations, verify tool inventory node exists
+5. **Go Packages**: `internal/*/` — Major packages (mcp, hooks, storage) should have architecture nodes
+6. **Plugin Metadata**: `.claude-plugin/plugin.json` — Verify declared components match documentation
 
-#### 1. Content Completeness
+**Heuristic**: If a component is significant enough to warrant its own file/directory, it should have a documentation node.
 
-- Count nodes with content < 50 words (excluding MOCs)
-- Check for frontmatter-only stubs
-- Verify critical nodes (MOCs, key decisions) have substantial content
+#### Doc → No Code
 
-#### 2. Link Integrity
+For each node, extract factual claims and verify against codebase:
 
-- Extract all wikilink patterns: `\[\[([^\]]+)\]\]`
-- Verify each target exists in ontology
-- Report broken links with source context
+- **File path claims**: "Located at `path/to/file.go`" → verify file exists
+- **Count claims**: "3 agents", "7 MCP tools", "4 skills" → verify counts match reality
+- **Feature claims**: "Supports X", "Implements Y" → verify feature exists in code
+- **Architecture claims**: "Package Z handles..." → verify package exists and has that role
 
-#### 3. Connectivity
+**Heuristic**: If a node makes a specific, verifiable claim about the codebase, verify it's still true.
 
-- Calculate average relations per node
-- Identify orphans (0 relations)
-- Find potential hubs (>5 relations)
-- Assess overall graph density
+#### Doc ≠ Code
 
-#### 4. Knowledge Coverage
+Compare documentation to implementation:
 
-- Count nodes by type (decision, component, convention, concept, pattern, issue, session)
-- Check for imbalances (e.g., 50 sessions but 2 decisions)
-- Suggest missing node types based on project patterns
+- **Stale paths**: Node says `old/path.go`, code moved to `new/path.go`
+- **Stale counts**: Node says "3 agents", codebase has 1 agent
+- **Stale architecture**: Node describes old hook system, implementation changed to new approach
+- **Incomplete coverage**: Node lists 3 of 4 actual components (missing one)
 
-#### 5. Freshness
+**Heuristic**: When node and code both exist for the same concept, they should agree on facts.
 
-- Count nodes with `status: needs_review`
-- Calculate days since last modification
-- Flag nodes >90 days old in active areas
+### Broken Wikilinks Detection
 
-#### 6. Tag Taxonomy
+1. Extract all wikilink patterns from node content: `\[\[([^\]]+)\]\]`
+2. For each extracted target, check if a node with that ID exists in ontology
+3. Report broken links with:
+   - Source node ID
+   - Broken target
+   - Context snippet (20 chars before/after the wikilink)
 
-- Collect all unique tags
-- Identify near-duplicates (e.g., "api" vs "apis")
-- Check for inconsistent naming (camelCase, kebab-case, spaces)
-- Suggest tag normalization
+### Missing Wikilinks Detection
 
-#### 7. ADR Compliance
+#### Shared Tags Heuristic
 
-- For each `type: decision` node, verify sections exist:
-  - `## Context`
-  - `## Decision`
-  - `## Alternatives` (or `## Alternatives Considered`)
-  - `## Consequences`
-- Report incomplete ADRs with missing sections
+- For each node pair (A, B): count common tags
+- If ≥2 tags in common AND no wikilink A→B or B→A: suggest link
+- Skip if nodes are unrelated (e.g., both have "spec" but describe different domains)
+
+#### Title Mention Heuristic
+
+- For each node A: search content for other nodes' titles (case-insensitive)
+- If node B's title appears in A's content AND no `[[B]]` link: suggest link
+- Skip short titles (<4 chars) to avoid false positives
+
+#### MOC Completeness Heuristic
+
+- For nodes with type "concept" and tags suggesting MOC status (e.g., "moc", "index")
+- Find all nodes sharing the MOC's domain tag (e.g., "spec", "guide", "internals")
+- If MOC doesn't link to a domain node: suggest adding wikilink
 
 ## Example
 
@@ -150,81 +153,64 @@ Each dimension scored 0-100:
 **Output**:
 
 ```markdown
-# Ontology Health Report
+# Ontology Analysis Report
 
-## Overall Score: 68/100
+## 1. Knowledge Gaps
 
-## Health Dimensions
+### Code → No Doc
 
-### 1. Content Completeness: 45/100
+#### Go Test Files
+**What**: Test suite in `internal/hooks/hooks_test.go` (128 lines)
+**Where**: `internal/hooks/hooks_test.go`
+**Suggested action**: `/autology:capture` as component with tags [internals, testing]
 
-**Finding**: 12 of 21 nodes (57%) have < 50 words of content
-**Why**: Migration script failed to extract content from original SPEC.md/GUIDE.md sections
-**Impact**: Nodes are effectively empty stubs, providing no value to knowledge retrieval
-**Action**:
-  1. Delete 12 empty stub nodes (they can be recreated organically via /capture)
-  2. Focus on creating content-rich nodes going forward
-  3. Use /capture to rebuild missing concepts as needed
-**Evidence**: data-model.md (3 lines), mcp-tools-spec.md (3 lines), storage-format.md (3 lines), ...
+### Doc → No Code
 
-### 2. Link Integrity: 35/100
+#### Explorer Agent (`autology-explorer`)
+**Claim**: Node describes agent at `agents/autology-explorer.md`
+**Reality**: File deleted in Phase 3 consolidation (now `autology-advisor`)
+**Fix**: Delete node or update to describe new advisor agent
 
-**Finding**: 24 broken wikilinks across 3 MOC nodes
-**Why**: MOCs reference nodes that were deleted as empty stubs
-**Impact**: Navigation broken, wikilink graph incomplete
-**Action**:
-  1. Update spec-moc.md to remove references to deleted nodes
-  2. Update guide-moc.md to remove references to deleted nodes
-  3. Update internals-moc.md to remove references to deleted nodes
-**Evidence**: [[data-model]], [[mcp-tools-spec]], [[skills-usage]], ...
+### Doc ≠ Code
 
-### 3. Connectivity: 85/100
+#### Internals MOC (`internals-moc`)
+**Claim**: References `[[hooks-impl]]` which describes old hook system
+**Reality**: Hook implementation moved from `internal/hooks/hooks.go` to `internal/hooks/{post_tool_use,pre_compact,session_end}.go`
+**Fix**: Update MOC to reflect new file structure
 
-**Finding**: 5 active nodes, avg 1.2 relations per node, 0 orphans
-**Why**: Small ontology with tight coupling
-**Impact**: Good connectivity for current size
-**Action**: No action needed, connectivity is healthy
+## 2. Broken Wikilinks
 
-### 4. Knowledge Coverage: 60/100
+| Source Node | Broken Link | Context |
+|-------------|-------------|---------|
+| `spec-moc` | `[[skills-spec]]` | "See also [[skills-spec]] for..." |
+| `guide-moc` | `[[tutorial-walkthrough]]` | "Complete [[tutorial-walkthrough]]..." |
 
-**Finding**: Type distribution: 3 concepts, 1 decision, 0 components, 0 conventions, 0 patterns
-**Why**: Early stage ontology, focus on high-level concepts
-**Impact**: Missing tactical knowledge (conventions, patterns, components)
-**Action**:
-  1. Capture coding conventions as you discover them
-  2. Document component architecture decisions
-  3. Record recurring patterns
+## 3. Missing Wikilinks
 
-### 5. Freshness: 100/100
-
-**Finding**: All nodes created/modified within last 24 hours, 0 needs_review status
-**Why**: Fresh migration
-**Impact**: All content is current
-**Action**: No action needed
-
-### 6. Tag Taxonomy: 90/100
-
-**Finding**: 8 unique tags, all lowercase, consistent naming
-**Why**: Good tag hygiene from the start
-**Impact**: Clean taxonomy, easy filtering
-**Action**: Maintain lowercase convention going forward
-
-### 7. ADR Compliance: 100/100
-
-**Finding**: 1 decision node (hybrid-triggering.md) with all required sections
-**Why**: Proper ADR template followed
-**Impact**: Decision rationale is well-documented
-**Action**: Continue using ADR template for new decisions
-
-## Priority Actions (Ranked by Impact)
-
-1. **[HIGH]** Delete 12 empty stub nodes — they provide no value and clutter the ontology
-2. **[HIGH]** Update 3 MOC nodes to remove broken wikilinks
-3. **[MEDIUM]** Capture missing conventions and patterns as they emerge
-4. **[LOW]** Monitor tag consistency as ontology grows
+| Node A | Node B | Reason |
+|--------|--------|--------|
+| `hybrid-triggering` | `hooks-config` | shared tags: triggering, hooks |
+| `autology-philosophy` | `autology-advisor` | title mention: "advisor" in philosophy |
+| `guide-moc` | `capture-skill` | MOC gap: both have "guide" tag |
 
 ## Summary
-
-Ontology health is moderate (68/100) with two critical issues: empty stub nodes and broken wikilinks.
-**Immediate action**: Clean up stubs and fix MOC references to restore link integrity.
+- Knowledge gaps: 3 (code→no doc: 1, doc→no code: 1, doc≠code: 1)
+- Broken wikilinks: 2
+- Missing wikilinks: 3
 ```
+
+## Important Notes
+
+- **No scoring**: This skill reports concrete discrepancies, not abstract health scores
+- **Verifiable claims**: Every finding must be verified against actual code/ontology state
+- **Actionable fixes**: Each finding includes specific remediation action
+- **Doc-code focus**: The core question is "Does documentation accurately describe the codebase?"
+- **Manual verification**: When uncertain about a claim, read the actual files to confirm
+
+## When to Use
+
+- After major refactoring (verify docs still match code)
+- Before releases (ensure documentation is current)
+- During cleanup (identify stale nodes to delete)
+- When onboarding (verify documentation quality)
+- Periodically (monthly health check)
