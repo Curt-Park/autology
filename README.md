@@ -30,7 +30,7 @@ Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → 
 
 **Three interaction modes**:
 1. **Automatic**: Hooks capture as you work (file changes, commits, sessions)
-2. **Interactive**: Skills for explicit capture (`/autology:capture`, `/autology:explore`, `/autology:tutorial`)
+2. **Interactive**: Skills for knowledge management (`/autology:capture`, `/autology:explore`, `/autology:analyze`, `/autology:tutorial`)
 3. **Programmatic**: MCP tools for automation (`autology_capture`, `autology_query`, `autology_relate`, etc.)
 
 **7 Knowledge types**: `decisions` (ADR format), `components`, `conventions`, `concepts`, `patterns`, `issues`, `sessions`
@@ -81,8 +81,14 @@ The plugin will automatically download the correct binary for your platform (mac
 # Capture a decision
 /autology:capture "We chose PostgreSQL for ACID guarantees"
 
-# Explore
+# Explore knowledge
 /autology:explore decisions
+
+# Verify doc-code sync
+/autology:analyze
+# → Reports: broken wikilinks, stale paths, missing documentation
+# → Fix all issues, commit changes
+# → Ensures documentation accurately describes codebase
 ```
 
 ## Development Setup
