@@ -70,5 +70,5 @@ agents/autology-advisor  → Contextual triggering
 - Hooks-only: No conversational capture suggestions
 
 ## Related
-- [[skills-spec]] — Skills invoked by advisor
+- [[guide-moc]] — Skills invoked by advisor
 - [[internals-moc]] — Implementation details

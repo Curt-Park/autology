@@ -27,8 +27,9 @@ Autology is implemented in Go with these core layers:
 2. **Tool Implementations** — 7 MCP tools (internal/mcp/server.go)
 3. **Storage Layer** — NodeStore CRUD operations (internal/storage/)
 4. **Search Engine** — Search algorithms and scoring (internal/storage/search.go)
-5. **Classification** — Type classification heuristics (internal/storage/classify.go)
-6. **Enrichment** — Relation inference and context building (internal/storage/enrich.go)
+5. **Classification** — Type classification heuristics (internal/classification/)
+6. **Enrichment** — Relation inference and context building (internal/enrichment/)
+7. **Hooks** — Hook subcommands for triggering (internal/hooks/)
 
 ## Cross-References
 

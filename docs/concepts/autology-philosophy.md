@@ -150,6 +150,10 @@ When designing features, ask:
 
 If any answer is "no," reconsider the approach.
 
+## Example
+
+See [[hybrid-triggering]] for how these principles guided the decision to use both hooks (transparency, reliability) and agents (intelligence) rather than a single approach.
+
 ---
 
 **Autology ensures AI serves human intelligence, not replaces it.**
