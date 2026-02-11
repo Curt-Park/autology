@@ -127,10 +127,9 @@ make build
 make check
 ```
 
-### Running Locally
+## Running Locally
 
 ```bash
-# After build (either option above)
 claude --plugin-dir .
 ```
 
