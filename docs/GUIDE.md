@@ -32,26 +32,36 @@ Autology provides three interaction modes:
 
 ### `/autology:capture`
 
-**Purpose**: Guided knowledge capture with ADR structure
+**Purpose**: Guided knowledge management with create, update, delete, and supersede operations
 
 **Usage**:
 ```bash
+# Create new knowledge
 /autology:capture "We chose JWT for auth because it's stateless"
+
+# Update existing node
+/autology:capture "Update the JWT decision - now using RS256"
+
+# Delete obsolete node
+/autology:capture "Delete the old Redis caching decision"
+
+# Supersede (replace) decision
+/autology:capture "We're replacing JWT with OAuth2"
 ```
 
-**Behavior**:
-1. Analyzes input
-2. Classifies node type (decision, component, convention, etc.)
-3. If decision: Guides through ADR format (Context/Decision/Alternatives/Consequences)
-4. Searches for related nodes
-5. Creates node with relationships
+**Operations**:
+1. **Create**: Analyzes input, classifies type, guides through ADR format for decisions, searches for relations
+2. **Update**: Finds node, determines changes, updates only specified fields (partial update)
+3. **Delete**: Finds node, checks impact, warns about relation removal, confirms before deletion
+4. **Supersede**: Creates new node, links with supersedes relation, marks old node as superseded
 
 **When to use**:
-- After architectural decisions
-- When creating new components
-- To document conventions
-- To capture domain knowledge
-- At end of feature work
+- After architectural decisions (create)
+- When creating new components (create)
+- To update or clarify existing knowledge (update)
+- To mark decisions as superseded (update/supersede)
+- To remove outdated or incorrect knowledge (delete)
+- When replacing old decisions (supersede)
 
 ---
 

@@ -380,15 +380,15 @@ Autology provides three specialized agents following the single responsibility p
 **Behavior**: Step-by-step with user confirmation
 
 ### `/autology:capture`
-**Purpose**: Guided knowledge capture
+**Purpose**: Guided knowledge management (create, update, delete, supersede)
 
-**Behavior**:
-1. Analyze user input
-2. Classify node type
-3. If decision: Guide through ADR format
-4. Search for related nodes
-5. Call `autology_capture`
-6. Suggest relationships
+**Operations**:
+- **Create**: Analyze input → Classify type → Guide through ADR (decisions) → Search relations → Create node
+- **Update**: Find node → Determine changes → Partial update → Confirm
+- **Delete**: Find node → Check impact → Warn about relations → Confirm → Delete
+- **Supersede**: Create new → Link with supersedes → Mark old as superseded
+
+**Behavior**: Automatically detects operation intent from user input (create, update, delete, or supersede)
 
 ### `/autology:explore`
 **Purpose**: Natural language search
