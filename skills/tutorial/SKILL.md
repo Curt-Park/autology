@@ -554,7 +554,7 @@ Example:
 
 3. **Retrieve**
    - Search: `autology_query` (tag, type, text search)
-   - Agents: `autology-explorer` for analysis, `autology-capture-advisor` for capture
+   - Agent: `autology-advisor` recommends skills based on conversation context
 
 4. **Evolve**
    - New decisions supersede old decisions

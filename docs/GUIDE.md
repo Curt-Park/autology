@@ -295,102 +295,64 @@ Remove a specific relation between two nodes.
 
 ---
 
-## Automation with Agents
+## Automation with Agent
 
-Autology provides three specialized agents following the single responsibility principle.
+Autology uses a single lightweight advisor agent that detects ontology-relevant signals and recommends the appropriate skill.
 
-### `autology-explorer` (Read-Only - Q&A)
+### `autology-advisor` (Orchestrator)
 
-**Purpose**: Answer implementation questions using existing ontology knowledge
+**Purpose**: Detect when ontology skills should be invoked and recommend the right skill for the context
 
-**When It Triggers** (interrogative questions about existing knowledge):
-- "How do we handle authentication?"
-- "Why did we choose PostgreSQL?"
-- "What's our error handling convention?"
-- "Show me all API-related decisions"
-- "What components depend on AuthService?"
+**Model**: haiku (fast, lightweight pattern matching)
 
-**What It Does**:
-1. Extracts keywords from question
-2. Queries ontology with multiple targeted searches
-3. Synthesizes answer from found knowledge
-4. Cites sources with node IDs for traceability
+**When It Triggers** (ontology-relevant signals):
 
-**Output**: Coherent answers with references, not raw node lists
+**Knowledge capture signals** → Recommends `/autology:capture`:
+- Decisions: "We chose X", "decided to use Y"
+- Components: "created AuthService", "built new module"
+- Conventions: "always use X", "never do Y"
+- Concepts: "lifecycle", "workflow", "domain model"
+- Patterns: "Repository pattern", "Factory approach"
+- Issues: "performance bottleneck", "memory leak"
+- Updates: "update the X decision", "change Y status"
+- Deletions: "delete old decision", "remove outdated"
+- Supersessions: "replacing X with Y", "deprecated in favor of"
+- Session wrap-up: "finished implementing", "completed work"
 
-**Limitations**: Read-only access. Will suggest using `/autology:analyze` skill for meta-analysis or `autology-capture-advisor` for write operations.
+**Knowledge search signals** → Recommends `/autology:explore`:
+- Questions: "How do we...", "Why did we choose...", "Where is..."
+- Lookups: "What's the convention for...", "Are we using..."
+- Browse: "Show me decisions", "List conventions"
 
----
-
-### `autology-capture-advisor` (Create/Update/Delete)
-
-**Purpose**: Extract and structure knowledge from conversations
-
-**When It Triggers** (declarative statements):
-
-**Decisions**:
-- "We chose Redis over Memcached for caching"
-- "Let's use JWT for authentication"
-
-**Components**:
-- "I built a new AuthService to handle login"
-- "Created a CacheManager class"
-
-**Conventions**:
-- "All errors must include correlation IDs"
-- "We always use camelCase for variables"
-
-**Concepts**:
-- "Order lifecycle: pending → confirmed → shipped"
-- "The build process works in 3 stages"
-
-**Patterns**:
-- "We use the Repository pattern for data access"
-- "All API responses follow envelope format"
-
-**Issues**:
-- "N+1 queries causing 3s response times"
-- "Memory leak in session cleanup"
-
-**Sessions**:
-- "Finished implementing user authentication system"
-- "Completed the caching layer refactor"
+**Meta-analysis signals** → Recommends `/autology:analyze`:
+- Health: "Is ontology healthy?", "What's missing?"
+- Gaps: "What's undocumented?", "Orphaned nodes?"
+- Structure: "Show graph", "Hub nodes?"
+- Evolution: "How has it grown?", "Timeline?"
+- Quality: "Quality issues?", "ADR compliance?"
+- Impact: "What depends on X?"
 
 **What It Does**:
-1. Detects capture-worthy content from conversation
-2. Classifies node type (decision, component, etc.)
-3. Structures content appropriately (ADR for decisions, etc.)
-4. Queries for existing nodes (deduplication check)
-5. Suggests CREATE (new) or UPDATE (existing)
-6. Gets user approval before any write operation
-7. Manages relations between nodes
+1. Monitors conversation for ontology-relevant signals
+2. Determines which skill is most appropriate
+3. Outputs structured recommendation to main Claude agent
+4. Main Claude invokes the recommended skill seamlessly
 
-**Workflow Example**:
+**Output** (to main Claude, not user):
 ```
-User: "We decided to use Redis for session caching instead of PostgreSQL"
-
-Agent:
-🎯 Detected: Decision (confidence: 95%)
-Title: "Use Redis for session caching"
-
-Checking for existing nodes... Found: "Session Storage" (decision-session-2024)
-
-Suggested action: UPDATE existing node with:
-- New information about Redis choice
-- Alternative considered: PostgreSQL
-- Performance improvement metrics
-
-Update this node?
+RECOMMEND: /autology:capture
+REASON: User expressed a decision about Redis for session caching
+CONTEXT: Declarative statement with trade-off comparison
+ARGS: "We chose Redis for session caching because it's faster"
 ```
 
-**Manual Invocation**:
-```
-Use the autology-capture-advisor agent to capture [knowledge]
-```
+**The User Experience**:
+User sees the skill execution directly (capture workflow, explore results, analysis report), not the advisor's internal recommendation. The advisor is transparent infrastructure that ensures the right skill runs at the right time.
 
-Or use skills:
-- `/autology:capture` - Guided capture
-- `/autology:explore` - Search and query
+**Skills** (what the advisor recommends):
+- `/autology:capture` - Create, update, delete, supersede knowledge
+- `/autology:explore` - Search and browse knowledge base
+- `/autology:analyze` - Meta-analysis and health assessment
 
 ### Reliability
 
@@ -407,7 +369,7 @@ Or use skills:
 
 **Manual Fallback**: If agent doesn't trigger automatically, explicitly request:
 ```
-Use the autology-explorer agent to analyze [your question]
+Use /autology:explore to search for [your question]
 ```
 
 **Restoration Plan**: If reliability < 80%, hooks can be restored from `docs/legacy/hooks-backup-2026-02-09.md`
@@ -525,61 +487,61 @@ git commit -m "feat: add Redis session storage"
 ### Workflow 4: Agent-Assisted Development
 
 ```
-1. Exploration (autology-explorer):
+1. Exploration:
    User: "How should I implement authentication?"
-   → Explorer triggers (interrogative)
-   → Queries for JWT Auth Decision and Security Conventions
-   → Suggests patterns to follow
+   → Advisor detects implementation question
+   → Recommends /autology:explore skill
+   → Explore skill queries for JWT Auth Decision and Security Conventions
+   → Returns relevant nodes with suggestions
 
-2. Validation (autology-explorer):
+2. Validation:
    User: "Does this implementation follow our patterns?"
-   → Explorer triggers (interrogative)
-   → Compares against existing conventions
+   → Advisor detects knowledge lookup
+   → Recommends /autology:explore skill
+   → Explore skill compares against existing conventions
    → Identifies gaps or inconsistencies
 
-3. Capture (autology-capture-advisor):
+3. Capture:
    User: "I built a new AuthService that handles JWT validation"
-   → Capture-advisor triggers (declarative)
-   → Classifies as component
+   → Advisor detects component creation (declarative)
+   → Recommends /autology:capture skill
+   → Capture skill classifies as component
    → Queries for duplicates (none found)
-   → Suggests creating node with relations to JWT Decision
-   → Creates node after user approval
+   → Creates node with relations to JWT Decision after user approval
 ```
 
-### Workflow 5: Agent-Assisted Update
+### Workflow 5: Superseding Decisions
 
 ```
 Scenario: You made a new decision that supersedes an old one
 
 1. User: "We switched from JWT to OAuth2 for authentication"
 
-2. Capture-advisor triggers:
-   🎯 Detected: Decision (confidence: 95%)
+2. Advisor detects supersession:
+   → Recommends /autology:capture with supersede operation
+   → Advisor: "RECOMMEND: /autology:capture" (to main Claude)
 
-   Checking existing nodes...
+3. Capture skill workflow:
+   🎯 Detected: Decision supersession
+
+   Searching for existing decision...
    Found: "Use JWT for Authentication" (decision-jwt-2024)
 
-   This appears to supersede the existing decision.
-
-   Suggested actions:
-   1. Create new node: "Use OAuth2 for Authentication"
-   2. Mark old node as superseded
-   3. Create supersedes relation
+   I'll create a new decision and link them:
+   1. Create: "Use OAuth2 for Authentication"
+   2. Link: new-id —[supersedes]→ decision-jwt-2024
+   3. Update: Mark JWT decision as superseded
 
    Proceed? [yes/no]
 
-3. User: "yes"
+4. User: "yes"
 
-4. Agent executes:
+5. Skill executes:
    - autology_capture {...} → Returns new-id
-   - autology_update { "id": "decision-jwt-2024", "status": "superseded" }
-   - autology_relate {
-       "source": "<new-id>",
-       "target": "decision-jwt-2024",
-       "type": "supersedes"
-     }
+   - autology_relate { supersedes relation }
+   - autology_update { status: "superseded" }
 
-5. Result:
+6. Result:
    ✓ Created: Use OAuth2 for Authentication (decision)
    ✓ Updated: Use JWT for Authentication (superseded)
    ✓ Related: <new-id> —[supersedes]→ decision-jwt-2024

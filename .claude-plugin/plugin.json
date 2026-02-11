@@ -20,8 +20,7 @@
     "./skills/"
   ],
   "agents": [
-    "./agents/autology-explorer.md",
-    "./agents/autology-capture-advisor.md"
+    "./agents/autology-advisor.md"
   ],
   "mcpServers": {
     "autology": {

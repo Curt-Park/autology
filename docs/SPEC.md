@@ -11,14 +11,11 @@
 │  - PreCompact: context compaction → suggest capture     │
 │  - SessionEnd: session end → show capture tips          │
 ├─────────────────────────────────────────────────────────┤
-│  Skills         │  Agents (Contextual)                  │
-│  /tutorial      │  autology-explorer (R-Q&A)            │
-│  /capture       │  - Answer impl questions w/ synthesis │
-│  /explore       │                                        │
-│  /analyze       │  autology-capture-advisor (CUD)       │
-│                 │  - Capture decisions/components       │
-│                 │  - Update existing knowledge          │
-│                 │  - Manage relations                   │
+│  Skills         │  Agent (Orchestrator)                 │
+│  /tutorial      │  autology-advisor (haiku)             │
+│  /capture       │  - Detect ontology signals            │
+│  /explore       │  - Recommend appropriate skill        │
+│  /analyze       │  - Output to main Claude              │
 ├─────────────────────────────────────────────────────────┤
 │              MCP Server (Go Implementation)             │
 │     7 Tools: query, status, capture, update,            │
@@ -306,64 +303,50 @@ Autology uses **two complementary triggering mechanisms** for knowledge capture 
 
 ### 2. Agent-Based Triggering (Contextual)
 
-Autology provides three specialized agents following the single responsibility principle:
+Autology uses a single lightweight advisor agent following the orchestrator-worker pattern:
 
-#### `autology-explorer` (Read-Only - Q&A)
+#### `autology-advisor` (Orchestrator)
 
-**Model**: haiku (frequent triggering, structured MCP calls)
+**Model**: haiku (fast pattern matching, minimal overhead)
 
-**Trigger Method**: Interrogative forms asking about existing knowledge
+**Trigger Method**: Semantic detection of ontology-relevant signals in conversation
 
-**Description Keywords**: How do we, why did we, what's our approach, show me decisions about
+**Description**: "Use proactively as ontology domain expert. Recommend autology skills when conversation contains decisions, component creation, conventions, implementation questions, or ontology analysis needs. Do NOT trigger for coding, debugging, or general development tasks."
 
-**Expected Triggers**:
-1. **Implementation Questions**: "How do we handle authentication?"
-2. **Decision Rationale**: "Why did we choose PostgreSQL?"
-3. **Convention Queries**: "What's our error handling convention?"
-4. **Component Discovery**: "What components depend on AuthService?"
+**Detection Patterns**:
 
-**Tools**: `autology_query`, `autology_status` (read-only)
+| Signal Type | Examples | Recommends |
+|-------------|----------|------------|
+| **Knowledge capture** | "chose X", "decided Y", "built Z", "always/never", "finished implementing" | `/autology:capture` |
+| **Knowledge search** | "How do we...", "Why did we...", "What's our...", "Show me decisions" | `/autology:explore` |
+| **Meta-analysis** | "Is ontology healthy?", "What's missing?", "Show graph", "Quality issues?" | `/autology:analyze` |
+| **Updates** | "Update the X decision", "Change Y status", "Delete old Z" | `/autology:capture` (update/delete) |
+| **Supersessions** | "Replacing X with Y", "Deprecated in favor of Z" | `/autology:capture` (supersede) |
 
-**Output**: Synthesized answers with node ID citations, not raw lists
+**Tools**: `autology_query`, `autology_status` (read-only, for context awareness)
 
-**Limitations**: Cannot create, update, or delete nodes. Will suggest using `autology-capture-advisor` for write operations or `/autology:analyze` skill for meta-analysis.
+**Output Format** (to main Claude, not user):
+```
+RECOMMEND: /autology:<skill>
+REASON: [Why this skill is relevant]
+CONTEXT: [What triggered this]
+ARGS: [Suggested arguments]
+```
 
----
+**User Experience**: The advisor is transparent infrastructure. Users see skill execution directly (capture workflow, explore results, analysis reports), not the advisor's recommendation.
 
-#### `autology-capture-advisor` (Create/Update/Delete)
+**Why This Architecture?**:
+- **Single responsibility**: Advisor detects WHEN, skills handle HOW
+- **Model flexibility**: Skills run in main session model (sonnet/opus), advisor uses haiku (cheap)
+- **Binary decision**: "Should we invoke a skill?" vs. multi-choice "Which of 3 agents?"
+- **Zero redundancy**: Eliminated analyzer agent (redundant with /analyze skill)
+- **Officially supported**: Orchestrator-worker pattern from Claude Code docs
 
-**Model**: sonnet (long-context synthesis for extracting scattered decisions)
-
-**Trigger Method**: Declarative statements expressing new knowledge
-
-**Description Keywords**: chose, decided, built, created, implemented, the rule is, always, never, finished
-
-**Expected Triggers**:
-1. **Decisions**: "We chose Redis over Memcached"
-2. **Components**: "I built a new AuthService"
-3. **Conventions**: "All errors must include correlation IDs"
-4. **Concepts**: "Order lifecycle: pending → confirmed → shipped"
-5. **Patterns**: "We use the Repository pattern"
-6. **Issues**: "N+1 queries causing performance issues"
-7. **Sessions**: "Finished implementing authentication system"
-
-**Tools**: All 7 MCP tools (query, status, capture, update, delete, relate, unrelate)
-
-**Workflow**:
-1. Extract and classify knowledge from conversation
-2. Query for existing nodes (deduplication)
-3. Suggest CREATE (new) or UPDATE (existing)
-4. Get user approval before write operations
-5. Suggest relations after creation
-
-**Disambiguation**: Uses sentence form, user intent, temporal direction, and action verbs to distinguish from explorer queries.
-
-**Why Three Mechanisms?**:
+**Why Two Mechanisms?**:
 - **Hooks**: Deterministic, event-driven (git, compaction, session end)
-- **Explorer**: Context-aware Q&A (synthesizes answers from ontology)
-- **Capture-Advisor**: Long-context knowledge extraction (declarative statements, CUD)
+- **Advisor**: Contextual, semantic detection (conversation signals)
 
-**Note**: Meta-health analysis is handled by the `/autology:analyze` skill rather than a separate agent, eliminating redundancy while maintaining full capability.
+**Note**: Skills (/capture, /explore, /analyze) provide all functionality. Advisor simply ensures they're invoked at the right time.
 
 ## Skills
 
