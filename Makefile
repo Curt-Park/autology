@@ -32,25 +32,6 @@ install:
 	@go mod download
 	@echo "✓ Dependencies installed"
 
-# Setup development environment
-setup:
-	@echo "Setting up development environment..."
-	@if command -v mise >/dev/null 2>&1; then \
-		echo "✓ mise detected"; \
-		mise trust 2>/dev/null || true; \
-		mise install; \
-		echo "✓ Tools installed via mise"; \
-	else \
-		echo "⚠  mise not found. Checking tools manually..."; \
-		echo "   (Install mise for easier setup: https://mise.jdx.dev)"; \
-		if ! command -v golangci-lint >/dev/null 2>&1; then \
-			echo "⚠  golangci-lint not found. Install from: https://golangci-lint.run/welcome/install/"; \
-		fi; \
-	fi
-	@echo "Downloading Go dependencies..."
-	@go mod download
-	@echo "✓ Setup complete"
-
 # Clean build artifacts
 clean:
 	@echo "Cleaning..."
