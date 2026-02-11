@@ -106,11 +106,9 @@ mise install
 # Activate mise in your shell (one-time setup)
 echo 'eval "$(mise activate bash)"' >> ~/.bashrc  # or ~/.zshrc
 
-# Setup dependencies and build
-mise run setup
-mise run build
-
-# Or use make directly (mise tools are now available)
+# Use make (mise-managed tools are now available)
+make setup
+make build
 make check
 ```
 

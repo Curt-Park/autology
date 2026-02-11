@@ -1,6 +1,7 @@
 # Mise configuration for Autology
-# Install all tools: mise install
-# Activate in shell: mise activate (add to ~/.bashrc or ~/.zshrc)
+# Install tools: mise install
+# Activate: eval "$(mise activate bash)"  # or zsh
+# Use Makefile for tasks: make setup, make build, make check, etc.
 
 [tools]
 # Go version (matches go.mod requirement)
@@ -10,32 +11,5 @@ go = "1.23"
 "golangci-lint" = "1.64"
 
 [env]
-# Set GOPATH if needed (optional)
-# GOPATH = "{{config_root}}/go"
-
 # Plugin root for autology
 AUTOLOGY_ROOT = ".autology"
-
-[tasks.setup]
-description = "Set up project dependencies"
-run = [
-    "go mod download",
-    "echo '✓ Go dependencies installed'",
-    "echo '✓ All tools ready!'"
-]
-
-[tasks.build]
-description = "Build the autology binary"
-run = "make build"
-
-[tasks.test]
-description = "Run tests"
-run = "make test"
-
-[tasks.lint]
-description = "Run linter"
-run = "make lint"
-
-[tasks.check]
-description = "Run all checks (fmt + lint + test)"
-run = "make check"

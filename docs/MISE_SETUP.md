@@ -34,33 +34,32 @@ mise ls
 
 ## Usage
 
-### Using mise tasks (recommended)
+Once `mise install` is complete, use **Makefile** for all tasks:
 
 ```bash
 # Setup dependencies
-mise run setup
+make setup
 
 # Build
-mise run build
+make build
 
 # Run tests
-mise run test
+make test
 
 # Lint
-mise run lint
+make lint
 
-# Run all checks
-mise run check
-```
-
-### Using make (works with mise tools)
-
-```bash
-# Once mise install is done, make commands use mise-managed tools
-make setup
-make build
+# Run all checks (fmt + lint + test)
 make check
+
+# See all available commands
+make help
 ```
+
+**Why Makefile instead of mise tasks?**
+- Makefile is the standard in Go projects
+- No duplication of task definitions
+- mise focuses on what it does best: tool version management
 
 ## What Gets Installed?
 
@@ -123,12 +122,6 @@ mise install go@1.23.4
 
 ```bash
 mise outdated
-```
-
-### See all available tasks
-
-```bash
-mise tasks
 ```
 
 ## Documentation
