@@ -85,13 +85,51 @@ The plugin will automatically download the correct binary for your platform (mac
 /autology:explore decisions
 ```
 
-## Local Testing
+## Development Setup
+
+### Option 1: Using mise (Recommended)
+
+[mise](https://mise.jdx.dev/) automatically installs all required tools:
+
+```bash
+# Install mise (if not already installed)
+curl https://mise.run | sh
+# or: brew install mise (macOS)
+echo 'eval "$(mise activate bash)"' >> ~/.bashrc  # or ~/.zshrc
+source ~/.bashrc  # or source ~/.zshrc
+
+# Clone and setup
+git clone https://github.com/Curt-Park/autology.git
+cd autology
+
+# Install all tools (Go 1.23 + golangci-lint 1.64)
+mise trust
+mise install
+
+# Install dependencies, build, and test
+make install
+make build
+make check
+```
+
+### Option 2: Manual Setup
 
 ```bash
 git clone https://github.com/Curt-Park/autology.git
 cd autology
-make install  # required once at the beginning (see https://go.dev/doc/install)
-make build  # required whenever the golang code changes
+
+# Install Go 1.23+ (see https://go.dev/doc/install)
+# Install golangci-lint (https://golangci-lint.run/welcome/install/)
+
+# Install dependencies, build, and test
+make install
+make build
+make check
+```
+
+## Running Locally
+
+```bash
 claude --plugin-dir .
 ```
 

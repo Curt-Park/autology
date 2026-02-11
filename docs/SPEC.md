@@ -11,14 +11,15 @@
 │  - PreCompact: context compaction → suggest capture     │
 │  - SessionEnd: session end → show capture tips          │
 ├─────────────────────────────────────────────────────────┤
-│  Skills         │  Agents (Contextual)                  │
-│  /tutorial      │  autology-explorer                    │
-│  /capture       │  - Triggers on architecture questions │
-│  /explore       │  - Triggers on design decisions       │
-│                 │  - Suggests capture during analysis   │
+│  Skills         │  Agent (Orchestrator)                 │
+│  /tutorial      │  autology-advisor (haiku)             │
+│  /capture       │  - Detect ontology signals            │
+│  /explore       │  - Recommend appropriate skill        │
+│  /analyze       │  - Output to main Claude              │
 ├─────────────────────────────────────────────────────────┤
 │              MCP Server (Go Implementation)             │
-│        3 Tools: capture, query, status                  │
+│     7 Tools: query, status, capture, update,            │
+│              delete, relate, unrelate                   │
 ├─────────────────────────────────────────────────────────┤
 │                 Storage Layer                           │
 │  • NodeStore (CRUD)                                     │
@@ -182,6 +183,101 @@ type KnowledgeNode struct {
 - Counts relations by type
 - Returns comprehensive statistics
 
+### `autology_update`
+**Purpose**: Update an existing knowledge node
+
+**Input**:
+```json
+{
+  "id": "string (required, node ID)",
+  "title": "string (optional, new title)",
+  "content": "string (optional, new content in markdown)",
+  "tags": ["string"] (optional, new tags),
+  "status": "string (optional, one of: active, needs_review, superseded)",
+  "confidence": 0.9 (optional, new confidence score 0.0-1.0)
+}
+```
+
+**Output**: Success message with changed fields
+```
+"✓ Updated: [title] ([type])\nFields changed: [list]"
+```
+
+**Behavior**:
+- Finds node by ID across all types
+- Updates only provided fields (partial update)
+- Preserves all other fields
+- Updates `modified` timestamp
+- Returns error if node not found or no fields to update
+
+### `autology_delete`
+**Purpose**: Delete a knowledge node and cleanup its relations
+
+**Input**:
+```json
+{
+  "id": "string (required, node ID to delete)"
+}
+```
+
+**Output**: Success message with relation count
+```
+"✓ Deleted: [title] ([type])\nRelations removed: [count]"
+```
+
+**Behavior**:
+- Finds and deletes node file
+- Removes all relations where node is source or target
+- Returns error if node not found
+- Operation is irreversible
+
+### `autology_relate`
+**Purpose**: Create or update a relation between two nodes (upsert)
+
+**Input**:
+```json
+{
+  "source": "string (required, source node ID)",
+  "target": "string (required, target node ID)",
+  "type": "string (required, one of: affects, uses, supersedes, relates_to, implements, depends_on, derived_from)",
+  "description": "string (optional, relation description)",
+  "confidence": 0.8 (optional, default: 0.8, range: 0.0-1.0)
+}
+```
+
+**Output**: Success message
+```
+"✓ Related: [source] —[[type]]→ [target]"
+```
+
+**Behavior**:
+- Validates both source and target nodes exist
+- Upserts relation (creates if new, updates if exists)
+- Updates graph index
+- Returns error if source or target not found
+
+### `autology_unrelate`
+**Purpose**: Delete a specific relation between two nodes
+
+**Input**:
+```json
+{
+  "source": "string (required, source node ID)",
+  "target": "string (required, target node ID)",
+  "type": "string (required, relation type to remove)"
+}
+```
+
+**Output**: Success message
+```
+"✓ Removed relation: [source] —[[type]]→ [target]"
+```
+
+**Behavior**:
+- Removes specified relation from graph index
+- Does not fail if relation doesn't exist
+- Nodes themselves remain unchanged
+
 ## Hybrid Triggering Strategy
 
 Autology uses **two complementary triggering mechanisms** for knowledge capture and exploration:
@@ -207,24 +303,50 @@ Autology uses **two complementary triggering mechanisms** for knowledge capture 
 
 ### 2. Agent-Based Triggering (Contextual)
 
-**Agent**: `autology-explorer`
+Autology uses a single lightweight advisor agent following the orchestrator-worker pattern:
 
-**Trigger Method**: Pattern matching on query content during conversation
+#### `autology-advisor` (Orchestrator)
 
-**Description Keywords**: architecture, decisions, patterns, conventions, relationships, impact, gaps, evolution, timeline, quality
+**Model**: haiku (fast pattern matching, minimal overhead)
 
-**Expected Triggers**:
-1. **Architecture/Design**: "Why did we choose...", "What's our convention..."
-2. **Implementation**: "What will this affect?", "What depends on..."
-3. **Quality/Review**: "Does this follow our patterns?", "What conventions..."
-4. **Knowledge Gaps**: "What's missing...", "Are there outdated..."
-5. **Evolution**: "How did X evolve?", "What changed since..."
+**Trigger Method**: Semantic detection of ontology-relevant signals in conversation
 
-**Proactive Capture**: Agent may suggest `/autology:capture` when discovering capture-worthy insights during exploration
+**Description**: "Use proactively as ontology domain expert. Recommend autology skills when conversation contains decisions, component creation, conventions, implementation questions, or ontology analysis needs. Do NOT trigger for coding, debugging, or general development tasks."
 
-**Why Both?**:
-- **Hooks**: Reliable, event-driven capture suggestions (git operations, compaction)
-- **Agents**: Context-aware, conversational capture suggestions (questions, analysis)
+**Detection Patterns**:
+
+| Signal Type | Examples | Recommends |
+|-------------|----------|------------|
+| **Knowledge capture** | "chose X", "decided Y", "built Z", "always/never", "finished implementing" | `/autology:capture` |
+| **Knowledge search** | "How do we...", "Why did we...", "What's our...", "Show me decisions" | `/autology:explore` |
+| **Meta-analysis** | "Is ontology healthy?", "What's missing?", "Show graph", "Quality issues?" | `/autology:analyze` |
+| **Updates** | "Update the X decision", "Change Y status", "Delete old Z" | `/autology:capture` (update/delete) |
+| **Supersessions** | "Replacing X with Y", "Deprecated in favor of Z" | `/autology:capture` (supersede) |
+
+**Tools**: `autology_query`, `autology_status` (read-only, for context awareness)
+
+**Output Format** (to main Claude, not user):
+```
+RECOMMEND: /autology:<skill>
+REASON: [Why this skill is relevant]
+CONTEXT: [What triggered this]
+ARGS: [Suggested arguments]
+```
+
+**User Experience**: The advisor is transparent infrastructure. Users see skill execution directly (capture workflow, explore results, analysis reports), not the advisor's recommendation.
+
+**Why This Architecture?**:
+- **Single responsibility**: Advisor detects WHEN, skills handle HOW
+- **Model flexibility**: Skills run in main session model (sonnet/opus), advisor uses haiku (cheap)
+- **Binary decision**: "Should we invoke a skill?" vs. multi-choice "Which of 3 agents?"
+- **Zero redundancy**: Eliminated analyzer agent (redundant with /analyze skill)
+- **Officially supported**: Orchestrator-worker pattern from Claude Code docs
+
+**Why Two Mechanisms?**:
+- **Hooks**: Deterministic, event-driven (git, compaction, session end)
+- **Advisor**: Contextual, semantic detection (conversation signals)
+
+**Note**: Skills (/capture, /explore, /analyze) provide all functionality. Advisor simply ensures they're invoked at the right time.
 
 ## Skills
 
@@ -241,15 +363,15 @@ Autology uses **two complementary triggering mechanisms** for knowledge capture 
 **Behavior**: Step-by-step with user confirmation
 
 ### `/autology:capture`
-**Purpose**: Guided knowledge capture
+**Purpose**: Guided knowledge management (create, update, delete, supersede)
 
-**Behavior**:
-1. Analyze user input
-2. Classify node type
-3. If decision: Guide through ADR format
-4. Search for related nodes
-5. Call `autology_capture`
-6. Suggest relationships
+**Operations**:
+- **Create**: Analyze input → Classify type → Guide through ADR (decisions) → Search relations → Create node
+- **Update**: Find node → Determine changes → Partial update → Confirm
+- **Delete**: Find node → Check impact → Warn about relations → Confirm → Delete
+- **Supersede**: Create new → Link with supersedes → Mark old as superseded
+
+**Behavior**: Automatically detects operation intent from user input (create, update, delete, or supersede)
 
 ### `/autology:explore`
 **Purpose**: Natural language search

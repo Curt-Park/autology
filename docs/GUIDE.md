@@ -32,26 +32,36 @@ Autology provides three interaction modes:
 
 ### `/autology:capture`
 
-**Purpose**: Guided knowledge capture with ADR structure
+**Purpose**: Guided knowledge management with create, update, delete, and supersede operations
 
 **Usage**:
 ```bash
+# Create new knowledge
 /autology:capture "We chose JWT for auth because it's stateless"
+
+# Update existing node
+/autology:capture "Update the JWT decision - now using RS256"
+
+# Delete obsolete node
+/autology:capture "Delete the old Redis caching decision"
+
+# Supersede (replace) decision
+/autology:capture "We're replacing JWT with OAuth2"
 ```
 
-**Behavior**:
-1. Analyzes input
-2. Classifies node type (decision, component, convention, etc.)
-3. If decision: Guides through ADR format (Context/Decision/Alternatives/Consequences)
-4. Searches for related nodes
-5. Creates node with relationships
+**Operations**:
+1. **Create**: Analyzes input, classifies type, guides through ADR format for decisions, searches for relations
+2. **Update**: Finds node, determines changes, updates only specified fields (partial update)
+3. **Delete**: Finds node, checks impact, warns about relation removal, confirms before deletion
+4. **Supersede**: Creates new node, links with supersedes relation, marks old node as superseded
 
 **When to use**:
-- After architectural decisions
-- When creating new components
-- To document conventions
-- To capture domain knowledge
-- At end of feature work
+- After architectural decisions (create)
+- When creating new components (create)
+- To update or clarify existing knowledge (update)
+- To mark decisions as superseded (update/supersede)
+- To remove outdated or incorrect knowledge (delete)
+- When replacing old decisions (supersede)
 
 ---
 
@@ -166,58 +176,183 @@ Get knowledge graph statistics.
 }
 ```
 
-## Automation with Agents
+---
 
-Autology uses the **autology-explorer agent** to proactively provide ontology context.
+### `autology_update`
 
-### When the Agent Triggers
+Update an existing knowledge node (partial update).
 
-The agent automatically activates when you ask questions about:
-
-**Architecture & Design**:
-- "Why did we choose this database?"
-- "What's our error handling convention?"
-- "Show me past API design decisions"
-
-**Implementation Planning**:
-- "What will adding auth affect?"
-- "What depends on this component?"
-- "What patterns should I follow?"
-
-**Quality & Review**:
-- "Does this follow our patterns?"
-- "What conventions am I missing?"
-- "Are there similar solutions?"
-
-**Knowledge Discovery**:
-- "What's missing from our docs?"
-- "Are there outdated decisions?"
-- "Show me isolated nodes"
-
-**Evolution Analysis**:
-- "How did our testing strategy evolve?"
-- "What changed since project start?"
-- "Show me the decision timeline"
-
-### What the Agent Does
-
-1. Analyzes your query for ontology relevance
-2. Searches knowledge nodes with `autology_query`
-3. Explores relations with graph analysis
-4. Provides context from past decisions
-5. Suggests related patterns and conventions
-
-### Manual Invocation
-
-If the agent doesn't trigger automatically:
-
-```
-Use the autology-explorer agent to analyze [your question]
+```json
+{
+  "id": "node-id (required)",
+  "title": "New title (optional)",
+  "content": "New markdown content (optional)",
+  "tags": ["new", "tags"] (optional),
+  "status": "active|needs_review|superseded (optional)",
+  "confidence": 0.9 (optional)
+}
 ```
 
-Or use skills:
-- `/autology:explore` - Search and query
-- `/autology:capture` - Guided capture
+**Behavior**:
+- Updates only the fields you provide
+- Preserves all other fields unchanged
+- Updates `modified` timestamp automatically
+
+**Example**:
+```json
+{
+  "id": "decision-auth-2024",
+  "status": "superseded",
+  "content": "## Context\n...\n## Update\nSuperseded by OAuth2 implementation"
+}
+```
+
+---
+
+### `autology_delete`
+
+Delete a knowledge node and all its relations.
+
+```json
+{
+  "id": "node-id (required)"
+}
+```
+
+**Behavior**:
+- Permanently deletes the node file
+- Removes all relations where this node is source or target
+- Irreversible operation
+
+**Warning**: Consider marking as "superseded" instead if knowledge is being replaced.
+
+**Example**:
+```json
+{
+  "id": "decision-old-cache-2023"
+}
+```
+
+---
+
+### `autology_relate`
+
+Create or update a relation between two nodes (upsert).
+
+```json
+{
+  "source": "source-node-id (required)",
+  "target": "target-node-id (required)",
+  "type": "affects|uses|supersedes|relates_to|implements|depends_on|derived_from (required)",
+  "description": "Relation description (optional)",
+  "confidence": 0.8 (optional, default: 0.8)
+}
+```
+
+**Behavior**:
+- Validates both nodes exist
+- Creates new relation or updates existing
+- Stores in graph index
+
+**Example**:
+```json
+{
+  "source": "decision-redis-cache",
+  "target": "component-session-service",
+  "type": "affects",
+  "description": "Changes how sessions are stored",
+  "confidence": 0.95
+}
+```
+
+---
+
+### `autology_unrelate`
+
+Remove a specific relation between two nodes.
+
+```json
+{
+  "source": "source-node-id (required)",
+  "target": "target-node-id (required)",
+  "type": "relation-type (required)"
+}
+```
+
+**Behavior**:
+- Removes the specified relation from graph index
+- Nodes themselves remain unchanged
+- Does not fail if relation doesn't exist
+
+**Example**:
+```json
+{
+  "source": "decision-redis-cache",
+  "target": "component-old-cache",
+  "type": "affects"
+}
+```
+
+---
+
+## Automation with Agent
+
+Autology uses a single lightweight advisor agent that detects ontology-relevant signals and recommends the appropriate skill.
+
+### `autology-advisor` (Orchestrator)
+
+**Purpose**: Detect when ontology skills should be invoked and recommend the right skill for the context
+
+**Model**: haiku (fast, lightweight pattern matching)
+
+**When It Triggers** (ontology-relevant signals):
+
+**Knowledge capture signals** → Recommends `/autology:capture`:
+- Decisions: "We chose X", "decided to use Y"
+- Components: "created AuthService", "built new module"
+- Conventions: "always use X", "never do Y"
+- Concepts: "lifecycle", "workflow", "domain model"
+- Patterns: "Repository pattern", "Factory approach"
+- Issues: "performance bottleneck", "memory leak"
+- Updates: "update the X decision", "change Y status"
+- Deletions: "delete old decision", "remove outdated"
+- Supersessions: "replacing X with Y", "deprecated in favor of"
+- Session wrap-up: "finished implementing", "completed work"
+
+**Knowledge search signals** → Recommends `/autology:explore`:
+- Questions: "How do we...", "Why did we choose...", "Where is..."
+- Lookups: "What's the convention for...", "Are we using..."
+- Browse: "Show me decisions", "List conventions"
+
+**Meta-analysis signals** → Recommends `/autology:analyze`:
+- Health: "Is ontology healthy?", "What's missing?"
+- Gaps: "What's undocumented?", "Orphaned nodes?"
+- Structure: "Show graph", "Hub nodes?"
+- Evolution: "How has it grown?", "Timeline?"
+- Quality: "Quality issues?", "ADR compliance?"
+- Impact: "What depends on X?"
+
+**What It Does**:
+1. Monitors conversation for ontology-relevant signals
+2. Determines which skill is most appropriate
+3. Outputs structured recommendation to main Claude agent
+4. Main Claude invokes the recommended skill seamlessly
+
+**Output** (to main Claude, not user):
+```
+RECOMMEND: /autology:capture
+REASON: User expressed a decision about Redis for session caching
+CONTEXT: Declarative statement with trade-off comparison
+ARGS: "We chose Redis for session caching because it's faster"
+```
+
+**The User Experience**:
+User sees the skill execution directly (capture workflow, explore results, analysis report), not the advisor's internal recommendation. The advisor is transparent infrastructure that ensures the right skill runs at the right time.
+
+**Skills** (what the advisor recommends):
+- `/autology:capture` - Create, update, delete, supersede knowledge
+- `/autology:explore` - Search and browse knowledge base
+- `/autology:analyze` - Meta-analysis and health assessment
 
 ### Reliability
 
@@ -234,7 +369,7 @@ Or use skills:
 
 **Manual Fallback**: If agent doesn't trigger automatically, explicitly request:
 ```
-Use the autology-explorer agent to analyze [your question]
+Use /autology:explore to search for [your question]
 ```
 
 **Restoration Plan**: If reliability < 80%, hooks can be restored from `docs/legacy/hooks-backup-2026-02-09.md`
@@ -352,19 +487,64 @@ git commit -m "feat: add Redis session storage"
 ### Workflow 4: Agent-Assisted Development
 
 ```
-1. Query: "How should I implement authentication?"
-   → autology-explorer triggers
-   → Finds JWT Auth Decision and Security Conventions
-   → Suggests patterns to follow
+1. Exploration:
+   User: "How should I implement authentication?"
+   → Advisor detects implementation question
+   → Recommends /autology:explore skill
+   → Explore skill queries for JWT Auth Decision and Security Conventions
+   → Returns relevant nodes with suggestions
 
-2. Query: "Does this implementation follow our patterns?"
-   → autology-explorer triggers
-   → Compares against existing conventions
+2. Validation:
+   User: "Does this implementation follow our patterns?"
+   → Advisor detects knowledge lookup
+   → Recommends /autology:explore skill
+   → Explore skill compares against existing conventions
    → Identifies gaps or inconsistencies
 
-3. Use /autology:capture to document new patterns
-   → Creates component node for AuthService
-   → Links to related decisions and conventions
+3. Capture:
+   User: "I built a new AuthService that handles JWT validation"
+   → Advisor detects component creation (declarative)
+   → Recommends /autology:capture skill
+   → Capture skill classifies as component
+   → Queries for duplicates (none found)
+   → Creates node with relations to JWT Decision after user approval
+```
+
+### Workflow 5: Superseding Decisions
+
+```
+Scenario: You made a new decision that supersedes an old one
+
+1. User: "We switched from JWT to OAuth2 for authentication"
+
+2. Advisor detects supersession:
+   → Recommends /autology:capture with supersede operation
+   → Advisor: "RECOMMEND: /autology:capture" (to main Claude)
+
+3. Capture skill workflow:
+   🎯 Detected: Decision supersession
+
+   Searching for existing decision...
+   Found: "Use JWT for Authentication" (decision-jwt-2024)
+
+   I'll create a new decision and link them:
+   1. Create: "Use OAuth2 for Authentication"
+   2. Link: new-id —[supersedes]→ decision-jwt-2024
+   3. Update: Mark JWT decision as superseded
+
+   Proceed? [yes/no]
+
+4. User: "yes"
+
+5. Skill executes:
+   - autology_capture {...} → Returns new-id
+   - autology_relate { supersedes relation }
+   - autology_update { status: "superseded" }
+
+6. Result:
+   ✓ Created: Use OAuth2 for Authentication (decision)
+   ✓ Updated: Use JWT for Authentication (superseded)
+   ✓ Related: <new-id> —[supersedes]→ decision-jwt-2024
 ```
 
 ## Tips

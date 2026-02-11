@@ -234,6 +234,145 @@ Autology communicates with Claude Code via standard input/output using JSON-RPC 
 
 ---
 
+### autology_update
+
+**Purpose**: Update an existing node with partial field updates (immutable pattern).
+
+**Processing Steps**:
+
+1. **Find Node**
+   ```go
+   // Find node by ID across all types
+   node, err := nodeStore.FindNode(id)
+   if err != nil {
+       return fmt.Errorf("node not found: %s", id)
+   }
+   ```
+
+2. **Build Updates Map**
+   ```go
+   updates := make(map[string]interface{})
+   if title, ok := args["title"].(string); ok {
+       updates["title"] = title
+   }
+   if content, ok := args["content"].(string); ok {
+       updates["content"] = content
+   }
+   // ... similar for tags, status, confidence
+   ```
+
+3. **Apply Updates (Immutable)**
+   ```go
+   // Creates NEW node with updated fields
+   updatedNode := storage.UpdateKnowledgeNode(node, updates)
+   // updatedNode.Modified = time.Now() (automatic)
+   ```
+
+4. **Save Updated Node**
+   ```go
+   err := nodeStore.UpdateNode(updatedNode)
+   ```
+
+**Output**: Success message listing changed fields
+
+---
+
+### autology_delete
+
+**Purpose**: Delete a node and cleanup all its relations.
+
+**Processing Steps**:
+
+1. **Find Node**
+   ```go
+   node, err := nodeStore.FindNode(id)
+   if err != nil {
+       return fmt.Errorf("node not found: %s", id)
+   }
+   ```
+
+2. **Count Relations**
+   ```go
+   relations := graphIndex.GetNodeRelations(id)
+   relCount := len(relations)
+   ```
+
+3. **Remove Relations**
+   ```go
+   // Remove all relations where node is source OR target
+   err := graphIndex.RemoveNodeRelations(id)
+   ```
+
+4. **Delete Node File**
+   ```go
+   err := nodeStore.DeleteNode(id, node.Type)
+   ```
+
+**Output**: Success message with relation cleanup count
+
+---
+
+### autology_relate
+
+**Purpose**: Create or update a relation between two nodes (upsert operation).
+
+**Processing Steps**:
+
+1. **Validate Nodes Exist**
+   ```go
+   if _, err := nodeStore.FindNode(source); err != nil {
+       return fmt.Errorf("source node not found: %s", source)
+   }
+   if _, err := nodeStore.FindNode(target); err != nil {
+       return fmt.Errorf("target node not found: %s", target)
+   }
+   ```
+
+2. **Upsert Relation**
+   ```go
+   // AddRelation is idempotent: creates if new, updates if exists
+   err := graphIndex.AddRelation(
+       source, target,
+       storage.RelationType(relType),
+       description,
+       confidence, // default: 0.8
+   )
+   ```
+
+3. **Update Graph Index**
+   ```go
+   // Automatically saves to graph.json with timestamp
+   graphIndex.Save()
+   ```
+
+**Output**: Success message showing relation created
+
+---
+
+### autology_unrelate
+
+**Purpose**: Remove a specific relation between two nodes.
+
+**Processing Steps**:
+
+1. **Remove Relation**
+   ```go
+   err := graphIndex.RemoveRelation(
+       source, target,
+       storage.RelationType(relType),
+   )
+   // Does not fail if relation doesn't exist
+   ```
+
+2. **Update Graph Index**
+   ```go
+   graphIndex.Save()
+   ```
+
+**Output**: Success message showing relation removed
+
+---
+
 ## Storage Layer
 
 ### NodeStore
@@ -1258,10 +1397,7 @@ Claude Code
 
 ### Planned Features
 
-1. **autology_relate** - Manual relation creation
-2. **autology_context** - Context-aware recommendations
-3. **autology_delete** - Node deletion
-4. **autology_update** - Node modification
+1. **autology_context** - Context-aware recommendations (analyzes conversation history to suggest relevant nodes)
 
 ### Potential Improvements
 
