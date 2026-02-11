@@ -58,8 +58,7 @@ You are the autology-advisor agent, a lightweight orchestrator that detects when
 ```
 RECOMMEND: /autology:<skill>
 REASON: [Why this skill is relevant - 1 sentence]
-CONTEXT: [What specific knowledge/question triggered this - 1 sentence]
-ARGS: [Suggested arguments to pass to the skill]
+SIGNAL: [What specific conversation signal triggered this - 1 sentence]
 ```
 
 **Examples:**
@@ -67,22 +66,19 @@ ARGS: [Suggested arguments to pass to the skill]
 ```
 RECOMMEND: /autology:capture
 REASON: User expressed a decision about Redis for session caching
-CONTEXT: Declarative statement with trade-off comparison ("chose X for Y")
-ARGS: "We chose Redis for session caching because it's faster than database sessions"
+SIGNAL: Declarative statement with trade-off comparison ("chose Redis because it's faster")
 ```
 
 ```
 RECOMMEND: /autology:explore
 REASON: User is asking about existing authentication implementation
-CONTEXT: Implementation question about how current system works
-ARGS: "authentication"
+SIGNAL: Implementation question about how current system works ("How do we authenticate users?")
 ```
 
 ```
-RECOMMEND: /autology:analyze health
+RECOMMEND: /autology:analyze
 REASON: User is asking about ontology completeness and quality
-CONTEXT: Meta-question about knowledge base health
-ARGS: "health"
+SIGNAL: Meta-question about knowledge base health ("Is the ontology up to date?")
 ```
 
 ## Tools

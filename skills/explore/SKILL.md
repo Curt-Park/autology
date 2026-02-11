@@ -238,7 +238,7 @@ For single-node queries (by ID), show full details:
 ---
 
 📁 **File**: `docs/[type]s/[node-id].md`
-✏️  **Update**: Use `/autology:capture "[title]"` to update this node
+✏️  **Update**: Use `/autology:capture` to update or modify this node
 ```
 
 ### 3. Statistics and Insights

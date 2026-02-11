@@ -78,8 +78,11 @@ The plugin will automatically download the correct binary for your platform (mac
 # Learn the model
 /autology:tutorial
 
-# Capture a decision
-/autology:capture "We chose PostgreSQL for ACID guarantees"
+# Capture knowledge from conversation context
+/autology:capture
+# → Summarizes recent conversation
+# → Identifies decisions, patterns, conventions
+# → Captures as structured knowledge nodes
 
 # Explore knowledge
 /autology:explore decisions

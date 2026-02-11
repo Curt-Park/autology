@@ -13,7 +13,7 @@ Skills provide interactive commands for using Autology.
 
 **Capture**:
 ```bash
-/autology:capture "decision or knowledge to capture"
+/autology:capture            # Capture from conversation context
 ```
 
 **Explore**:
