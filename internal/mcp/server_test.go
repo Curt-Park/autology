@@ -161,7 +161,9 @@ func TestHandleDelete(t *testing.T) {
 			setup: func(s *Server) {
 				createTestNode(t, s, "test-decision-2", "decision", "Source", "Content")
 				createTestNode(t, s, "test-component-1", "component", "Target", "Content")
-				s.graphIndex.AddRelation("test-decision-2", "test-component-1", "affects", "Test relation", 0.8)
+				if err := s.graphIndex.AddRelation("test-decision-2", "test-component-1", "affects", "Test relation", 0.8); err != nil {
+				t.Fatalf("failed to add relation in setup: %v", err)
+			}
 			},
 			expectError: false,
 		},
@@ -352,7 +354,9 @@ func TestHandleUnrelate(t *testing.T) {
 			setup: func(s *Server) {
 				createTestNode(t, s, "test-decision-1", "decision", "Decision", "Content")
 				createTestNode(t, s, "test-component-1", "component", "Component", "Content")
-				s.graphIndex.AddRelation("test-decision-1", "test-component-1", "affects", "Test", 0.8)
+				if err := s.graphIndex.AddRelation("test-decision-1", "test-component-1", "affects", "Test", 0.8); err != nil {
+				t.Fatalf("failed to add relation in setup: %v", err)
+			}
 			},
 			expectError: false,
 		},
