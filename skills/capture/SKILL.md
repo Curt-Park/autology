@@ -375,7 +375,7 @@ Type: [type]
 Tags: [tag1, tag2, ...]
 Relations: [X related nodes]
 
-The node is saved to .autology/nodes/[type]s/[node-id].md
+The node is saved to docs/[type]s/[node-id].md
 ```
 
 **After Update:**

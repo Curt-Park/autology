@@ -204,7 +204,7 @@ Call autology_capture with:
 **Title**: [title]
 **Tags**: [tags]
 **Confidence**: [confidence * 100]%
-**Saved to**: `.autology/nodes/[type]s/[node-id].md`
+**Saved to**: `docs/[type]s/[node-id].md`
 
 ### Key Concepts:
 
@@ -338,7 +338,7 @@ Call autology_relate {
   - Example: A ← relates_to → B (mutually related)
 
 - **Graph Visualization**: You can visualize this relationship in Obsidian's graph view!
-  - Open the `.autology/nodes/` folder in Obsidian.
+  - Open the `docs/` folder in Obsidian.
   - In graph view, you'll see connection lines between nodes.
 ```
 
@@ -597,7 +597,7 @@ Congratulations! You've learned all of Autology's core concepts:
 ### What's Next?
 
 1. **Real-world Use**: Use `/autology:capture` and `/autology:explore` in actual projects
-2. **Obsidian Integration**: Open `.autology/nodes/` folder in Obsidian to view graph
+2. **Obsidian Integration**: Open `docs/` folder in Obsidian to view graph
 3. **Hook Setup**: Activate hooks for automatic capture
 4. **Exploration**: Capture and connect more knowledge
 

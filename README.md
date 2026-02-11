@@ -37,7 +37,7 @@ Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → 
 
 **7 Relationships**: `affects`, `uses`, `supersedes`, `relates_to`, `implements`, `depends_on`, `derived_from`
 
-**Storage**: Obsidian-compatible markdown in `.autology/nodes/`
+**Storage**: Obsidian-compatible markdown in `docs/{type}s/` (e.g., `docs/decisions/`, `docs/components/`)
 
 ## Example
 

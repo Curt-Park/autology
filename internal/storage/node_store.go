@@ -22,13 +22,13 @@ func NewNodeStore(rootPath string) *NodeStore {
 // Initialize creates the directory structure
 func (ns *NodeStore) Initialize() error {
 	dirs := []string{
-		"nodes/decisions",
-		"nodes/components",
-		"nodes/conventions",
-		"nodes/concepts",
-		"nodes/sessions",
-		"nodes/patterns",
-		"nodes/issues",
+		"decisions",
+		"components",
+		"conventions",
+		"concepts",
+		"sessions",
+		"patterns",
+		"issues",
 	}
 
 	for _, dir := range dirs {
@@ -43,7 +43,7 @@ func (ns *NodeStore) Initialize() error {
 
 // getNodePath returns the file path for a node
 func (ns *NodeStore) getNodePath(id string, nodeType NodeType) string {
-	return filepath.Join(ns.rootPath, "nodes", string(nodeType)+"s", id+".md")
+	return filepath.Join(ns.rootPath, string(nodeType)+"s", id+".md")
 }
 
 // CreateNode creates a new node file
@@ -151,7 +151,7 @@ func (ns *NodeStore) FindNode(id string) (KnowledgeNode, error) {
 
 // ListByType lists all nodes of a given type
 func (ns *NodeStore) ListByType(nodeType NodeType) ([]KnowledgeNode, error) {
-	dir := filepath.Join(ns.rootPath, "nodes", string(nodeType)+"s")
+	dir := filepath.Join(ns.rootPath, string(nodeType)+"s")
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
@@ -184,7 +184,7 @@ func (ns *NodeStore) ListNodes(filter *NodeFilter) ([]KnowledgeNode, error) {
 
 	nodes := make([]KnowledgeNode, 0)
 	for _, nodeType := range types {
-		dir := filepath.Join(ns.rootPath, "nodes", string(nodeType)+"s")
+		dir := filepath.Join(ns.rootPath, string(nodeType)+"s")
 
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			continue

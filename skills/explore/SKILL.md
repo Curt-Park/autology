@@ -135,7 +135,7 @@ Call: autology_query {
 - `/autology:explore tagged auth` - Find auth-related nodes
 - `/autology:explore needs review` - See nodes needing attention
 
-💡 **Tip**: Open `.autology/` as an Obsidian vault to visualize the knowledge graph!
+💡 **Tip**: Open `docs/` as an Obsidian vault to visualize the knowledge graph!
 ```
 
 ### Query Results
@@ -155,7 +155,7 @@ Found [N] nodes:
 
 [First 150 chars of content...]
 
-🔗 **ID**: `[node-id]` | 📁 `.autology/nodes/[type]s/[node-id].md`
+🔗 **ID**: `[node-id]` | 📁 `docs/[type]s/[node-id].md`
 
 ---
 
@@ -237,7 +237,7 @@ For single-node queries (by ID), show full details:
 
 ---
 
-📁 **File**: `.autology/nodes/[type]s/[node-id].md`
+📁 **File**: `docs/[type]s/[node-id].md`
 ✏️  **Update**: Use `/autology:capture "[title]"` to update this node
 ```
 
@@ -273,7 +273,7 @@ Handle common issues gracefully:
    📭 No ontology found yet!
 
    Start capturing knowledge with `/autology:capture [content]`
-   The `.autology/` directory will be created automatically.
+   The `docs/` directory will be created automatically.
    ```
 
 2. **Invalid node ID**:
@@ -287,7 +287,7 @@ Handle common issues gracefully:
    ```
    ⚠️  Error querying ontology: [error message]
 
-   Try simplifying your query or check if the .autology directory is accessible.
+   Try simplifying your query or check if the autology directory is accessible.
    ```
 
 ## Examples

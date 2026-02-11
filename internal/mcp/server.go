@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/Curt-Park/autology/internal/classification"
 	"github.com/Curt-Park/autology/internal/enrichment"
@@ -17,7 +18,6 @@ type Server struct {
 	name         string
 	version      string
 	nodeStore    *storage.NodeStore
-	graphIndex   *storage.GraphIndexStore
 	searchEngine *storage.SearchEngine
 	tools        map[string]Tool
 }
@@ -54,14 +54,13 @@ type RPCError struct {
 }
 
 // NewServer creates a new MCP server
-func NewServer(name, version string, nodeStore *storage.NodeStore, graphIndex *storage.GraphIndexStore) *Server {
-	searchEngine := storage.NewSearchEngine(nodeStore, graphIndex)
+func NewServer(name, version string, nodeStore *storage.NodeStore) *Server {
+	searchEngine := storage.NewSearchEngine(nodeStore)
 
 	s := &Server{
 		name:         name,
 		version:      version,
 		nodeStore:    nodeStore,
-		graphIndex:   graphIndex,
 		searchEngine: searchEngine,
 		tools:        make(map[string]Tool),
 	}
@@ -371,14 +370,17 @@ func (s *Server) handleCapture(args map[string]interface{}) (interface{}, error)
 		})
 	}
 
+	// Append wikilinks to content for auto-created relations
+	if len(node.Relations) > 0 {
+		node.Content += "\n\n## Related\n"
+		for _, rel := range node.Relations {
+			node.Content += fmt.Sprintf("- [[%s]]\n", rel.Target)
+		}
+	}
+
 	// Save node
 	if err := s.nodeStore.CreateNode(node); err != nil {
 		return nil, fmt.Errorf("failed to save node: %w", err)
-	}
-
-	// Save relations to graph index
-	for _, rel := range node.Relations {
-		_ = s.graphIndex.AddRelation(node.ID, rel.Target, rel.Type, rel.Description, rel.Confidence)
 	}
 
 	return fmt.Sprintf("✓ Captured: %s (%s)\nID: %s\nRelations: %d auto-created, %d suggested",
@@ -589,16 +591,10 @@ func (s *Server) handleDelete(args map[string]interface{}) (interface{}, error) 
 		return nil, fmt.Errorf("node not found: %s", id)
 	}
 
-	// Count relations before removal
-	relations := s.graphIndex.GetNodeRelations(id)
-	relCount := len(relations)
+	// Count relations before removal (from node-level relations)
+	relCount := len(node.Relations)
 
-	// Remove all relations
-	if err := s.graphIndex.RemoveNodeRelations(id); err != nil {
-		return nil, fmt.Errorf("failed to remove relations: %w", err)
-	}
-
-	// Delete node
+	// Delete node (broken wikilinks in other nodes remain as useful signal)
 	if err := s.nodeStore.DeleteNode(id, node.Type); err != nil {
 		return nil, fmt.Errorf("failed to delete node: %w", err)
 	}
@@ -657,10 +653,12 @@ func (s *Server) handleRelate(args map[string]interface{}) (interface{}, error) 
 		return nil, fmt.Errorf("type is required")
 	}
 
-	// Validate source and target exist
-	if _, err := s.nodeStore.FindNode(source); err != nil {
+	// Load source node
+	sourceNode, err := s.nodeStore.FindNode(source)
+	if err != nil {
 		return nil, fmt.Errorf("source node not found: %s", source)
 	}
+	// Validate target exists
 	if _, err := s.nodeStore.FindNode(target); err != nil {
 		return nil, fmt.Errorf("target node not found: %s", target)
 	}
@@ -671,14 +669,33 @@ func (s *Server) handleRelate(args map[string]interface{}) (interface{}, error) 
 		confidence = conf
 	}
 
-	// Add relation (upsert)
-	if err := s.graphIndex.AddRelation(source, target, storage.RelationType(relType), description, confidence); err != nil {
-		return nil, fmt.Errorf("failed to add relation: %w", err)
+	// Add relation to node's Relations field
+	sourceNode.Relations = append(sourceNode.Relations, storage.Relation{
+		Type:        storage.RelationType(relType),
+		Target:      target,
+		Description: description,
+		Confidence:  confidence,
+	})
+
+	// Append wikilink to content if not already present
+	wikilinkPattern := fmt.Sprintf("[[%s]]", target)
+	if !strings.Contains(sourceNode.Content, wikilinkPattern) {
+		// Check if Related section exists
+		if !strings.Contains(sourceNode.Content, "## Related") {
+			sourceNode.Content += "\n\n## Related\n"
+		}
+		sourceNode.Content += fmt.Sprintf("- %s\n", wikilinkPattern)
+	}
+
+	// Save updated node
+	if err := s.nodeStore.UpdateNode(sourceNode); err != nil {
+		return nil, fmt.Errorf("failed to update node: %w", err)
 	}
 
 	return fmt.Sprintf("✓ Related: %s —[%s]→ %s", source, relType, target), nil
 }
 
+// containsString checks if a string contains a substring
 // createUnrelateTool creates the unrelate tool
 func (s *Server) createUnrelateTool() Tool {
 	return Tool{
@@ -722,10 +739,44 @@ func (s *Server) handleUnrelate(args map[string]interface{}) (interface{}, error
 		return nil, fmt.Errorf("type is required")
 	}
 
-	// Remove relation
-	if err := s.graphIndex.RemoveRelation(source, target, storage.RelationType(relType)); err != nil {
-		return nil, fmt.Errorf("failed to remove relation: %w", err)
+	// Load source node
+	sourceNode, err := s.nodeStore.FindNode(source)
+	if err != nil {
+		return nil, fmt.Errorf("source node not found: %s", source)
+	}
+
+	// Remove matching relation from node.Relations
+	newRelations := make([]storage.Relation, 0)
+	found := false
+	for _, rel := range sourceNode.Relations {
+		if rel.Target == target && rel.Type == storage.RelationType(relType) {
+			found = true
+			continue
+		}
+		newRelations = append(newRelations, rel)
+	}
+
+	if !found {
+		return nil, fmt.Errorf("relation not found: %s —[%s]→ %s", source, relType, target)
+	}
+
+	sourceNode.Relations = newRelations
+
+	// Remove wikilink from content
+	wikilinkPattern := fmt.Sprintf("[[%s]]", target)
+	sourceNode.Content = removeWikilink(sourceNode.Content, wikilinkPattern)
+
+	// Save updated node
+	if err := s.nodeStore.UpdateNode(sourceNode); err != nil {
+		return nil, fmt.Errorf("failed to update node: %w", err)
 	}
 
 	return fmt.Sprintf("✓ Removed relation: %s —[%s]→ %s", source, relType, target), nil
+}
+
+// removeWikilink removes a wikilink pattern from content
+func removeWikilink(content, pattern string) string {
+	linePattern := fmt.Sprintf("- %s\n", pattern)
+	result := strings.ReplaceAll(content, linePattern, "")
+	return strings.ReplaceAll(result, pattern, "")
 }

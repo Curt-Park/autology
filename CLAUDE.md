@@ -4,21 +4,26 @@
 
 **Documentation and code must always be synchronized.**
 
-### Four Documentation Levels
+### Documentation Organization
 
-1. **`docs/PHILOSOPHY.md`** - Why we exist (goals, principles)
-2. **`docs/SPEC.md`** - What we implement (types, tools, schemas)
-3. **`docs/GUIDE.md`** - How users interact (skills, workflows)
-4. **`docs/MCP.md`** - How it works internally (algorithms, storage)
+Documentation lives as autology nodes in `docs/`. Use tag-based queries to find relevant docs:
 
-### When to Update Each Doc
+| Change Type | Discovery |
+|-------------|-----------|
+| Goals, principles | `autology_query { "tags": ["philosophy"] }` |
+| Specification | `autology_query { "tags": ["spec"] }` |
+| Usage, workflows | `autology_query { "tags": ["guide"] }` |
+| Internals | `autology_query { "tags": ["internals"] }` |
+| Triggering | `autology_query { "tags": ["triggering"] }` |
 
-| Change Type | Update |
-|-------------|--------|
-| Goals, principles, problems | PHILOSOPHY.md |
-| Types, tool signatures, schemas, agents | SPEC.md |
-| Skills, workflows, examples | GUIDE.md |
-| Algorithms, storage, internals | MCP.md |
+### When to Update Documentation
+
+| Change Type | Query Tags |
+|-------------|-----------|
+| Goals, principles, problems | `philosophy` |
+| Types, schemas, tools | `spec` |
+| Skills, workflows, examples | `guide` |
+| Algorithms, storage, internals | `internals` |
 
 **Don't update**: Internal refactoring, bug fixes, optimizations (same behavior)
 
@@ -44,16 +49,15 @@ grep -r "COMPONENT_NAME" docs/ agents/ skills/ --include="*.md"
 
 **Step 3: Check conceptual impacts**
 ```bash
-# Example: Removing hooks → "Bidirectional Loop" concept changed
-grep -i "loop\|flow" docs/PHILOSOPHY.md
+# Example: Use grep or autology_query to find related concepts
+grep -i "CONCEPT" docs/ --include="*.md" -r
 ```
 
 **Step 4: Verify implementation matches docs**
 ```bash
-# Example: MCP tools count
-grep "autology_" agents/*.md              # What docs claim
-grep "s.tools\[" internal/mcp/server.go   # What code has
-# These MUST match!
+# Example: Compare tool count in spec vs code
+# Use autology_query to find relevant spec nodes, then compare with code
+grep "s.tools\[" internal/mcp/server.go  # Count actual tools
 ```
 
 ## Pre-Commit Verification
@@ -93,12 +97,10 @@ make check
 
 **What to verify**:
 
-1. **PHILOSOPHY.md**: Core concepts (Loop, Flow, Principle) still accurate?
-2. **SPEC.md vs code**:
-   - `grep "s.tools\[" internal/mcp/server.go` count = SPEC.md tool count?
-   - `internal/storage/types.go` types = SPEC.md types?
-3. **GUIDE.md**: Examples actually work with current code?
-4. **No duplication drift**: Tutorial steps in SPEC.md, GUIDE.md, skills/ all match?
+1. **Philosophy nodes** (tag: `philosophy`): Core concepts still accurate?
+2. **Spec nodes** (tag: `spec`): Tool signatures, schemas match implementation?
+3. **Guide nodes** (tag: `guide`): Examples actually work with current code?
+4. **No duplication drift**: Tutorial steps in skills/ match guide nodes?
 5. **Conceptual correctness**: Does doc lie? ("automatic" but actually manual?)
 
 **Automation limit**: Checks 1-4 partially scriptable, **Check 5 requires human judgment.**

@@ -26,7 +26,7 @@
     "autology": {
       "command": "${CLAUDE_PLUGIN_ROOT}/bin/autology",
       "env": {
-        "AUTOLOGY_ROOT": ".autology"
+        "AUTOLOGY_ROOT": "docs"
       }
     }
   }

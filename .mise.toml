@@ -12,4 +12,4 @@ go = "1.23"
 
 [env]
 # Plugin root for autology
-AUTOLOGY_ROOT = ".autology"
+AUTOLOGY_ROOT = "autology"

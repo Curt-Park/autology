@@ -20,13 +20,7 @@ func setupTestServer(t *testing.T) (*Server, string) {
 		t.Fatalf("Failed to initialize node store: %v", err)
 	}
 
-	graphIndex := storage.NewGraphIndexStore(tmpDir)
-	if err := graphIndex.Load(); err != nil {
-		os.RemoveAll(tmpDir)
-		t.Fatalf("Failed to load graph index: %v", err)
-	}
-
-	server := NewServer("autology-test", "1.0.0", nodeStore, graphIndex)
+	server := NewServer("autology-test", "1.0.0", nodeStore)
 	return server, tmpDir
 }
 
@@ -159,11 +153,18 @@ func TestHandleDelete(t *testing.T) {
 				"id": "test-decision-2",
 			},
 			setup: func(s *Server) {
-				createTestNode(t, s, "test-decision-2", "decision", "Source", "Content")
+				node := createTestNode(t, s, "test-decision-2", "decision", "Source", "Content")
 				createTestNode(t, s, "test-component-1", "component", "Target", "Content")
-				if err := s.graphIndex.AddRelation("test-decision-2", "test-component-1", "affects", "Test relation", 0.8); err != nil {
-				t.Fatalf("failed to add relation in setup: %v", err)
-			}
+				// Add relation to node
+				node.Relations = append(node.Relations, storage.Relation{
+					Type:        storage.RelationTypeAffects,
+					Target:      "test-component-1",
+					Description: "Test relation",
+					Confidence:  0.8,
+				})
+				if err := s.nodeStore.UpdateNode(node); err != nil {
+					t.Fatalf("failed to update node with relation: %v", err)
+				}
 			},
 			expectError: false,
 		},
@@ -352,11 +353,19 @@ func TestHandleUnrelate(t *testing.T) {
 				"type":   "affects",
 			},
 			setup: func(s *Server) {
-				createTestNode(t, s, "test-decision-1", "decision", "Decision", "Content")
+				node := createTestNode(t, s, "test-decision-1", "decision", "Decision", "Content")
 				createTestNode(t, s, "test-component-1", "component", "Component", "Content")
-				if err := s.graphIndex.AddRelation("test-decision-1", "test-component-1", "affects", "Test", 0.8); err != nil {
-				t.Fatalf("failed to add relation in setup: %v", err)
-			}
+				// Add relation to node
+				node.Relations = append(node.Relations, storage.Relation{
+					Type:        storage.RelationTypeAffects,
+					Target:      "test-component-1",
+					Description: "Test",
+					Confidence:  0.8,
+				})
+				node.Content += "\n\n## Related\n- [[test-component-1]]\n"
+				if err := s.nodeStore.UpdateNode(node); err != nil {
+					t.Fatalf("failed to update node with relation: %v", err)
+				}
 			},
 			expectError: false,
 		},
@@ -415,8 +424,11 @@ func TestHandleUnrelate(t *testing.T) {
 
 				// Verify relation is removed
 				source := tt.args["source"].(string)
-				relations := server.graphIndex.GetNodeRelations(source)
-				if len(relations) > 0 {
+				node, err := server.nodeStore.FindNode(source)
+				if err != nil {
+					t.Fatalf("Failed to find node: %v", err)
+				}
+				if len(node.Relations) > 0 {
 					t.Errorf("Relation should be removed but still exists")
 				}
 			}

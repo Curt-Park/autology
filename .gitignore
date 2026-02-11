@@ -4,7 +4,9 @@ bin/
 coverage/
 .env
 .env.local
-.autology/
+docs/.obsidian/workspace.json
+docs/.obsidian/workspace-mobile.json
+docs/sessions/
 docs/plans
 docs/legacy
 coverage.out

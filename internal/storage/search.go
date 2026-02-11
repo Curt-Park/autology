@@ -9,15 +9,13 @@ import (
 
 // SearchEngine provides search functionality for knowledge nodes
 type SearchEngine struct {
-	nodeStore  *NodeStore
-	graphIndex *GraphIndexStore
+	nodeStore *NodeStore
 }
 
 // NewSearchEngine creates a new SearchEngine
-func NewSearchEngine(nodeStore *NodeStore, graphIndex *GraphIndexStore) *SearchEngine {
+func NewSearchEngine(nodeStore *NodeStore) *SearchEngine {
 	return &SearchEngine{
-		nodeStore:  nodeStore,
-		graphIndex: graphIndex,
+		nodeStore: nodeStore,
 	}
 }
 
@@ -57,34 +55,6 @@ func (se *SearchEngine) Search(filter *NodeFilter, limit int, offset int) ([]Sea
 	}
 
 	return results[offset:end], nil
-}
-
-// FindRelated finds nodes related to a given node
-func (se *SearchEngine) FindRelated(nodeID string, maxDepth int) ([]SearchResult, error) {
-	visited := make(map[string]bool)
-	results := make(map[string]SearchResult)
-
-	err := se.traverseRelations(nodeID, 0, maxDepth, visited, results)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert to slice and sort by score
-	resultSlice := make([]SearchResult, 0, len(results))
-	for _, result := range results {
-		resultSlice = append(resultSlice, result)
-	}
-
-	// Sort by score (descending)
-	for i := 0; i < len(resultSlice)-1; i++ {
-		for j := i + 1; j < len(resultSlice); j++ {
-			if resultSlice[j].Score > resultSlice[i].Score {
-				resultSlice[i], resultSlice[j] = resultSlice[j], resultSlice[i]
-			}
-		}
-	}
-
-	return resultSlice, nil
 }
 
 // FindByTags finds nodes by tags (intersection or union)
@@ -292,52 +262,4 @@ func (se *SearchEngine) calculateTextScore(node KnowledgeNode, queryTerms []stri
 	}
 
 	return math.Min(matches/float64(len(queryTerms)), 1.0)
-}
-
-// traverseRelations traverses relations recursively
-func (se *SearchEngine) traverseRelations(
-	nodeID string,
-	depth int,
-	maxDepth int,
-	visited map[string]bool,
-	results map[string]SearchResult,
-) error {
-	if depth >= maxDepth || visited[nodeID] {
-		return nil
-	}
-
-	visited[nodeID] = true
-
-	// Get related nodes
-	relatedIDs := se.graphIndex.GetRelatedNodes(nodeID)
-
-	for _, relatedID := range relatedIDs {
-		if !visited[relatedID] {
-			// Try to load the node
-			node, err := se.nodeStore.FindNode(relatedID)
-			if err != nil {
-				continue // Skip nodes that can't be loaded
-			}
-
-			// Calculate score based on depth and confidence
-			depthPenalty := math.Pow(0.7, float64(depth)) // Decay with depth
-			score := node.Confidence * depthPenalty
-
-			// Keep best score if node already visited
-			if existing, ok := results[relatedID]; !ok || score > existing.Score {
-				results[relatedID] = SearchResult{
-					Node:  node,
-					Score: score,
-				}
-			}
-
-			// Recurse
-			err = se.traverseRelations(relatedID, depth+1, maxDepth, visited, results)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

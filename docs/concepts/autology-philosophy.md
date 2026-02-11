@@ -1,3 +1,20 @@
+---
+confidence: 0.8
+created: "2026-02-11T13:32:03+09:00"
+id: autology-philosophy
+modified: "2026-02-11T13:32:03+09:00"
+references: []
+relations: []
+source: manual
+status: active
+tags:
+  - docs
+  - philosophy
+  - core
+title: Autology Philosophy
+type: concept
+---
+
 # Autology Philosophy
 
 ## The Context (2024-2026)

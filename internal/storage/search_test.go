@@ -9,11 +9,9 @@ import (
 func TestSearchEngineSearch(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	// Create test nodes
 	node1 := CreateKnowledgeNode("search-1", NodeTypeDecision, "High confidence node", "Content about testing")
@@ -71,65 +69,12 @@ func TestSearchEngineSearch(t *testing.T) {
 	}
 }
 
-func TestSearchEngineFindRelated(t *testing.T) {
-	tmpDir := t.TempDir()
-	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
-	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
-
-	engine := NewSearchEngine(nodeStore, graphIndex)
-
-	// Create test nodes
-	node1 := CreateKnowledgeNode("related-1", NodeTypeDecision, "Node 1", "Content")
-	node2 := CreateKnowledgeNode("related-2", NodeTypeComponent, "Node 2", "Content")
-	node3 := CreateKnowledgeNode("related-3", NodeTypeConcept, "Node 3", "Content")
-
-	_ = nodeStore.CreateNode(node1)
-	_ = nodeStore.CreateNode(node2)
-	_ = nodeStore.CreateNode(node3)
-
-	// Create relations: 1 -> 2 -> 3
-	_ = graphIndex.AddRelation("related-1", "related-2", RelationTypeAffects, "", 0.8)
-	_ = graphIndex.AddRelation("related-2", "related-3", RelationTypeUses, "", 0.8)
-
-	// Find related nodes from node 1 with depth 1
-	results, err := engine.FindRelated("related-1", 1)
-	if err != nil {
-		t.Fatalf("FindRelated failed: %v", err)
-	}
-	if len(results) != 1 {
-		t.Errorf("expected 1 related node at depth 1, got %d", len(results))
-	}
-	if results[0].Node.ID != "related-2" {
-		t.Errorf("expected related-2, got %s", results[0].Node.ID)
-	}
-
-	// Find related nodes from node 1 with depth 2
-	results, err = engine.FindRelated("related-1", 2)
-	if err != nil {
-		t.Fatalf("FindRelated with depth 2 failed: %v", err)
-	}
-	if len(results) != 2 {
-		t.Errorf("expected 2 related nodes at depth 2, got %d", len(results))
-	}
-
-	// Verify scores decay with depth
-	if len(results) == 2 {
-		if results[0].Score <= results[1].Score {
-			t.Errorf("expected scores to decay with depth")
-		}
-	}
-}
-
 func TestSearchEngineFindByTags(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	// Create test nodes
 	node1 := CreateKnowledgeNode("tag-1", NodeTypeDecision, "Node 1", "Content")
@@ -179,11 +124,9 @@ func TestSearchEngineFindByTags(t *testing.T) {
 func TestSearchEngineFullTextSearch(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	// Create test nodes
 	node1 := CreateKnowledgeNode("text-1", NodeTypeDecision, "Testing Framework", "We use Go testing framework for unit tests")
@@ -234,11 +177,9 @@ func TestSearchEngineFullTextSearch(t *testing.T) {
 func TestSearchEngineFindByFileReference(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	// Create test nodes
 	node1 := CreateKnowledgeNode("file-1", NodeTypeDecision, "Node 1", "Content")
@@ -281,11 +222,9 @@ func TestSearchEngineFindByFileReference(t *testing.T) {
 func TestSearchEngineScoring(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	// Create nodes with different attributes
 	now := time.Now()
@@ -336,11 +275,9 @@ func TestSearchEngineScoring(t *testing.T) {
 func TestSearchEngineCalculateRelevance(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	node := CreateKnowledgeNode("test-1", NodeTypeDecision, "Test", "Content")
 	node.Confidence = 0.8
@@ -402,11 +339,9 @@ func TestSearchEngineCalculateRelevance(t *testing.T) {
 func TestSearchEngineCalculateTagScore(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	nodeTags := []string{"go", "testing", "ci"}
 
@@ -443,11 +378,9 @@ func TestSearchEngineCalculateTagScore(t *testing.T) {
 func TestSearchEngineCalculateTextScore(t *testing.T) {
 	tmpDir := t.TempDir()
 	nodeStore := NewNodeStore(tmpDir)
-	graphIndex := NewGraphIndexStore(tmpDir)
 	_ = nodeStore.Initialize()
-	_ = graphIndex.Load()
 
-	engine := NewSearchEngine(nodeStore, graphIndex)
+	engine := NewSearchEngine(nodeStore)
 
 	node := CreateKnowledgeNode("test-1", NodeTypeDecision, "Testing Framework", "We use testing for tests")
 	node.Tags = []string{"testing"}

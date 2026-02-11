@@ -43,10 +43,9 @@ func runHook(args []string) {
 }
 
 func runMCPServer() {
-	// Get root path from environment or use default
 	rootPath := os.Getenv("AUTOLOGY_ROOT")
 	if rootPath == "" {
-		rootPath = ".autology"
+		rootPath = "docs"
 	}
 
 	// Get absolute path
@@ -63,16 +62,10 @@ func runMCPServer() {
 		os.Exit(1)
 	}
 
-	graphIndex := storage.NewGraphIndexStore(absPath)
-	if err := graphIndex.Load(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading graph index: %v\n", err)
-		os.Exit(1)
-	}
-
 	fmt.Fprintf(os.Stderr, "Storage initialized at: %s\n", absPath)
 
 	// Create and run MCP server
-	server := mcp.NewServer("autology", version, nodeStore, graphIndex)
+	server := mcp.NewServer("autology", version, nodeStore)
 	if err := server.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Server error: %v\n", err)
 		os.Exit(1)

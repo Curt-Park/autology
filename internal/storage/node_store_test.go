@@ -19,13 +19,13 @@ func TestNodeStoreInitialize(t *testing.T) {
 
 	// Verify directories were created
 	expectedDirs := []string{
-		"nodes/decisions",
-		"nodes/components",
-		"nodes/conventions",
-		"nodes/concepts",
-		"nodes/sessions",
-		"nodes/patterns",
-		"nodes/issues",
+		"decisions",
+		"components",
+		"conventions",
+		"concepts",
+		"sessions",
+		"patterns",
+		"issues",
 	}
 
 	for _, dir := range expectedDirs {
