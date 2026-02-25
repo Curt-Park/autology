@@ -22,14 +22,6 @@
   "agents": [
     "./agents/autology-advisor.md"
   ],
-  "hooks": {
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/session_start.sh\""
-      }
-    ]
-  },
   "mcpServers": {
     "autology": {
       "command": "${CLAUDE_PLUGIN_ROOT}/bin/autology",
