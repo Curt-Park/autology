@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -68,7 +69,7 @@ func (ns *NodeStore) CreateNode(node KnowledgeNode) error {
 	}
 
 	if err := os.Rename(tmpFile, filePath); err != nil {
-		os.Remove(tmpFile)
+		_ = os.Remove(tmpFile)
 		return fmt.Errorf("failed to rename temp file: %w", err)
 	}
 
@@ -117,7 +118,7 @@ func (ns *NodeStore) UpdateNode(node KnowledgeNode) error {
 	}
 
 	if err := os.Rename(tmpFile, filePath); err != nil {
-		os.Remove(tmpFile)
+		_ = os.Remove(tmpFile)
 		return fmt.Errorf("failed to rename temp file: %w", err)
 	}
 
@@ -233,13 +234,7 @@ func (ns *NodeStore) matchesFilter(node KnowledgeNode, filter *NodeFilter) bool 
 
 	if len(filter.Tags) > 0 {
 		for _, filterTag := range filter.Tags {
-			found := false
-			for _, nodeTag := range node.Tags {
-				if nodeTag == filterTag {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(node.Tags, filterTag)
 			if !found {
 				return false
 			}

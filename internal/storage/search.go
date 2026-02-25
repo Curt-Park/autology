@@ -3,6 +3,7 @@ package storage
 import (
 	"math"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
@@ -49,10 +50,7 @@ func (se *SearchEngine) Search(filter *NodeFilter, limit int, offset int) ([]Sea
 	if offset >= len(results) {
 		return []SearchResult{}, nil
 	}
-	end := offset + limit
-	if end > len(results) {
-		end = len(results)
-	}
+	end := min(offset+limit, len(results))
 
 	return results[offset:end], nil
 }
@@ -71,13 +69,7 @@ func (se *SearchEngine) FindByTags(tags []string, mode string) ([]SearchResult, 
 		if mode == "all" {
 			hasMatch = true
 			for _, tag := range tags {
-				found := false
-				for _, nodeTag := range node.Tags {
-					if nodeTag == tag {
-						found = true
-						break
-					}
-				}
+				found := slices.Contains(node.Tags, tag)
 				if !found {
 					hasMatch = false
 					break
@@ -85,11 +77,8 @@ func (se *SearchEngine) FindByTags(tags []string, mode string) ([]SearchResult, 
 			}
 		} else { // "any" mode
 			for _, tag := range tags {
-				for _, nodeTag := range node.Tags {
-					if nodeTag == tag {
-						hasMatch = true
-						break
-					}
+				if slices.Contains(node.Tags, tag) {
+					hasMatch = true
 				}
 				if hasMatch {
 					break
@@ -232,11 +221,8 @@ func (se *SearchEngine) calculateTagScore(nodeTags []string, searchTags []string
 
 	matches := 0
 	for _, searchTag := range searchTags {
-		for _, nodeTag := range nodeTags {
-			if nodeTag == searchTag {
-				matches++
-				break
-			}
+		if slices.Contains(nodeTags, searchTag) {
+			matches++
 		}
 	}
 

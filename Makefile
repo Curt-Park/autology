@@ -7,7 +7,8 @@ all: build
 build:
 	@echo "Building autology..."
 	@mkdir -p ./bin
-	@go build -o ./bin/autology ./cmd/autology
+	@VERSION=$$(grep '"version"' package.json | sed 's/.*"version": *"\(.*\)".*/\1/'); \
+	go build -ldflags "-X main.version=$$VERSION" -o ./bin/autology ./cmd/autology
 	@echo "✓ Built: ./bin/autology"
 
 # Run all tests (unit tests including hooks)
@@ -51,13 +52,13 @@ fmt:
 # Lint code
 lint:
 	@echo "Linting Go code..."
-	@if command -v golangci-lint >/dev/null 2>&1; then \
-		golangci-lint run ./...; \
-		echo "✓ Linting passed (golangci-lint)"; \
+	@if command -v mise >/dev/null 2>&1; then \
+		mise exec -- golangci-lint run ./... && echo "✓ Linting passed (golangci-lint)"; \
+	elif command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint run ./... && echo "✓ Linting passed (golangci-lint)"; \
 	else \
 		echo "⚠ golangci-lint not found, using go vet..."; \
-		go vet ./...; \
-		echo "✓ Linting passed (go vet)"; \
+		go vet ./... && echo "✓ Linting passed (go vet)"; \
 	fi
 
 # Run all checks (format + lint + test)

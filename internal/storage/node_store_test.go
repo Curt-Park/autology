@@ -84,7 +84,7 @@ func TestNodeStoreUpdate(t *testing.T) {
 	_ = store.CreateNode(original)
 
 	// Update
-	updated := UpdateKnowledgeNode(original, map[string]interface{}{
+	updated := UpdateKnowledgeNode(original, map[string]any{
 		"title": "Updated Title",
 	})
 
@@ -162,7 +162,7 @@ func TestNodeStoreListByType(t *testing.T) {
 	_ = store.Initialize()
 
 	// Create multiple nodes
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		node := CreateKnowledgeNode(
 			fmt.Sprintf("test-list-%d", i),
 			NodeTypeDecision,

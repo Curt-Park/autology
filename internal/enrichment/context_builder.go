@@ -3,6 +3,7 @@ package enrichment
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strings"
 	"time"
 
@@ -53,12 +54,9 @@ func scoreNode(node storage.KnowledgeNode, signals ContextSignals) ScoredNode {
 
 	// 1. Current file exact match (highest priority)
 	if signals.CurrentFile != nil {
-		for _, ref := range node.References {
-			if ref == *signals.CurrentFile {
-				score += 1.0
-				reasons = append(reasons, "References current file")
-				break
-			}
+		if slices.Contains(node.References, *signals.CurrentFile) {
+			score += 1.0
+			reasons = append(reasons, "References current file")
 		}
 	}
 
@@ -77,11 +75,8 @@ func scoreNode(node storage.KnowledgeNode, signals ContextSignals) ScoredNode {
 	if len(signals.RecentFiles) > 0 {
 		matchCount := 0
 		for _, recentFile := range signals.RecentFiles {
-			for _, ref := range node.References {
-				if ref == recentFile {
-					matchCount++
-					break
-				}
+			if slices.Contains(node.References, recentFile) {
+				matchCount++
 			}
 		}
 		if matchCount > 0 {
@@ -131,10 +126,11 @@ func scoreNode(node storage.KnowledgeNode, signals ContextSignals) ScoredNode {
 	}
 
 	// 8. Status penalty
-	if node.Status == storage.NodeStatusSuperseded {
+	switch node.Status {
+	case storage.NodeStatusSuperseded:
 		score *= 0.3 // Heavily penalize superseded nodes
 		reasons = append(reasons, "Superseded (low priority)")
-	} else if node.Status == storage.NodeStatusNeedsReview {
+	case storage.NodeStatusNeedsReview:
 		score *= 0.8 // Slightly penalize nodes needing review
 	}
 

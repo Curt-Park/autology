@@ -24,33 +24,33 @@ type Server struct {
 
 // Tool represents an MCP tool
 type Tool struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	InputSchema map[string]interface{} `json:"inputSchema"`
-	Handler     func(map[string]interface{}) (interface{}, error)
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	InputSchema map[string]any `json:"inputSchema"`
+	Handler     func(map[string]any) (any, error)
 }
 
 // JSONRPCRequest represents a JSON-RPC 2.0 request
 type JSONRPCRequest struct {
-	JSONRPC string                 `json:"jsonrpc"`
-	ID      interface{}            `json:"id"`
-	Method  string                 `json:"method"`
-	Params  map[string]interface{} `json:"params,omitempty"`
+	JSONRPC string         `json:"jsonrpc"`
+	ID      any            `json:"id"`
+	Method  string         `json:"method"`
+	Params  map[string]any `json:"params,omitempty"`
 }
 
 // JSONRPCResponse represents a JSON-RPC 2.0 response
 type JSONRPCResponse struct {
-	JSONRPC string      `json:"jsonrpc"`
-	ID      interface{} `json:"id"`
-	Result  interface{} `json:"result,omitempty"`
-	Error   *RPCError   `json:"error,omitempty"`
+	JSONRPC string    `json:"jsonrpc"`
+	ID      any       `json:"id"`
+	Result  any       `json:"result,omitempty"`
+	Error   *RPCError `json:"error,omitempty"`
 }
 
 // RPCError represents a JSON-RPC error
 type RPCError struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
 }
 
 // NewServer creates a new MCP server
@@ -116,12 +116,12 @@ func (s *Server) handleRequest(w *bufio.Writer, req *JSONRPCRequest) {
 
 // handleInitialize handles the initialize request
 func (s *Server) handleInitialize(w *bufio.Writer, req *JSONRPCRequest) {
-	result := map[string]interface{}{
+	result := map[string]any{
 		"protocolVersion": "2024-11-05",
-		"capabilities": map[string]interface{}{
-			"tools": map[string]interface{}{},
+		"capabilities": map[string]any{
+			"tools": map[string]any{},
 		},
-		"serverInfo": map[string]interface{}{
+		"serverInfo": map[string]any{
 			"name":    s.name,
 			"version": s.version,
 		},
@@ -132,17 +132,17 @@ func (s *Server) handleInitialize(w *bufio.Writer, req *JSONRPCRequest) {
 
 // handleToolsList handles the tools/list request
 func (s *Server) handleToolsList(w *bufio.Writer, req *JSONRPCRequest) {
-	tools := make([]map[string]interface{}, 0, len(s.tools))
+	tools := make([]map[string]any, 0, len(s.tools))
 
 	for _, tool := range s.tools {
-		tools = append(tools, map[string]interface{}{
+		tools = append(tools, map[string]any{
 			"name":        tool.Name,
 			"description": tool.Description,
 			"inputSchema": tool.InputSchema,
 		})
 	}
 
-	result := map[string]interface{}{
+	result := map[string]any{
 		"tools": tools,
 	}
 
@@ -163,9 +163,9 @@ func (s *Server) handleToolsCall(w *bufio.Writer, req *JSONRPCRequest) {
 		return
 	}
 
-	arguments, ok := params["arguments"].(map[string]interface{})
+	arguments, ok := params["arguments"].(map[string]any)
 	if !ok {
-		arguments = make(map[string]interface{})
+		arguments = make(map[string]any)
 	}
 
 	tool, exists := s.tools[name]
@@ -181,8 +181,8 @@ func (s *Server) handleToolsCall(w *bufio.Writer, req *JSONRPCRequest) {
 		return
 	}
 
-	s.sendResult(w, req.ID, map[string]interface{}{
-		"content": []map[string]interface{}{
+	s.sendResult(w, req.ID, map[string]any{
+		"content": []map[string]any{
 			{
 				"type": "text",
 				"text": result,
@@ -192,7 +192,7 @@ func (s *Server) handleToolsCall(w *bufio.Writer, req *JSONRPCRequest) {
 }
 
 // sendResult sends a JSON-RPC result
-func (s *Server) sendResult(w *bufio.Writer, id interface{}, result interface{}) {
+func (s *Server) sendResult(w *bufio.Writer, id any, result any) {
 	resp := JSONRPCResponse{
 		JSONRPC: "2.0",
 		ID:      id,
@@ -206,7 +206,7 @@ func (s *Server) sendResult(w *bufio.Writer, id interface{}, result interface{})
 }
 
 // sendError sends a JSON-RPC error
-func (s *Server) sendError(w *bufio.Writer, id interface{}, code int, message string, data interface{}) {
+func (s *Server) sendError(w *bufio.Writer, id any, code int, message string, data any) {
 	resp := JSONRPCResponse{
 		JSONRPC: "2.0",
 		ID:      id,
@@ -244,26 +244,26 @@ func (s *Server) createCaptureTool() Tool {
 	return Tool{
 		Name:        "autology_capture",
 		Description: "Capture knowledge as a typed node (decision, component, convention, concept, pattern, issue, session)",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type": "object",
-			"properties": map[string]interface{}{
-				"title": map[string]interface{}{
+			"properties": map[string]any{
+				"title": map[string]any{
 					"type":        "string",
 					"description": "Title of the knowledge node",
 				},
-				"content": map[string]interface{}{
+				"content": map[string]any{
 					"type":        "string",
 					"description": "Detailed content in markdown format",
 				},
-				"type": map[string]interface{}{
+				"type": map[string]any{
 					"type":        "string",
 					"description": "Node type (decision, component, convention, concept, pattern, issue, session)",
 					"enum":        []string{"decision", "component", "convention", "concept", "pattern", "issue", "session"},
 				},
-				"tags": map[string]interface{}{
+				"tags": map[string]any{
 					"type":        "array",
 					"description": "Tags for categorization",
-					"items": map[string]interface{}{
+					"items": map[string]any{
 						"type": "string",
 					},
 				},
@@ -279,25 +279,25 @@ func (s *Server) createQueryTool() Tool {
 	return Tool{
 		Name:        "autology_query",
 		Description: "Search knowledge nodes by type, tags, content, or relationships",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type": "object",
-			"properties": map[string]interface{}{
-				"query": map[string]interface{}{
+			"properties": map[string]any{
+				"query": map[string]any{
 					"type":        "string",
 					"description": "Search query text",
 				},
-				"type": map[string]interface{}{
+				"type": map[string]any{
 					"type":        "string",
 					"description": "Filter by node type",
 				},
-				"tags": map[string]interface{}{
+				"tags": map[string]any{
 					"type":        "array",
 					"description": "Filter by tags (all must match)",
-					"items": map[string]interface{}{
+					"items": map[string]any{
 						"type": "string",
 					},
 				},
-				"limit": map[string]interface{}{
+				"limit": map[string]any{
 					"type":        "number",
 					"description": "Maximum number of results (default: 10)",
 				},
@@ -312,20 +312,20 @@ func (s *Server) createStatusTool() Tool {
 	return Tool{
 		Name:        "autology_status",
 		Description: "Get overview of knowledge graph statistics and health",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type":       "object",
-			"properties": map[string]interface{}{},
+			"properties": map[string]any{},
 		},
 		Handler: s.handleStatus,
 	}
 }
 
 // handleCapture handles the capture tool
-func (s *Server) handleCapture(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleCapture(args map[string]any) (any, error) {
 	title, _ := args["title"].(string)
 	content, _ := args["content"].(string)
 	typeHint, _ := args["type"].(string)
-	tagsRaw, _ := args["tags"].([]interface{})
+	tagsRaw, _ := args["tags"].([]any)
 
 	if title == "" || content == "" {
 		return nil, fmt.Errorf("title and content are required")
@@ -388,7 +388,7 @@ func (s *Server) handleCapture(args map[string]interface{}) (interface{}, error)
 }
 
 // handleQuery handles the query tool
-func (s *Server) handleQuery(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleQuery(args map[string]any) (any, error) {
 	query, _ := args["query"].(string)
 	typeFilter, _ := args["type"].(string)
 	limit := 10
@@ -414,21 +414,22 @@ func (s *Server) handleQuery(args map[string]interface{}) (interface{}, error) {
 		return "No results found.", nil
 	}
 
-	output := fmt.Sprintf("Found %d results:\n\n", len(results))
+	var output strings.Builder
+	fmt.Fprintf(&output, "Found %d results:\n\n", len(results))
 	for i, result := range results {
-		output += fmt.Sprintf("%d. **%s** (%s) - Score: %.0f%%\n", i+1, result.Node.Title, result.Node.Type, result.Score*100)
+		fmt.Fprintf(&output, "%d. **%s** (%s) - Score: %.0f%%\n", i+1, result.Node.Title, result.Node.Type, result.Score*100)
 		preview := result.Node.Content
 		if len(preview) > 100 {
 			preview = preview[:100] + "..."
 		}
-		output += fmt.Sprintf("   %s\n\n", preview)
+		fmt.Fprintf(&output, "   %s\n\n", preview)
 	}
 
-	return output, nil
+	return output.String(), nil
 }
 
 // handleStatus handles the status tool
-func (s *Server) handleStatus(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleStatus(args map[string]any) (any, error) {
 	// Count nodes by type
 	counts := make(map[storage.NodeType]int)
 	for _, nodeType := range storage.NodeTypes {
@@ -441,14 +442,15 @@ func (s *Server) handleStatus(args map[string]interface{}) (interface{}, error) 
 		total += count
 	}
 
-	output := "# Autology Knowledge Graph Status\n\n"
-	output += fmt.Sprintf("**Total Nodes**: %d\n\n", total)
-	output += "**By Type**:\n"
+	var output strings.Builder
+	output.WriteString("# Autology Knowledge Graph Status\n\n")
+	fmt.Fprintf(&output, "**Total Nodes**: %d\n\n", total)
+	output.WriteString("**By Type**:\n")
 	for _, nodeType := range storage.NodeTypes {
-		output += fmt.Sprintf("- %s: %d\n", nodeType, counts[nodeType])
+		fmt.Fprintf(&output, "- %s: %d\n", nodeType, counts[nodeType])
 	}
 
-	return output, nil
+	return output.String(), nil
 }
 
 // createUpdateTool creates the update tool
@@ -456,34 +458,34 @@ func (s *Server) createUpdateTool() Tool {
 	return Tool{
 		Name:        "autology_update",
 		Description: "Update an existing knowledge node",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type": "object",
-			"properties": map[string]interface{}{
-				"id": map[string]interface{}{
+			"properties": map[string]any{
+				"id": map[string]any{
 					"type":        "string",
 					"description": "ID of the node to update (required)",
 				},
-				"title": map[string]interface{}{
+				"title": map[string]any{
 					"type":        "string",
 					"description": "New title",
 				},
-				"content": map[string]interface{}{
+				"content": map[string]any{
 					"type":        "string",
 					"description": "New content in markdown format",
 				},
-				"tags": map[string]interface{}{
+				"tags": map[string]any{
 					"type":        "array",
 					"description": "New tags",
-					"items": map[string]interface{}{
+					"items": map[string]any{
 						"type": "string",
 					},
 				},
-				"status": map[string]interface{}{
+				"status": map[string]any{
 					"type":        "string",
 					"description": "New status (active, needs_review, superseded)",
 					"enum":        []string{"active", "needs_review", "superseded"},
 				},
-				"confidence": map[string]interface{}{
+				"confidence": map[string]any{
 					"type":        "number",
 					"description": "New confidence score (0.0 to 1.0)",
 				},
@@ -495,7 +497,7 @@ func (s *Server) createUpdateTool() Tool {
 }
 
 // handleUpdate handles the update tool
-func (s *Server) handleUpdate(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleUpdate(args map[string]any) (any, error) {
 	id, ok := args["id"].(string)
 	if !ok || id == "" {
 		return nil, fmt.Errorf("id is required")
@@ -508,7 +510,7 @@ func (s *Server) handleUpdate(args map[string]interface{}) (interface{}, error) 
 	}
 
 	// Build updates map
-	updates := make(map[string]interface{})
+	updates := make(map[string]any)
 	fieldsChanged := []string{}
 
 	if title, ok := args["title"].(string); ok {
@@ -519,7 +521,7 @@ func (s *Server) handleUpdate(args map[string]interface{}) (interface{}, error) 
 		updates["content"] = content
 		fieldsChanged = append(fieldsChanged, "content")
 	}
-	if tagsRaw, ok := args["tags"].([]interface{}); ok {
+	if tagsRaw, ok := args["tags"].([]any); ok {
 		tags := make([]string, 0)
 		for _, t := range tagsRaw {
 			if str, ok := t.(string); ok {
@@ -548,15 +550,15 @@ func (s *Server) handleUpdate(args map[string]interface{}) (interface{}, error) 
 		return nil, fmt.Errorf("failed to update node: %w", err)
 	}
 
-	fieldsStr := ""
+	var fieldsStr strings.Builder
 	for i, field := range fieldsChanged {
 		if i > 0 {
-			fieldsStr += ", "
+			fieldsStr.WriteString(", ")
 		}
-		fieldsStr += field
+		fieldsStr.WriteString(field)
 	}
 
-	return fmt.Sprintf("✓ Updated: %s (%s)\nFields changed: %s", updatedNode.Title, updatedNode.Type, fieldsStr), nil
+	return fmt.Sprintf("✓ Updated: %s (%s)\nFields changed: %s", updatedNode.Title, updatedNode.Type, fieldsStr.String()), nil
 }
 
 // createDeleteTool creates the delete tool
@@ -564,10 +566,10 @@ func (s *Server) createDeleteTool() Tool {
 	return Tool{
 		Name:        "autology_delete",
 		Description: "Delete a knowledge node and its relations",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type": "object",
-			"properties": map[string]interface{}{
-				"id": map[string]interface{}{
+			"properties": map[string]any{
+				"id": map[string]any{
 					"type":        "string",
 					"description": "ID of the node to delete (required)",
 				},
@@ -579,7 +581,7 @@ func (s *Server) createDeleteTool() Tool {
 }
 
 // handleDelete handles the delete tool
-func (s *Server) handleDelete(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleDelete(args map[string]any) (any, error) {
 	id, ok := args["id"].(string)
 	if !ok || id == "" {
 		return nil, fmt.Errorf("id is required")
@@ -607,27 +609,27 @@ func (s *Server) createRelateTool() Tool {
 	return Tool{
 		Name:        "autology_relate",
 		Description: "Create or update a relation between two nodes",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type": "object",
-			"properties": map[string]interface{}{
-				"source": map[string]interface{}{
+			"properties": map[string]any{
+				"source": map[string]any{
 					"type":        "string",
 					"description": "Source node ID (required)",
 				},
-				"target": map[string]interface{}{
+				"target": map[string]any{
 					"type":        "string",
 					"description": "Target node ID (required)",
 				},
-				"type": map[string]interface{}{
+				"type": map[string]any{
 					"type":        "string",
 					"description": "Relation type (required)",
 					"enum":        []string{"affects", "uses", "supersedes", "relates_to", "implements", "depends_on", "derived_from"},
 				},
-				"description": map[string]interface{}{
+				"description": map[string]any{
 					"type":        "string",
 					"description": "Description of the relationship",
 				},
-				"confidence": map[string]interface{}{
+				"confidence": map[string]any{
 					"type":        "number",
 					"description": "Confidence score (0.0 to 1.0, default: 0.8)",
 				},
@@ -639,7 +641,7 @@ func (s *Server) createRelateTool() Tool {
 }
 
 // handleRelate handles the relate tool
-func (s *Server) handleRelate(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleRelate(args map[string]any) (any, error) {
 	source, ok := args["source"].(string)
 	if !ok || source == "" {
 		return nil, fmt.Errorf("source is required")
@@ -701,18 +703,18 @@ func (s *Server) createUnrelateTool() Tool {
 	return Tool{
 		Name:        "autology_unrelate",
 		Description: "Delete a relation between two nodes",
-		InputSchema: map[string]interface{}{
+		InputSchema: map[string]any{
 			"type": "object",
-			"properties": map[string]interface{}{
-				"source": map[string]interface{}{
+			"properties": map[string]any{
+				"source": map[string]any{
 					"type":        "string",
 					"description": "Source node ID (required)",
 				},
-				"target": map[string]interface{}{
+				"target": map[string]any{
 					"type":        "string",
 					"description": "Target node ID (required)",
 				},
-				"type": map[string]interface{}{
+				"type": map[string]any{
 					"type":        "string",
 					"description": "Relation type (required)",
 					"enum":        []string{"affects", "uses", "supersedes", "relates_to", "implements", "depends_on", "derived_from"},
@@ -725,7 +727,7 @@ func (s *Server) createUnrelateTool() Tool {
 }
 
 // handleUnrelate handles the unrelate tool
-func (s *Server) handleUnrelate(args map[string]interface{}) (interface{}, error) {
+func (s *Server) handleUnrelate(args map[string]any) (any, error) {
 	source, ok := args["source"].(string)
 	if !ok || source == "" {
 		return nil, fmt.Errorf("source is required")

@@ -55,6 +55,6 @@ func WriteAdditionalContext(hookEventName, context string) error {
 }
 
 // WriteStderr outputs a message to stderr (user-visible)
-func WriteStderr(format string, args ...interface{}) {
+func WriteStderr(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }

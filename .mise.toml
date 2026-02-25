@@ -4,11 +4,8 @@
 # Use Makefile for tasks: make setup, make build, make check, etc.
 
 [tools]
-# Go version (matches go.mod requirement)
-go = "1.23"
-
-# golangci-lint for strict linting (matches CI version)
-"golangci-lint" = "1.64"
+go = "1.26"
+golangci-lint = "2.10.1"
 
 [env]
 # Plugin root for autology

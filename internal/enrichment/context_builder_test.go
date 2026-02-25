@@ -19,7 +19,7 @@ func TestScoreNodesForContext(t *testing.T) {
 	nodes := []storage.KnowledgeNode{node1, node2}
 
 	signals := ContextSignals{
-		CurrentFile: stringPtr("src/api/handler.go"),
+		CurrentFile: new("src/api/handler.go"),
 	}
 
 	scored := ScoreNodesForContext(nodes, signals)
@@ -47,7 +47,7 @@ func TestScoreNodeCurrentFileExactMatch(t *testing.T) {
 	node.References = []string{"src/main.go", "src/test.go"}
 
 	signals := ContextSignals{
-		CurrentFile: stringPtr("src/main.go"),
+		CurrentFile: new("src/main.go"),
 	}
 
 	scored := ScoreNodesForContext([]storage.KnowledgeNode{node}, signals)
@@ -79,7 +79,7 @@ func TestScoreNodeCurrentFilePartialMatch(t *testing.T) {
 	node.References = []string{"src/api/handler_test.go"}
 
 	signals := ContextSignals{
-		CurrentFile: stringPtr("src/api/handler.go"),
+		CurrentFile: new("src/api/handler.go"),
 	}
 
 	scored := ScoreNodesForContext([]storage.KnowledgeNode{node}, signals)
@@ -126,7 +126,7 @@ func TestScoreNodeTaskMatch(t *testing.T) {
 	node.Tags = []string{"auth", "jwt"}
 
 	signals := ContextSignals{
-		CurrentTask: stringPtr("Implement authentication using JWT tokens"),
+		CurrentTask: new("Implement authentication using JWT tokens"),
 	}
 
 	scored := ScoreNodesForContext([]storage.KnowledgeNode{node}, signals)
@@ -202,7 +202,7 @@ func TestScoreNodeStatusPenalty(t *testing.T) {
 	superseded.References = []string{"file.go"}
 
 	signals := ContextSignals{
-		CurrentFile: stringPtr("file.go"),
+		CurrentFile: new("file.go"),
 	}
 
 	scored := ScoreNodesForContext([]storage.KnowledgeNode{active, superseded}, signals)
@@ -525,9 +525,4 @@ func TestScoreNodesSortedByScore(t *testing.T) {
 			t.Error("results should be sorted by score descending")
 		}
 	}
-}
-
-// Helper function to create string pointer
-func stringPtr(s string) *string {
-	return &s
 }

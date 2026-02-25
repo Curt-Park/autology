@@ -1,6 +1,7 @@
 package classification
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/Curt-Park/autology/internal/storage"
@@ -75,13 +76,7 @@ func TestClassifyLowConfidence(t *testing.T) {
 		storage.NodeTypeSession,
 	}
 
-	found := false
-	for _, nt := range validTypes {
-		if result.Type == nt {
-			found = true
-			break
-		}
-	}
+	found := slices.Contains(validTypes, result.Type)
 
 	if !found {
 		t.Errorf("expected valid node type, got %s", result.Type)
@@ -232,13 +227,7 @@ func TestClassificationOptionsDefaults(t *testing.T) {
 		storage.NodeTypeSession,
 	}
 
-	found := false
-	for _, nt := range validTypes {
-		if result.Type == nt {
-			found = true
-			break
-		}
-	}
+	found := slices.Contains(validTypes, result.Type)
 
 	if !found {
 		t.Errorf("expected valid node type with defaults, got %s", result.Type)

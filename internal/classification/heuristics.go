@@ -247,12 +247,9 @@ func SuggestAlternatives(title, content string) []ClassificationResult {
 	maxPossibleScore := 10.0
 	results := make([]ClassificationResult, 0, 3)
 
-	limit := 3
-	if len(scores) < limit {
-		limit = len(scores)
-	}
+	limit := min(len(scores), 3)
 
-	for i := 0; i < limit; i++ {
+	for i := range limit {
 		results = append(results, ClassificationResult{
 			Type:       scores[i].nodeType,
 			Confidence: math.Min(0.95, scores[i].score/maxPossibleScore),
