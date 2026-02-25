@@ -16,7 +16,7 @@ func setupTestServer(t *testing.T) (*Server, string) {
 
 	nodeStore := storage.NewNodeStore(tmpDir)
 	if err := nodeStore.Initialize(); err != nil {
-		os.RemoveAll(tmpDir)
+		_ = os.RemoveAll(tmpDir)
 		t.Fatalf("Failed to initialize node store: %v", err)
 	}
 
@@ -36,14 +36,14 @@ func createTestNode(t *testing.T, server *Server, id, nodeType, title, content s
 func TestHandleUpdate(t *testing.T) {
 	tests := []struct {
 		name        string
-		args        map[string]interface{}
+		args        map[string]any
 		setup       func(*Server)
 		expectError bool
 		errorMsg    string
 	}{
 		{
 			name: "valid update - title only",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id":    "test-decision-1",
 				"title": "Updated Title",
 			},
@@ -54,11 +54,11 @@ func TestHandleUpdate(t *testing.T) {
 		},
 		{
 			name: "valid update - multiple fields",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id":         "test-decision-2",
 				"title":      "New Title",
 				"content":    "New content",
-				"tags":       []interface{}{"tag1", "tag2"},
+				"tags":       []any{"tag1", "tag2"},
 				"status":     "superseded",
 				"confidence": 0.9,
 			},
@@ -69,7 +69,7 @@ func TestHandleUpdate(t *testing.T) {
 		},
 		{
 			name: "missing id",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"title": "Some Title",
 			},
 			setup:       func(s *Server) {},
@@ -78,7 +78,7 @@ func TestHandleUpdate(t *testing.T) {
 		},
 		{
 			name: "non-existent node",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id":    "nonexistent-id",
 				"title": "Some Title",
 			},
@@ -88,7 +88,7 @@ func TestHandleUpdate(t *testing.T) {
 		},
 		{
 			name: "no fields to update",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id": "test-decision-3",
 			},
 			setup: func(s *Server) {
@@ -102,7 +102,7 @@ func TestHandleUpdate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server, tmpDir := setupTestServer(t)
-			defer os.RemoveAll(tmpDir)
+			defer func() { _ = os.RemoveAll(tmpDir) }()
 
 			tt.setup(server)
 
@@ -132,14 +132,14 @@ func TestHandleUpdate(t *testing.T) {
 func TestHandleDelete(t *testing.T) {
 	tests := []struct {
 		name        string
-		args        map[string]interface{}
+		args        map[string]any
 		setup       func(*Server)
 		expectError bool
 		errorMsg    string
 	}{
 		{
 			name: "valid delete",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id": "test-decision-1",
 			},
 			setup: func(s *Server) {
@@ -149,7 +149,7 @@ func TestHandleDelete(t *testing.T) {
 		},
 		{
 			name: "delete with relations",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id": "test-decision-2",
 			},
 			setup: func(s *Server) {
@@ -170,14 +170,14 @@ func TestHandleDelete(t *testing.T) {
 		},
 		{
 			name:        "missing id",
-			args:        map[string]interface{}{},
+			args:        map[string]any{},
 			setup:       func(s *Server) {},
 			expectError: true,
 			errorMsg:    "id is required",
 		},
 		{
 			name: "non-existent node",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"id": "nonexistent-id",
 			},
 			setup:       func(s *Server) {},
@@ -189,7 +189,7 @@ func TestHandleDelete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server, tmpDir := setupTestServer(t)
-			defer os.RemoveAll(tmpDir)
+			defer func() { _ = os.RemoveAll(tmpDir) }()
 
 			tt.setup(server)
 
@@ -221,14 +221,14 @@ func TestHandleDelete(t *testing.T) {
 func TestHandleRelate(t *testing.T) {
 	tests := []struct {
 		name        string
-		args        map[string]interface{}
+		args        map[string]any
 		setup       func(*Server)
 		expectError bool
 		errorMsg    string
 	}{
 		{
 			name: "valid relation",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"target": "test-component-1",
 				"type":   "affects",
@@ -241,7 +241,7 @@ func TestHandleRelate(t *testing.T) {
 		},
 		{
 			name: "relation with description and confidence",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source":      "test-pattern-1",
 				"target":      "test-component-2",
 				"type":        "implements",
@@ -256,7 +256,7 @@ func TestHandleRelate(t *testing.T) {
 		},
 		{
 			name: "missing source",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"target": "test-component-1",
 				"type":   "affects",
 			},
@@ -266,7 +266,7 @@ func TestHandleRelate(t *testing.T) {
 		},
 		{
 			name: "missing target",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"type":   "affects",
 			},
@@ -276,7 +276,7 @@ func TestHandleRelate(t *testing.T) {
 		},
 		{
 			name: "missing type",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"target": "test-component-1",
 			},
@@ -286,7 +286,7 @@ func TestHandleRelate(t *testing.T) {
 		},
 		{
 			name: "non-existent source",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "nonexistent-source",
 				"target": "test-component-1",
 				"type":   "affects",
@@ -299,7 +299,7 @@ func TestHandleRelate(t *testing.T) {
 		},
 		{
 			name: "non-existent target",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"target": "nonexistent-target",
 				"type":   "affects",
@@ -315,7 +315,7 @@ func TestHandleRelate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server, tmpDir := setupTestServer(t)
-			defer os.RemoveAll(tmpDir)
+			defer func() { _ = os.RemoveAll(tmpDir) }()
 
 			tt.setup(server)
 
@@ -340,14 +340,14 @@ func TestHandleRelate(t *testing.T) {
 func TestHandleUnrelate(t *testing.T) {
 	tests := []struct {
 		name        string
-		args        map[string]interface{}
+		args        map[string]any
 		setup       func(*Server)
 		expectError bool
 		errorMsg    string
 	}{
 		{
 			name: "valid unrelate",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"target": "test-component-1",
 				"type":   "affects",
@@ -371,7 +371,7 @@ func TestHandleUnrelate(t *testing.T) {
 		},
 		{
 			name: "missing source",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"target": "test-component-1",
 				"type":   "affects",
 			},
@@ -381,7 +381,7 @@ func TestHandleUnrelate(t *testing.T) {
 		},
 		{
 			name: "missing target",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"type":   "affects",
 			},
@@ -391,7 +391,7 @@ func TestHandleUnrelate(t *testing.T) {
 		},
 		{
 			name: "missing type",
-			args: map[string]interface{}{
+			args: map[string]any{
 				"source": "test-decision-1",
 				"target": "test-component-1",
 			},
@@ -404,7 +404,7 @@ func TestHandleUnrelate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server, tmpDir := setupTestServer(t)
-			defer os.RemoveAll(tmpDir)
+			defer func() { _ = os.RemoveAll(tmpDir) }()
 
 			tt.setup(server)
 
@@ -438,7 +438,7 @@ func TestHandleUnrelate(t *testing.T) {
 
 func TestToolRegistration(t *testing.T) {
 	server, tmpDir := setupTestServer(t)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	expectedTools := []string{
 		"autology_query",

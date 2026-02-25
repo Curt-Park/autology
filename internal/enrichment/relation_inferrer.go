@@ -219,14 +219,14 @@ func calculateFileOverlap(refs1, refs2 []string) int {
 func calculateTitleSimilarity(title1, title2 string) float64 {
 	// Extract words > 3 characters
 	words1 := make(map[string]bool)
-	for _, word := range strings.Fields(strings.ToLower(title1)) {
+	for word := range strings.FieldsSeq(strings.ToLower(title1)) {
 		if len(word) > 3 {
 			words1[word] = true
 		}
 	}
 
 	words2 := make(map[string]bool)
-	for _, word := range strings.Fields(strings.ToLower(title2)) {
+	for word := range strings.FieldsSeq(strings.ToLower(title2)) {
 		if len(word) > 3 {
 			words2[word] = true
 		}
@@ -266,13 +266,13 @@ func containsPatternReference(content, patternName string) bool {
 	}
 
 	// Try without "pattern" suffix
-	withoutPattern := strings.Replace(patternLower, " pattern", "", -1)
+	withoutPattern := strings.ReplaceAll(patternLower, " pattern", "")
 	if strings.Contains(contentLower, withoutPattern) {
 		return true
 	}
 
 	// Try with spaces instead of hyphens
-	withSpaces := strings.Replace(patternLower, "-", " ", -1)
+	withSpaces := strings.ReplaceAll(patternLower, "-", " ")
 	return strings.Contains(contentLower, withSpaces)
 }
 
@@ -337,7 +337,7 @@ func GroupByAction(relations []InferredRelation, autoCreateThreshold float64) Gr
 }
 
 // formatReasoning formats reasoning string with printf-style formatting
-func formatReasoning(format string, args ...interface{}) string {
+func formatReasoning(format string, args ...any) string {
 	// Simple formatting - handle %.0f%% and %d cases
 	result := format
 	for _, arg := range args {
@@ -370,14 +370,15 @@ func formatInt(i int) string {
 func formatDecimal(f float64, decimals int) string {
 	// Simple float to string conversion
 	i := int(f)
-	result := formatInt(i)
+	var result strings.Builder
+	result.WriteString(formatInt(i))
 	if decimals > 0 {
 		frac := f - float64(i)
-		result += "."
-		for j := 0; j < decimals; j++ {
+		result.WriteString(".")
+		for range decimals {
 			frac *= 10
-			result += string(rune('0' + int(frac)%10))
+			result.WriteString(string(rune('0' + int(frac)%10)))
 		}
 	}
-	return result
+	return result.String()
 }

@@ -17,7 +17,7 @@ func SerializeNode(node KnowledgeNode) (string, error) {
 	buf.WriteString("---\n")
 
 	// Serialize frontmatter as YAML
-	frontmatter := map[string]interface{}{
+	frontmatter := map[string]any{
 		"id":         node.ID,
 		"type":       string(node.Type),
 		"title":      node.Title,
@@ -40,7 +40,7 @@ func SerializeNode(node KnowledgeNode) (string, error) {
 	if err := encoder.Encode(frontmatter); err != nil {
 		return "", fmt.Errorf("failed to encode frontmatter: %w", err)
 	}
-	encoder.Close()
+	_ = encoder.Close()
 
 	// Write closing delimiter
 	buf.WriteString("---\n\n")
@@ -60,7 +60,7 @@ func ParseNode(markdown string) (KnowledgeNode, error) {
 	}
 
 	// Parse frontmatter
-	var frontmatter map[string]interface{}
+	var frontmatter map[string]any
 	if err := yaml.Unmarshal([]byte(parts[1]), &frontmatter); err != nil {
 		return KnowledgeNode{}, fmt.Errorf("failed to parse frontmatter: %w", err)
 	}
@@ -105,9 +105,9 @@ func ParseNode(markdown string) (KnowledgeNode, error) {
 	node.References = getStringSlice(frontmatter, "references")
 
 	// Parse relations
-	if rels, ok := frontmatter["relations"].([]interface{}); ok {
+	if rels, ok := frontmatter["relations"].([]any); ok {
 		for _, r := range rels {
-			if relMap, ok := r.(map[string]interface{}); ok {
+			if relMap, ok := r.(map[string]any); ok {
 				rel := Relation{
 					Type:   RelationType(getString(relMap, "type")),
 					Target: getString(relMap, "target"),
@@ -127,15 +127,15 @@ func ParseNode(markdown string) (KnowledgeNode, error) {
 }
 
 // Helper functions
-func getString(m map[string]interface{}, key string) string {
+func getString(m map[string]any, key string) string {
 	if v, ok := m[key].(string); ok {
 		return v
 	}
 	return ""
 }
 
-func getStringSlice(m map[string]interface{}, key string) []string {
-	if v, ok := m[key].([]interface{}); ok {
+func getStringSlice(m map[string]any, key string) []string {
+	if v, ok := m[key].([]any); ok {
 		result := make([]string, 0, len(v))
 		for _, item := range v {
 			if s, ok := item.(string); ok {

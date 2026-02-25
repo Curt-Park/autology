@@ -29,11 +29,12 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version: 'stable'
+          go-version-file: go.mod
+          cache: true
 
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.out ./internal/classification ./internal/enrichment ./internal/storage
@@ -50,24 +51,26 @@ jobs:
       - name: Build cross-platform binaries
         run: |
           mkdir -p bin
+          VERSION="${{ needs.release-please.outputs.tag_name }}"
+          LDFLAGS="-X main.version=${VERSION}"
 
           # macOS ARM64 (M1/M2)
-          GOOS=darwin GOARCH=arm64 go build -o bin/autology-darwin-arm64 ./cmd/autology
+          GOOS=darwin GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/autology-darwin-arm64 ./cmd/autology
 
           # macOS AMD64 (Intel)
-          GOOS=darwin GOARCH=amd64 go build -o bin/autology-darwin-amd64 ./cmd/autology
+          GOOS=darwin GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/autology-darwin-amd64 ./cmd/autology
 
           # Linux AMD64
-          GOOS=linux GOARCH=amd64 go build -o bin/autology-linux-amd64 ./cmd/autology
+          GOOS=linux GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/autology-linux-amd64 ./cmd/autology
 
           # Linux ARM64
-          GOOS=linux GOARCH=arm64 go build -o bin/autology-linux-arm64 ./cmd/autology
+          GOOS=linux GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/autology-linux-arm64 ./cmd/autology
 
           # Windows AMD64
-          GOOS=windows GOARCH=amd64 go build -o bin/autology-windows-amd64.exe ./cmd/autology
+          GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/autology-windows-amd64.exe ./cmd/autology
 
       - name: Upload binaries to release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |

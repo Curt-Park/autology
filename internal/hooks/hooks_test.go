@@ -93,7 +93,7 @@ func TestWriteAdditionalContext(t *testing.T) {
 		t.Fatalf("WriteAdditionalContext() error = %v", err)
 	}
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
@@ -127,7 +127,7 @@ func TestWriteStderr(t *testing.T) {
 
 	WriteStderr("[test] Message with %s", "formatting")
 
-	w.Close()
+	_ = w.Close()
 	os.Stderr = oldStderr
 
 	var buf bytes.Buffer

@@ -127,7 +127,7 @@ func CreateKnowledgeNode(id string, nodeType NodeType, title, content string) Kn
 }
 
 // UpdateKnowledgeNode creates a new node with updated fields (immutable pattern)
-func UpdateKnowledgeNode(node KnowledgeNode, updates map[string]interface{}) KnowledgeNode {
+func UpdateKnowledgeNode(node KnowledgeNode, updates map[string]any) KnowledgeNode {
 	updated := node
 	updated.Modified = time.Now()
 

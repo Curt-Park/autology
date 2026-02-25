@@ -10,7 +10,7 @@ import (
 	"github.com/Curt-Park/autology/internal/storage"
 )
 
-const version = "0.1.0"
+var version = "0.0.0"
 
 func main() {
 	// Check if running as a hook subcommand

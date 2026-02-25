@@ -114,7 +114,7 @@ func TestCreateKnowledgeNode(t *testing.T) {
 func TestUpdateKnowledgeNode(t *testing.T) {
 	original := CreateKnowledgeNode("id", NodeTypeDecision, "Title", "Content")
 
-	updated := UpdateKnowledgeNode(original, map[string]interface{}{
+	updated := UpdateKnowledgeNode(original, map[string]any{
 		"title": "New Title",
 		"tags":  []string{"new-tag"},
 	})
@@ -128,7 +128,7 @@ func TestUpdateKnowledgeNode(t *testing.T) {
 	if updated.Title != "New Title" {
 		t.Errorf("expected Title = New Title, got %s", updated.Title)
 	}
-	if updated.Modified == original.Modified {
+	if updated.Modified.Equal(original.Modified) {
 		t.Errorf("Modified timestamp should be updated")
 	}
 }
