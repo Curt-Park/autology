@@ -1,23 +1,12 @@
 {
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/session_start.sh\""
-          }
-        ],
-        "description": "Auto-install autology binary if missing"
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "tool == \"Bash\" && tool_input.command matches \"(git commit|gh pr create|gh pr merge)\"",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/autology\" hook post-commit"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook post-commit"
           }
         ],
         "description": "Suggest knowledge capture after git commit or PR events"
@@ -29,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/autology\" hook pre-compact"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook pre-compact"
           }
         ],
         "description": "Suggest knowledge capture before context compaction"
@@ -40,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/bin/autology\" hook session-end"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook session-end"
           }
         ],
         "description": "Show knowledge capture tip on session end"

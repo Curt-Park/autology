@@ -52,6 +52,21 @@ else
   exit 1
 fi
 
+# Validate downloaded file is an executable binary
+if command -v file > /dev/null; then
+  FILE_TYPE=$(file "${BIN_DIR}/${LOCAL_BINARY}")
+  case "$FILE_TYPE" in
+    *"executable"* | *"ELF"* | *"Mach-O"* | *"PE32"*)
+      : # valid binary
+      ;;
+    *)
+      echo "❌ Downloaded file does not appear to be a valid executable: ${FILE_TYPE}"
+      rm -f "${BIN_DIR}/${LOCAL_BINARY}"
+      exit 1
+      ;;
+  esac
+fi
+
 # Make executable
 chmod +x "${BIN_DIR}/${LOCAL_BINARY}"
 
