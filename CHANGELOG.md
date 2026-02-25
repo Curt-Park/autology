@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/Curt-Park/autology/compare/autology-v0.4.0...autology-v0.4.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* add scripts/ directory and resolve MCP server startup failures ([#25](https://github.com/Curt-Park/autology/issues/25)) ([d05a2ee](https://github.com/Curt-Park/autology/commit/d05a2eee8eb23cad2e35c8dd9c602ad5172db93f))
+
 ## [0.4.0](https://github.com/Curt-Park/autology/compare/autology-v0.3.3...autology-v0.4.0) (2026-02-09)
 
 
