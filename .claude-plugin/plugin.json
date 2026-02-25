@@ -1,6 +1,6 @@
 {
   "name": "autology",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge",
   "author": {
     "name": "Autology Contributors"
@@ -25,7 +25,9 @@
   "mcpServers": {
     "autology": {
       "command": "bash",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh"],
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh"
+      ],
       "env": {
         "AUTOLOGY_ROOT": "docs"
       }

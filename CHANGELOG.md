@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/Curt-Park/autology/compare/autology-v0.4.3...autology-v0.4.4) (2026-02-25)
+
+
+### Bug Fixes
+
+* use launcher.sh to bootstrap binary before MCP server and hooks ([#31](https://github.com/Curt-Park/autology/issues/31)) ([8d61ac2](https://github.com/Curt-Park/autology/commit/8d61ac23596cffaf657491be09219bc310aef9db))
+
 ## [0.4.3](https://github.com/Curt-Park/autology/compare/autology-v0.4.2...autology-v0.4.3) (2026-02-25)
 
 
