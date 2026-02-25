@@ -24,7 +24,8 @@
   ],
   "mcpServers": {
     "autology": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/bin/autology",
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh"],
       "env": {
         "AUTOLOGY_ROOT": "docs"
       }
