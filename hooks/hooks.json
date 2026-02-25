@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/session_start.sh\""
+          }
+        ],
+        "description": "Auto-install autology binary if missing"
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "tool == \"Bash\" && tool_input.command matches \"(git commit|gh pr create|gh pr merge)\"",
