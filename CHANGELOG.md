@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/Curt-Park/autology/compare/autology-v0.4.2...autology-v0.4.3) (2026-02-25)
+
+
+### Bug Fixes
+
+* check binary executable permission instead of file existence ([#29](https://github.com/Curt-Park/autology/issues/29)) ([ab8e617](https://github.com/Curt-Park/autology/commit/ab8e61709c16d726e8f6d64469aebf390e470a45))
+
 ## [0.4.2](https://github.com/Curt-Park/autology/compare/autology-v0.4.1...autology-v0.4.2) (2026-02-25)
 
 
