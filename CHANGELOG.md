@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/Curt-Park/autology/compare/autology-v0.4.1...autology-v0.4.2) (2026-02-25)
+
+
+### Bug Fixes
+
+* move SessionStart hook from plugin.json to hooks/hooks.json ([#27](https://github.com/Curt-Park/autology/issues/27)) ([56bfe3d](https://github.com/Curt-Park/autology/commit/56bfe3d3708bf91db52114057b8438a04eb7280d))
+
 ## [0.4.1](https://github.com/Curt-Park/autology/compare/autology-v0.4.0...autology-v0.4.1) (2026-02-25)
 
 
