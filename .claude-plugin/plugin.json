@@ -1,7 +1,7 @@
 {
   "name": "autology",
   "version": "0.4.4",
-  "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge",
+  "description": "Living Ontology for Claude Code - Captures and reuses knowledge across sessions",
   "author": {
     "name": "Autology Contributors"
   },
@@ -11,26 +11,11 @@
   "keywords": [
     "knowledge-management",
     "ontology",
-    "adr",
     "documentation",
     "learning",
     "transparency"
   ],
   "skills": [
     "./skills/"
-  ],
-  "agents": [
-    "./agents/autology-advisor.md"
-  ],
-  "mcpServers": {
-    "autology": {
-      "command": "bash",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh"
-      ],
-      "env": {
-        "AUTOLOGY_ROOT": "docs"
-      }
-    }
-  }
+  ]
 }

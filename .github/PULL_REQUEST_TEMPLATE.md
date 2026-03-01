@@ -16,8 +16,8 @@
 <!-- How can reviewers verify this works? -->
 
 ```bash
-go build -o .claude-plugin/bin/autology ./cmd/autology  # Build succeeds
-go test ./internal/...                                   # All tests pass
+echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh | jq .  # Hook output valid
+echo '{}' | bash scripts/session-end.sh 2>&1                          # Tip shown
 ```
 
 ---
@@ -25,5 +25,5 @@ go test ./internal/...                                   # All tests pass
 **Guidelines**:
 - Keep total description under 30 lines
 - Use Background/Goal/Key Changes/Verification structure
-- Include actual verification commands (Go, not npm)
+- Include actual verification commands
 - Be concise but complete

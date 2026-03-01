@@ -1,13 +1,5 @@
-bin/
-*.log
 .DS_Store
-coverage/
+*.log
 .env
 .env.local
-docs/.obsidian/workspace.json
-docs/.obsidian/workspace-mobile.json
-docs/sessions/
-docs/plans
-docs/legacy
-coverage.out
-.worktrees/
+.claude/worktrees/

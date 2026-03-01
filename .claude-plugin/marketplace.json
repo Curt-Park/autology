@@ -4,7 +4,7 @@
     "name": "Autology Contributors"
   },
   "metadata": {
-    "description": "Living Ontology for Claude Code - Prevents erosion of human understanding by capturing and reusing knowledge"
+    "description": "Living Ontology for Claude Code - Captures and reuses knowledge across sessions"
   },
   "plugins": [
     {

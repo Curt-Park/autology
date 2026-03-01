@@ -1,15 +1,19 @@
 #!/bin/bash
+# Launcher: routes hook subcommands to session scripts
 set -euo pipefail
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
-BINARY="${PLUGIN_ROOT}/bin/autology"
 
-if [ ! -x "$BINARY" ]; then
-  if [ -f "$BINARY" ]; then
-    chmod +x "$BINARY"
-  else
-    bash "${PLUGIN_ROOT}/scripts/install.sh"
-  fi
-fi
-
-exec "$BINARY" "$@"
+case "${1:-}" in
+  hook)
+    case "${2:-}" in
+      session-start) exec bash "$PLUGIN_ROOT/scripts/session-start.sh" ;;
+      session-end)   exec bash "$PLUGIN_ROOT/scripts/session-end.sh" ;;
+      *)             echo "Unknown hook: ${2:-}" >&2; exit 1 ;;
+    esac
+    ;;
+  *)
+    echo "Usage: launcher.sh hook <session-start|session-end>" >&2
+    exit 1
+    ;;
+esac

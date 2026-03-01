@@ -14,68 +14,9 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
-
-  build-binaries:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: Run tests
-        run: go test -v -race -coverprofile=coverage.out ./internal/classification ./internal/enrichment ./internal/storage
-
-      - name: Check coverage
-        run: |
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-          echo "Total coverage: ${COVERAGE}%"
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "❌ Coverage ${COVERAGE}% is below 80% threshold"
-            exit 1
-          fi
-
-      - name: Build cross-platform binaries
-        run: |
-          mkdir -p bin
-          VERSION="${{ needs.release-please.outputs.tag_name }}"
-          LDFLAGS="-X main.version=${VERSION}"
-
-          # macOS ARM64 (M1/M2)
-          GOOS=darwin GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/autology-darwin-arm64 ./cmd/autology
-
-          # macOS AMD64 (Intel)
-          GOOS=darwin GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/autology-darwin-amd64 ./cmd/autology
-
-          # Linux AMD64
-          GOOS=linux GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/autology-linux-amd64 ./cmd/autology
-
-          # Linux ARM64
-          GOOS=linux GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/autology-linux-arm64 ./cmd/autology
-
-          # Windows AMD64
-          GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/autology-windows-amd64.exe ./cmd/autology
-
-      - name: Upload binaries to release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
-          files: |
-            bin/autology-darwin-arm64
-            bin/autology-darwin-amd64
-            bin/autology-linux-amd64
-            bin/autology-linux-arm64
-            bin/autology-windows-amd64.exe

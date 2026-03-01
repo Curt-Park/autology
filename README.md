@@ -1,76 +1,86 @@
-# Autology
+```
+  ██  █  █ ████  ██  █     ██   ███ █  █
+ █  █ █  █  █   █  █ █    █  █ █    █  █
+ ████ █  █  █   █  █ █    █  █ █ ██  ██
+ █  █ █  █  █   █  █ █    █  █ █  █  █
+ █  █  ██   █    ██  ████  ██   ███  █
+
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+```
 
 **Living Ontology for Claude Code**
 
-## The Crisis
+## The Problem
 
-AI agents boost productivity but create a paradox:
+AI tools have made individual developers dramatically more productive — but organizational knowledge is not keeping up.
 
 ```
-Productivity ↑ + Transparency ↓ + Knowledge Accumulation ↓ = Crisis of Understanding
+Individual output ↑↑  +  Shared knowledge accumulation ↓  =  Organizational debt
 ```
 
-Developers don't fully understand AI-generated code. Teams can't track what's actually happening. Organizations repeat mistakes. Skills atrophy.
+As each developer moves faster with AI, the decisions, conventions, and context behind the code become harder to share. Knowledge stays trapped in individual sessions. Teams repeat the same mistakes. New members can't onboard from docs that don't exist or are already stale.
+
+The bottleneck has shifted: it's no longer how fast one person can produce code — it's how fast a team can accumulate and reuse what they collectively know.
 
 ## The Goal
 
-**Maintain AI productivity while expanding, not contracting, human understanding.**
+**Match organizational knowledge accumulation to individual productivity gains.**
 
-Not "code faster"—but "understand deeper while coding faster."
+When AI helps one developer go 10x faster, the team's shared understanding should grow with it — not fall further behind.
 
 ## How It Works
 
 Autology captures the "why" behind decisions and feeds it back into future sessions:
 
 ```
-Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → Future Sessions
-                                     ↑                                           ↓
-                                     └────────────── Learning Loop ───────-──────┘
+      SessionStart hook
+            │ injects node index + capture instructions
+            ↓
+       Your Work
+      ↗          ↘
+read on demand    capture autonomously
+(/autology:explore)  (or /autology:capture)
+      ↖          ↙
+         docs/*.md
 ```
 
-**Three interaction modes**:
-1. **Automatic**: Hooks capture as you work (file changes, commits, sessions)
-2. **Interactive**: Skills for knowledge management (`/autology:capture`, `/autology:explore`, `/autology:analyze`, `/autology:tutorial`)
-3. **Programmatic**: MCP tools for automation (`autology_capture`, `autology_query`, `autology_relate`, etc.)
+**Two interaction modes**:
+1. **Skills**: `/autology:capture`, `/autology:explore`, `/autology:analyze`, `/autology:tutorial`
+2. **Direct**: Claude's native tools (Read/Write/Edit/Grep/Glob) on `docs/*.md`
 
-**7 Knowledge types**: `decisions` (ADR format), `components`, `conventions`, `concepts`, `patterns`, `issues`, `sessions`
+**Knowledge types**: any descriptive label — common examples: `decision` (ADR format), `component`, `convention`, `concept`, `pattern`, `issue`, `session`
 
-**7 Relationships**: `affects`, `uses`, `supersedes`, `relates_to`, `implements`, `depends_on`, `derived_from`
-
-**Storage**: Obsidian-compatible markdown in `docs/{type}s/` (e.g., `docs/decisions/`, `docs/components/`)
+**Storage**: Obsidian-compatible markdown in `docs/` — flat structure, title-based filenames
 
 ## Example
 
 **Without Autology**:
 ```
-Dev: "Claude, add authentication"
-→ Code appears
-→ Dev: "Looks good" (doesn't understand JWT)
-→ Next dev: "Why JWT?" (no answer)
+Dev A (with Claude): implements JWT auth in 30 minutes
+→ Context stays in Dev A's session
+→ Dev B: "Why JWT? How does this work?" — no answer in the codebase
+→ Team repeats the same research next time
 ```
 
 **With Autology**:
 ```
-Dev: "Claude, add authentication"
-→ Code appears
-→ Hook: "Capture decision?"
-→ ADR: Context (stateless for microservices), Decision (JWT RS256),
+Dev A (with Claude): implements JWT auth in 30 minutes
+→ Claude captures the decision automatically:
+  ADR: Context (stateless microservices), Decision (JWT RS256),
        Alternatives (sessions, OAuth), Consequences (complexity vs scaling)
-→ Next dev: /autology:explore authentication
-→ Sees reasoning, builds on knowledge
+→ Dev B's next session: sees the decision injected automatically
+→ Dev B: /autology:explore authentication → full reasoning, zero onboarding cost
+→ Team's shared knowledge grows at the same pace as individual output
 ```
 
 ## Installation
 
 ```bash
-# Step 1: Add the marketplace
 /plugin marketplace add Curt-Park/autology
-
-# Step 2: Install the plugin
 /plugin install autology@autology
 ```
 
-The plugin will automatically download the correct binary for your platform (macOS, Linux, or Windows).
+Requires `jq` (`brew install jq` / `sudo apt install jq`).
 
 ## Quick Start
 
@@ -80,77 +90,45 @@ The plugin will automatically download the correct binary for your platform (mac
 
 # Capture knowledge from conversation context
 /autology:capture
-# → Summarizes recent conversation
-# → Identifies decisions, patterns, conventions
-# → Captures as structured knowledge nodes
 
-# Explore knowledge
+# Explore the knowledge base
 /autology:explore decisions
 
 # Verify doc-code sync
 /autology:analyze
-# → Reports: broken wikilinks, stale paths, missing documentation
-# → Fix all issues, commit changes
-# → Ensures documentation accurately describes codebase
 ```
 
-## Development Setup
-
-### Option 1: Using mise (Recommended)
-
-[mise](https://mise.jdx.dev/) automatically installs all required tools:
-
-```bash
-# Install mise (if not already installed)
-curl https://mise.run | sh
-# or: brew install mise (macOS)
-echo 'eval "$(mise activate bash)"' >> ~/.bashrc  # or ~/.zshrc
-source ~/.bashrc  # or source ~/.zshrc
-
-# Clone and setup
-git clone https://github.com/Curt-Park/autology.git
-cd autology
-
-# Install all tools (Go 1.23 + golangci-lint 1.64)
-mise trust
-mise install
-
-# Install dependencies, build, and test
-make install
-make build
-make check
-```
-
-### Option 2: Manual Setup
+## Development
 
 ```bash
 git clone https://github.com/Curt-Park/autology.git
 cd autology
 
-# Install Go 1.23+ (see https://go.dev/doc/install)
-# Install golangci-lint (https://golangci-lint.run/welcome/install/)
-
-# Install dependencies, build, and test
-make install
-make build
-make check
-```
-
-## Running Locally
-
-```bash
+# Run locally
 claude --plugin-dir .
 ```
 
+### Testing
+
+Autology has no unit tests — the system is Claude's behavior, not executable code.
+
+`/autology:tutorial` serves as the end-to-end test:
+
+1. **Capture** — writes a real node to `docs/`
+2. **SessionStart** — verify the node appears in injected context
+3. **Update** — edits the node in place, verify old content is gone
+4. **Analyze** — introduces a doc-code gap, verify it's detected and fixed
+5. **Reset** — cleans up all tutorial nodes
+
+If all 5 steps complete correctly, the full knowledge loop works.
+
 ## Philosophy
 
-When AI writes code, humans should **understand more, not less**.
+AI tools accelerate individuals. Autology accelerates teams.
 
-When productivity increases, knowledge should **compound, not evaporate**.
+By automatically capturing what Claude and developers decide, and keeping docs in sync with code, Autology turns individual AI-assisted work into organizational knowledge that anyone can build on — without friction, without manual effort.
 
-When decisions are made, reasoning should be **transparent, not opaque**.
-
-Autology ensures AI serves human intelligence, not replaces it.
+**Individuals move fast. Teams compound.**
 
 ## License
 

@@ -12,38 +12,80 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          cache: true
+      - name: Install jq
+        run: sudo apt-get install -y jq
 
-      - name: Run tests
-        run: go test -v -race -coverprofile=coverage.out ./internal/classification ./internal/enrichment ./internal/storage
-
-      - name: Check coverage
+      - name: session-start.sh — valid JSON output with node index
         run: |
-          go tool cover -func=coverage.out
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-          echo "Total coverage: ${COVERAGE}%"
+          output=$(echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh)
+          echo "$output" | jq . > /dev/null
+          echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' > /dev/null
+          echo "$output" | jq -e '.hookSpecificOutput.additionalContext | length > 0' > /dev/null
+          echo "✅ session-start.sh output is valid"
 
-          # Require 80% coverage
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "❌ Coverage ${COVERAGE}% is below 80% threshold"
-            exit 1
-          fi
-          echo "✅ Coverage ${COVERAGE}% meets 80% threshold"
+      - name: session-start.sh — node list contains docs/ entries
+        run: |
+          context=$(echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh | jq -r '.hookSpecificOutput.additionalContext')
+          echo "$context" | grep -q "docs/" || { echo "❌ No docs/ entries in context"; exit 1; }
+          echo "✅ Node list contains docs/ entries"
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
+      - name: session-start.sh — bootstrap (empty dir)
+        run: |
+          mkdir -p /tmp/empty-docs
+          output=$(echo '{}' | AUTOLOGY_ROOT=/tmp/empty-docs bash scripts/session-start.sh)
+          echo "$output" | jq . > /dev/null
+          echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("No knowledge nodes yet")' > /dev/null
+          echo "✅ Bootstrap case works"
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
-          cache: true
+      - name: session-end.sh — outputs tip to stderr
+        run: |
+          stderr=$(echo '{}' | bash scripts/session-end.sh 2>&1 1>/dev/null)
+          echo "$stderr" | grep -q "autology" || { echo "❌ No tip in stderr"; exit 1; }
+          echo "✅ session-end.sh outputs tip"
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9
-        with:
-          version: latest
+      - name: launcher.sh — routes session-start
+        run: |
+          output=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook session-start)
+          echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' > /dev/null
+          echo "✅ launcher.sh routes session-start correctly"
+
+      - name: launcher.sh — routes session-end
+        run: |
+          stderr=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook session-end 2>&1 1>/dev/null)
+          echo "$stderr" | grep -q "autology" || { echo "❌ session-end route failed"; exit 1; }
+          echo "✅ launcher.sh routes session-end correctly"
+
+      - name: launcher.sh — unknown hook exits 1
+        run: |
+          echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook unknown-hook 2>/dev/null && exit 1 || true
+          echo "✅ Unknown hook exits with error"
+
+      - name: session-start.sh — both tag formats parsed
+        run: |
+          mkdir -p /tmp/tag-test
+          cat > /tmp/tag-test/inline.md << 'EOF'
+          ---
+          id: inline-test
+          title: "Inline Tags Test"
+          type: concept
+          tags: [foo, bar, baz]
+          status: active
+          ---
+          Content
+          EOF
+          cat > /tmp/tag-test/multiline.md << 'EOF'
+          ---
+          id: multiline-test
+          title: "Multiline Tags Test"
+          type: concept
+          tags:
+            - alpha
+            - beta
+          status: active
+          ---
+          Content
+          EOF
+          context=$(echo '{}' | AUTOLOGY_ROOT=/tmp/tag-test bash scripts/session-start.sh | jq -r '.hookSpecificOutput.additionalContext')
+          echo "$context" | grep -q "foo" || { echo "❌ Inline tags not parsed"; exit 1; }
+          echo "$context" | grep -q "alpha" || { echo "❌ Multiline tags not parsed"; exit 1; }
+          echo "✅ Both tag formats parsed correctly"
