@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0](https://github.com/Curt-Park/autology/compare/autology-v0.5.0...autology-v0.6.0) (2026-03-01)
+
+
+### Features
+
+* add user-visible feedback via systemMessage and statusMessage ([#35](https://github.com/Curt-Park/autology/issues/35)) ([6c56a83](https://github.com/Curt-Park/autology/commit/6c56a8346d9c457ad77fa5791023a2004a8e1a63))
+
+
+### Bug Fixes
+
+* update tests for session-end.sh JSON systemMessage output ([1248a44](https://github.com/Curt-Park/autology/commit/1248a44a2293507baa49b840130c1796ae44c401))
+
 ## [0.5.0](https://github.com/Curt-Park/autology/compare/autology-v0.4.4...autology-v0.5.0) (2026-03-01)
 
 
