@@ -127,7 +127,6 @@ Knowledge flows bidirectionally: captured from work, retrieved when queried thro
 
 **Technologies**:
 - Claude Code Plugin System (hooks + skills)
-- Claude Code Plugin System
 - JSON-LD + RDFLib
 - Neo4j / FalkorDB (future consideration)
 
