@@ -2,21 +2,23 @@
 
 **Living Ontology for Claude Code**
 
-## The Crisis
+## The Problem
 
-AI agents boost productivity but create a paradox:
+AI tools have made individual developers dramatically more productive — but organizational knowledge is not keeping up.
 
 ```
-Productivity ↑ + Transparency ↓ + Knowledge Accumulation ↓ = Crisis of Understanding
+Individual output ↑↑  +  Shared knowledge accumulation ↓  =  Organizational debt
 ```
 
-Developers don't fully understand AI-generated code. Teams can't track what's actually happening. Organizations repeat mistakes. Skills atrophy.
+As each developer moves faster with AI, the decisions, conventions, and context behind the code become harder to share. Knowledge stays trapped in individual sessions. Teams repeat the same mistakes. New members can't onboard from docs that don't exist or are already stale.
+
+The bottleneck has shifted: it's no longer how fast one person can produce code — it's how fast a team can accumulate and reuse what they collectively know.
 
 ## The Goal
 
-**Maintain AI productivity while expanding, not contracting, human understanding.**
+**Match organizational knowledge accumulation to individual productivity gains.**
 
-Not "code faster"—but "understand deeper while coding faster."
+When AI helps one developer go 10x faster, the team's shared understanding should grow with it — not fall further behind.
 
 ## How It Works
 
@@ -46,20 +48,21 @@ read on demand    capture autonomously
 
 **Without Autology**:
 ```
-Dev: "Claude, add authentication"
-→ Code appears. Dev: "Looks good" (doesn't understand JWT)
-→ Next dev: "Why JWT?" (no answer)
+Dev A (with Claude): implements JWT auth in 30 minutes
+→ Context stays in Dev A's session
+→ Dev B: "Why JWT? How does this work?" — no answer in the codebase
+→ Team repeats the same research next time
 ```
 
 **With Autology**:
 ```
-Dev: "Claude, add authentication"
-→ Code appears
-→ /autology:capture
-→ ADR: Context (stateless microservices), Decision (JWT RS256),
+Dev A (with Claude): implements JWT auth in 30 minutes
+→ Claude captures the decision automatically:
+  ADR: Context (stateless microservices), Decision (JWT RS256),
        Alternatives (sessions, OAuth), Consequences (complexity vs scaling)
-→ Next session: SessionStart injects the decision automatically
-→ Next dev: /autology:explore authentication → sees full reasoning
+→ Dev B's next session: sees the decision injected automatically
+→ Dev B: /autology:explore authentication → full reasoning, zero onboarding cost
+→ Team's shared knowledge grows at the same pace as individual output
 ```
 
 ## Installation
@@ -113,13 +116,11 @@ If all 5 steps complete correctly, the full knowledge loop works.
 
 ## Philosophy
 
-When AI writes code, humans should **understand more, not less**.
+AI tools accelerate individuals. Autology accelerates teams.
 
-When productivity increases, knowledge should **compound, not evaporate**.
+By automatically capturing what Claude and developers decide, and keeping docs in sync with code, Autology turns individual AI-assisted work into organizational knowledge that anyone can build on — without friction, without manual effort.
 
-When decisions are made, reasoning should be **transparent, not opaque**.
-
-Autology ensures AI serves human intelligence, not replaces it.
+**Individuals move fast. Teams compound.**
 
 ## License
 
