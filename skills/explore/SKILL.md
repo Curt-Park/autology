@@ -51,6 +51,8 @@ Grep docs/ -i for the keyword (search both frontmatter and content)
 
 ### Overview (no args)
 ```
+> **Autology** — N nodes in docs/
+
 # Autology Knowledge Base — docs/
 
 Total nodes: N

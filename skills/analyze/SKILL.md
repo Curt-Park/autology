@@ -85,6 +85,8 @@ Report broken wikilinks.
 |--------|--------|--------|
 
 ## Summary
+
+> **Autology Analysis** — N gaps, N broken links, N missing links
 - Knowledge gaps: N
 - Broken wikilinks: N
 - Missing wikilinks: N

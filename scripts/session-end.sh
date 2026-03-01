@@ -7,10 +7,9 @@ cat /dev/stdin > /dev/null 2>&1 || true
 
 AUTOLOGY_ROOT="${AUTOLOGY_ROOT:-docs}"
 
-cat >&2 <<EOF
-
-💡 Autology tip: Consider capturing knowledge from this session.
-   Run \`/autology:capture\` to save decisions, patterns, or insights to $AUTOLOGY_ROOT/.
-   Resume with \`claude -r\` to continue and capture session knowledge.
-
-EOF
+if command -v jq >/dev/null 2>&1; then
+  jq -n --arg msg "Autology: /autology:capture to save knowledge from this session" \
+    '{"systemMessage":$msg}'
+else
+  echo "Autology: /autology:capture to save knowledge from this session" >&2
+fi

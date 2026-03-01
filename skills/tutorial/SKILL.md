@@ -57,7 +57,11 @@ Use SQLite. File-based, no server, works locally and in CI.
 - Will need migration if scale grows significantly
 ```
 
-After writing the file, confirm: "Captured `sqlite-decision` → `docs/sqlite-decision.md`"
+After writing the file, confirm:
+```
+> **Autology Tutorial** — Step 1 complete
+```
+Captured `sqlite-decision` → `docs/sqlite-decision.md`
 
 **Key point**: The node is now a plain markdown file in `docs/`. Nothing more.
 
@@ -96,6 +100,10 @@ Show the full content. Point out:
 - This is why Claude gives SQLite-specific answers without being told
 
 **Key point**: Memory injection happens at session start (like loading context). On-demand Read is for deeper detail.
+
+```
+> **Autology Tutorial** — Step 2 complete
+```
 
 Ask: "Ready to see what happens when the decision changes?"
 
@@ -137,6 +145,10 @@ After editing, confirm: "Updated `docs/postgresql-decision.md` — reflects curr
 
 **Key point**: No need to keep a graveyard of superseded nodes. Git history has the full evolution. The knowledge base shows only what's true now.
 
+```
+> **Autology Tutorial** — Step 3 complete
+```
+
 Ask: "Ready to see how the updated memory affects the next session?"
 
 **Wait for confirmation before Step 4.**
@@ -171,6 +183,10 @@ git show HEAD~1:docs/sqlite-decision.md
 
 **Key point**: The knowledge base shows what's true now. Git shows how it got there.
 
+```
+> **Autology Tutorial** — Step 4 complete
+```
+
 Ask: "Ready for the final step — keeping docs in sync with code?"
 
 **Wait for confirmation before Step 5.**
@@ -201,6 +217,10 @@ Then fix:
 2. Edit `postgresql-migration.md` → note pgBouncer is planned, not yet implemented
 
 After fixes, run the check again — zero gaps.
+
+```
+> **Autology Tutorial** — Step 5 complete
+```
 
 **Key point**: `/autology:analyze` is the sync check. Run it after any significant code change or before commits.
 

@@ -32,17 +32,21 @@ launcher.sh hook session-end    → session-end.sh
 3. Build node index: `- [type] Title (tags: ...) → docs/slug.md`
 4. Collect unique tags across all nodes
 5. Compose `additionalContext` string (node list + capture instructions)
-6. Output JSON: `{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}}`
+6. Output JSON with both `hookSpecificOutput` (Claude context) and `systemMessage` (user-visible):
+   ```json
+   {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}, "systemMessage": "Autology: N nodes (M tags) loaded from docs/"}
+   ```
 
-**Bootstrap case** (0 nodes): outputs instructions only, no node list.
+**Bootstrap case** (0 nodes): `systemMessage` says `"Autology: no nodes yet — knowledge captured during sessions goes to docs/"`.
 
 **Budget**: capped at 150 nodes; shows `(... and N more)` beyond limit.
 
 ### scripts/session-end.sh
-Outputs a capture tip to stderr:
+Outputs a JSON `systemMessage` (user-visible) with a capture tip:
+```json
+{"systemMessage": "Autology: /autology:capture to save knowledge from this session"}
 ```
-💡 Autology tip: Consider capturing knowledge from this session.
-```
+Falls back to stderr if jq is unavailable.
 
 ## Hook Configuration (`hooks/hooks.json`)
 

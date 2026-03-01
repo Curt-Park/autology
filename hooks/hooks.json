@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook session-start"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook session-start",
+            "statusMessage": "Loading Autology knowledge base..."
           }
         ],
         "description": "Inject ontology summary and autonomous capture instructions"
@@ -18,7 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook session-end"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook session-end",
+            "statusMessage": "Autology session end..."
           }
         ],
         "description": "Show knowledge capture tip on session end"
