@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/Curt-Park/autology/compare/autology-v0.6.0...autology-v0.7.0) (2026-03-01)
+
+
+### Features
+
+* add autology skill invocation guidance to capture instructions ([#37](https://github.com/Curt-Park/autology/issues/37)) ([e072ba7](https://github.com/Curt-Park/autology/commit/e072ba736fc4f74e90ba88807fc5544750c123be))
+
 ## [0.6.0](https://github.com/Curt-Park/autology/compare/autology-v0.5.0...autology-v0.6.0) (2026-03-01)
 
 
