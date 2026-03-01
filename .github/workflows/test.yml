@@ -37,11 +37,12 @@ jobs:
           echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("No knowledge nodes yet")' > /dev/null
           echo "✅ Bootstrap case works"
 
-      - name: session-end.sh — outputs tip to stderr
+      - name: session-end.sh — outputs tip as JSON systemMessage
         run: |
-          stderr=$(echo '{}' | bash scripts/session-end.sh 2>&1 1>/dev/null)
-          echo "$stderr" | grep -q "autology" || { echo "❌ No tip in stderr"; exit 1; }
-          echo "✅ session-end.sh outputs tip"
+          output=$(echo '{}' | bash scripts/session-end.sh)
+          echo "$output" | jq . > /dev/null
+          echo "$output" | jq -e '.systemMessage | test("autology"; "i")' > /dev/null || { echo "❌ No tip in systemMessage"; exit 1; }
+          echo "✅ session-end.sh outputs tip as JSON systemMessage"
 
       - name: launcher.sh — routes session-start
         run: |
@@ -51,8 +52,8 @@ jobs:
 
       - name: launcher.sh — routes session-end
         run: |
-          stderr=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook session-end 2>&1 1>/dev/null)
-          echo "$stderr" | grep -q "autology" || { echo "❌ session-end route failed"; exit 1; }
+          output=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook session-end)
+          echo "$output" | jq -e '.systemMessage | test("autology"; "i")' > /dev/null || { echo "❌ session-end route failed"; exit 1; }
           echo "✅ launcher.sh routes session-end correctly"
 
       - name: launcher.sh — unknown hook exits 1
