@@ -31,7 +31,7 @@ launcher.sh hook session-end    → session-end.sh
 2. Iterate `docs/*.md` — parse YAML frontmatter with awk
 3. Build node index: `- [type] Title (tags: ...) → docs/slug.md`
 4. Collect unique tags across all nodes
-5. Compose `additionalContext` string (node list + capture instructions)
+5. Compose `additionalContext` string (node list + skill trigger guidance)
 6. Output JSON with both `hookSpecificOutput` (Claude context) and `systemMessage` (user-visible):
    ```json
    {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}, "systemMessage": "Autology: N nodes (M tags) loaded from docs/"}

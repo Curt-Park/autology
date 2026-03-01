@@ -1,15 +1,74 @@
 ---
-name: autology:analyze
-description: Verify docs/ and codebase are synchronized, find gaps and broken links
+name: autology:sync
+description: Sync knowledge base with codebase — fast check for changed files, or full audit of everything
 ---
 
-This skill verifies that documentation nodes accurately describe the actual codebase. Core principle: **Documentation and code must always be synchronized.**
+This skill verifies that documentation nodes accurately describe the actual codebase and fixes any discrepancies in-place.
+
+Two modes — the skill selects automatically based on context:
+- **Fast** (default): only checks git-changed files. Use before committing.
+- **Full**: audits the entire codebase and knowledge base. Use for periodic reviews or when explicitly requested.
 
 ## Usage
 
-`/autology:analyze` — Run doc-code synchronization analysis
+```
+/autology:sync        # fast — changed files only
+/autology:sync full   # full audit
+```
 
-## Process
+---
+
+## Fast Mode
+
+### 1. Find Changed Files
+
+```
+Bash: git diff --name-only HEAD
+Bash: git diff --name-only --cached
+```
+
+Combine and deduplicate.
+
+### 2. Find Referenced Docs
+
+For each changed file, search the knowledge base for references:
+
+```
+Grep: AUTOLOGY_ROOT/ for the filename (e.g., "plugin.go")
+Grep: AUTOLOGY_ROOT/ for the parent directory name (e.g., "internal/model")
+```
+
+Collect all docs that reference any of the changed files.
+
+### 3. Verify and Fix
+
+For each matched doc:
+- Read the doc
+- Read the changed code file
+- Compare: do counts, names, types, paths, and behavior claims still match?
+- If discrepancies found: edit the doc in-place to reflect current reality
+
+### 4. Report
+
+```markdown
+## Sync Report (fast)
+
+**Changed files checked**: N
+**Docs matched**: N
+**Docs updated**: N
+
+### Updated
+- docs/example.md — updated function count (3 → 4)
+
+### No changes needed
+- docs/other.md — still accurate
+```
+
+If no docs reference any changed file: "No docs reference the changed files — nothing to sync."
+
+---
+
+## Full Mode
 
 ### 1. Read All Nodes
 
@@ -51,10 +110,10 @@ Report broken wikilinks.
 - Nodes with 2+ shared tags but no wikilink between them → suggest link
 - Node A's content mentions node B's title but no `[[B]]` link → suggest link
 
-## Output Format
+### 6. Report
 
 ```markdown
-# Ontology Analysis Report
+## Sync Report (full)
 
 ## 1. Knowledge Gaps
 
@@ -85,16 +144,16 @@ Report broken wikilinks.
 |--------|--------|--------|
 
 ## Summary
-
-> **Autology Analysis** — N gaps, N broken links, N missing links
 - Knowledge gaps: N
 - Broken wikilinks: N
 - Missing wikilinks: N
 ```
 
+---
+
 ## Key Principles
 
+- Fix discrepancies immediately — don't just report them
 - Every finding must be verified against actual file/code state
 - Each finding includes a specific fix
-- No scores or statistics — only concrete facts
-- When uncertain, read the actual files to confirm
+- When uncertain, read the actual files to confirm before editing

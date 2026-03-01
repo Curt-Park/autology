@@ -55,20 +55,13 @@ else
   node_list="$nodes"
 fi
 
-# Shared capture instructions (base — no reuse-tags line)
-_capture_instructions="As you work, capture important knowledge into ${AUTOLOGY_ROOT}/:
-- Decisions, patterns, conventions, debugging insights → create new .md files
-- Check for existing similar docs first (use Grep to search ${AUTOLOGY_ROOT}/)
-- When user says \"remember this\" → save immediately
-- Don't save: session-specific context, incomplete information, trivial details
-- File format: YAML frontmatter (title, type, tags) + markdown content
-- type: single primary classification — what kind of knowledge? (decision, component, convention, concept, pattern, issue, session)
-- tags: multiple cross-cutting topics — what is it about? (e.g., [auth, api, database])
-- File naming: ${AUTOLOGY_ROOT}/{title-slug}.md (lowercase, hyphens, no special chars)
-- YAML frontmatter example:
-  title: \"Human Readable Title\"
-  type: decision
-  tags: [tag1, tag2]"
+# Skill trigger guidance injected into additionalContext each session
+_skill_triggers="Invoke autology skills at the right time:
+- \`/autology:capture\` — decision, convention, pattern, or when user says \"remember this\"
+- \`/autology:sync\` — before committing; \`sync full\` for periodic audit
+- \`/autology:explore\` — browse or query the knowledge base
+
+Don't capture: session-specific context, incomplete info, or duplicates of existing docs."
 
 # Build additionalContext
 if [ "$node_count" -eq 0 ]; then
@@ -76,8 +69,8 @@ if [ "$node_count" -eq 0 ]; then
 
 No knowledge nodes yet. Start capturing knowledge into ${AUTOLOGY_ROOT}/ as you work.
 
-[Autonomous Capture Instructions]
-${_capture_instructions}"
+[Autology Skill Triggers]
+${_skill_triggers}"
 else
   context="[Autology Knowledge Base — ${AUTOLOGY_ROOT}/]
 
@@ -87,9 +80,8 @@ $(echo -e "$node_list" | grep -v '^$')
 
 For details on any topic, read the corresponding ${AUTOLOGY_ROOT}/*.md file.
 
-[Autonomous Capture Instructions]
-${_capture_instructions}
-- Reuse existing tags from the list above when possible"
+[Autology Skill Triggers]
+${_skill_triggers}"
 fi
 
 # Build systemMessage

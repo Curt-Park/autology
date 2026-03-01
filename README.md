@@ -45,7 +45,7 @@ read on demand    capture autonomously
 ```
 
 **Two interaction modes**:
-1. **Skills**: `/autology:capture`, `/autology:explore`, `/autology:analyze`, `/autology:tutorial`
+1. **Skills**: `/autology:capture`, `/autology:explore`, `/autology:sync`, `/autology:tutorial`
 2. **Direct**: Claude's native tools (Read/Write/Edit/Grep/Glob) on `docs/*.md`
 
 **Knowledge types**: any descriptive label — common examples: `decision` (ADR format), `component`, `convention`, `concept`, `pattern`, `issue`, `session`
@@ -94,8 +94,11 @@ Requires `jq` (`brew install jq` / `sudo apt install jq`).
 # Explore the knowledge base
 /autology:explore decisions
 
-# Verify doc-code sync
-/autology:analyze
+# Verify doc-code sync (changed files only)
+/autology:sync
+
+# Full audit of entire codebase
+/autology:sync full
 ```
 
 ## Development

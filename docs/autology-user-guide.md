@@ -13,7 +13,7 @@ Map of Contents for Autology user documentation.
 
 ## Three Ways to Use Autology
 
-1. **Skills** (Recommended): `/tutorial`, `/capture`, `/explore`, `/analyze`
+1. **Skills** (Recommended): `/tutorial`, `/capture`, `/explore`, `/sync`
 2. **Native Tools** (Direct): Claude's Read/Write/Edit/Grep/Glob tools on docs/
 3. **Obsidian**: Visual graph browsing and editing
 
