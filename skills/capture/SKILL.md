@@ -90,10 +90,8 @@ Use a different label if it better describes the knowledge.
 
 After saving:
 ```
-Captured [type] node: docs/{slug}.md
-Title: [title]
-Tags: [tags]
-Relations: [related nodes if any]
+> **Autology** — Captured [type]: docs/{slug}.md
+> Tags: [tags] | Relations: [related nodes if any]
 ```
 
 ## Key Principles

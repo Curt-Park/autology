@@ -92,6 +92,14 @@ ${_capture_instructions}
 - Reuse existing tags from the list above when possible"
 fi
 
+# Build systemMessage
+if [ "$node_count" -eq 0 ]; then
+  msg="Autology: no nodes yet — knowledge captured during sessions goes to ${AUTOLOGY_ROOT}/"
+else
+  tag_count=$(echo "$unique_tags" | tr ',' '\n' | grep -c . || true)
+  msg="Autology: ${node_count} nodes (${tag_count} tags) loaded from ${AUTOLOGY_ROOT}/"
+fi
+
 # Output JSON
-jq -n --arg ctx "$context" \
-  '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":$ctx}}'
+jq -n --arg ctx "$context" --arg msg "$msg" \
+  '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":$ctx},"systemMessage":$msg}'
