@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/Curt-Park/autology/compare/autology-v0.4.4...autology-v0.5.0) (2026-03-01)
+
+
+### Features
+
+* replace Go MCP server with code-less architecture ([#33](https://github.com/Curt-Park/autology/issues/33)) ([e49df2a](https://github.com/Curt-Park/autology/commit/e49df2a497b3d9cc80ce29bca3c47159a06daace))
+
 ## [0.4.4](https://github.com/Curt-Park/autology/compare/autology-v0.4.3...autology-v0.4.4) (2026-02-25)
 
 
