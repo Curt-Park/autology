@@ -1,6 +1,6 @@
 {
   "name": "autology",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Living Ontology for Claude Code - Captures and reuses knowledge across sessions",
   "author": {
     "name": "Autology Contributors"
