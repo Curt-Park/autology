@@ -12,23 +12,47 @@ User: "Let's add authentication to the API"
 Claude: [implements JWT authentication]
 User: "Why JWT instead of sessions?"
 Claude: "JWT is stateless, works better for microservices..."
-[Hook or advisor triggers /autology:capture]
+[Claude autonomously identifies this as a capture-worthy decision]
 ```
 
 **Skill Response:**
+
+Check for existing nodes:
 ```
-I noticed we made a decision about authentication in our conversation:
+Grep docs/ for "jwt" or "authentication" (case-insensitive)
+```
+No existing node found.
 
-**Decision**: Use JWT for API authentication
-**Context**: Stateless auth needed for microservices architecture
-**Alternative considered**: Session-based authentication (rejected: requires shared state)
+Write `docs/jwt-authentication-decision.md`:
+```yaml
+---
+title: "Use JWT for API Authentication"
+type: decision
+tags: [auth, api, architecture]
+status: active
+---
 
-Let me capture this as a decision node. I'll ask a few questions to make it comprehensive:
+# Use JWT for API Authentication
 
-1. What are the main consequences of using JWT? (e.g., token refresh complexity, secret management)
-2. Are there any other alternatives we considered?
+## Context
+Building a stateless API for microservices. Need auth that doesn't require shared session state.
 
-[After user answers, structure as ADR and call autology_capture]
+## Decision
+Use JWT (JSON Web Tokens) for API authentication.
+
+## Alternatives Considered
+- Session-based authentication: requires shared state, doesn't scale across services
+
+## Consequences
+- Token refresh complexity
+- Secret key management required
+- Works across distributed services without coordination
+```
+
+```
+Captured [decision] node: docs/jwt-authentication-decision.md
+Title: Use JWT for API Authentication
+Tags: auth, api, architecture
 ```
 
 ---
@@ -40,35 +64,51 @@ Let me capture this as a decision node. I'll ask a few questions to make it comp
 User: "Add JWT validation to the API"
 Claude: [creates src/services/auth.ts with AuthService class]
 User: "Looks good!"
-[Post-commit hook or advisor triggers /autology:capture]
+[Claude autonomously captures the new component]
 ```
 
 **Skill Response:**
+
+Check for existing nodes:
 ```
-I noticed we just created a new component:
+Grep docs/ for "AuthService" or "auth service"
+```
+No existing node found. Check for related decision:
+```
+Grep docs/ for "jwt"
+```
+Found: `docs/jwt-authentication-decision.md`
 
-**Component**: AuthService (src/services/auth.ts)
-**Purpose**: Handles JWT token validation and user authentication
-**Key methods**: validateToken(), extractUser(), refreshToken()
+Write `docs/auth-service.md`:
+```yaml
+---
+title: "AuthService"
+type: component
+tags: [auth, service, jwt]
+status: active
+---
 
-[Search for related nodes]
-Found related nodes:
-- JWT authentication decision
+# AuthService
 
-[Query ontology for existing AuthService]
-No existing AuthService node found.
+Implements [[jwt-authentication-decision]].
 
-Proposed operation: **Create** new component node
+**Location**: `src/services/auth.ts`
 
-[Call autology_capture with:]
-- type: "component"
-- title: "AuthService"
-- content: Expanded description with key methods
-- tags: ["auth", "service", "jwt"]
-- references: ["src/services/auth.ts"]
-- relatedTo: [jwt-decision-id]
+**Purpose**: Handles JWT token validation and user authentication.
 
-✅ Captured component node: com-auth-service-2024
+**Key methods**: `validateToken()`, `extractUser()`, `refreshToken()`
+```
+
+Also Edit `docs/jwt-authentication-decision.md` to add reverse wikilink in body:
+```
+See also: [[auth-service]]
+```
+
+```
+Captured [component] node: docs/auth-service.md
+Title: AuthService
+Tags: auth, service, jwt
+Relations: jwt-authentication-decision
 ```
 
 ---
@@ -80,33 +120,30 @@ Proposed operation: **Create** new component node
 User: "How should we handle API errors?"
 Claude: "We should include correlation IDs for tracing..."
 User: "Good idea, let's make that a standard"
-[Advisor triggers /autology:capture]
+[Claude autonomously captures the new convention]
 ```
 
 **Skill Response:**
+
+Check for existing nodes:
 ```
-I noticed we established a new convention:
+Grep docs/ for "error" or "correlation" (case-insensitive)
+```
+Found: `docs/api-error-format.md` — "API Error Format Convention"
 
-**Convention**: All API errors must include a correlation ID for tracing
-**Rationale**: Enables distributed request tracing across microservices
-**Example**: { "error": "Invalid token", "correlationId": "abc-123" }
+Read `docs/api-error-format.md` — existing convention doesn't mention correlation IDs.
 
-[Query ontology for existing error handling conventions]
-Found: "API Error Format Convention" (conv-api-errors-2024)
+Edit `docs/api-error-format.md` to add correlation ID requirement:
+```
+Add section: "## Correlation IDs
+All API errors must include a `correlationId` field for distributed tracing.
+Example: { "error": "Invalid token", "correlationId": "abc-123" }"
+```
 
-Proposed operation: **Update** (add correlation ID requirement)
-
-Would you like to:
-1. Update existing convention (recommended)
-2. Create new convention specifically for correlation IDs
-
-[User selects option 1]
-
-[Call autology_update with:]
-- id: "conv-api-errors-2024"
-- content: [original content + correlation ID section]
-
-✅ Updated convention node: conv-api-errors-2024
+```
+Updated [convention] node: docs/api-error-format.md
+Title: API Error Format Convention
+Change: Added correlation ID requirement
 ```
 
 ---
@@ -118,73 +155,63 @@ Would you like to:
 User: "Let's switch from HS256 to RS256 for better security"
 Claude: [updates JWT implementation to use RS256]
 User: "Perfect, this is more secure"
-[Advisor triggers /autology:capture]
+[Claude autonomously updates the existing decision node]
 ```
 
 **Skill Response:**
+
+Check for existing nodes:
 ```
-I noticed we modified our JWT authentication approach:
+Grep docs/ for "jwt" or "HS256"
+```
+Found: `docs/jwt-authentication-decision.md`
 
-**Change**: Switched from HS256 to RS256 algorithm
-**Reason**: Improved security with asymmetric cryptography
+Read `docs/jwt-authentication-decision.md` — mentions HS256 algorithm.
 
-[Query ontology for JWT decision]
-Found: "JWT Authentication" (dec-auth-2024)
+Edit `docs/jwt-authentication-decision.md`:
+- Update algorithm from HS256 → RS256 in the Decision section
+- Add note: asymmetric cryptography improves security (private key signs, public key verifies)
 
-Proposed operation: **Update** (algorithm changed from HS256 to RS256)
-
-[Call autology_update with:]
-- id: "dec-auth-2024"
-- content: "[original content with updated algorithm section and consequences]"
-- confidence: 0.95 (increased confidence after implementation)
-
-✅ Updated decision: dec-auth-2024
-Fields changed: content, confidence
+```
+Updated [decision] node: docs/jwt-authentication-decision.md
+Title: Use JWT for API Authentication
+Change: Algorithm updated from HS256 to RS256
 ```
 
 ---
 
-## Example 5: Context-Based Delete
+## Example 5: Removing Obsolete Knowledge
 
 **Conversation Context:**
 ```
 User: "Remove all the old Redis caching code"
 Claude: [deletes Redis implementation, removes dependencies]
 User: "Good, we don't need that anymore"
-[Advisor triggers /autology:capture]
+[Claude autonomously updates the knowledge base]
 ```
 
 **Skill Response:**
+
+Check for existing nodes:
 ```
-I noticed we removed Redis caching functionality:
+Grep docs/ for "redis" (case-insensitive)
+```
+Found: `docs/redis-session-caching.md`
 
-**Removed**: Redis session caching implementation
+The code is gone. Edit `docs/redis-session-caching.md` to reflect current state:
+- Update `status: active` → `status: archived`
+- Add note at top: "## Status\nRemoved — Redis caching was eliminated. See git history for rationale."
 
-[Query ontology for Redis decision]
-Found: "Redis for Session Caching" (dec-cache-2023)
+Git history preserves what it used to say. The knowledge base now reflects reality.
 
-Proposed operation: **Delete** or **Supersede**
-
-⚠️  Impact check:
-- 3 components reference this decision
-- 1 convention depends on it
-- Total: 4 relations will be removed
-
-Recommendation: Consider marking as superseded instead to preserve history.
-
-Would you like to:
-1. Mark as superseded (recommended - preserves history)
-2. Delete completely
-
-[User selects option 2]
-
-✅ Deleted: dec-cache-2023
-Relations removed: 4
+```
+Updated [decision] node: docs/redis-session-caching.md
+Change: Marked archived — implementation removed
 ```
 
 ---
 
-## Example 6: Context-Based Supersede
+## Example 6: Technology Replacement
 
 **Conversation Context:**
 ```
@@ -192,42 +219,28 @@ User: "Let's switch from Redis to Memcached for caching"
 Claude: "Why the change?"
 User: "Memcached is simpler for our use case, lower overhead"
 Claude: [implements Memcached, removes Redis]
-[Advisor triggers /autology:capture]
+[Claude autonomously captures the change]
 ```
 
 **Skill Response:**
+
+Check for existing nodes:
 ```
-I noticed we replaced our caching solution:
+Grep docs/ for "redis" or "caching"
+```
+Found: `docs/redis-session-caching.md`
 
-**Old**: Redis for session caching
-**New**: Memcached for session caching
-**Reason**: Simpler, lower overhead for our needs
+Read existing node — describes Redis. Since the decision changed, edit the node in place to reflect the new reality (git tracks what it used to say):
 
-[Query ontology for caching decisions]
-Found: "Redis for Session Caching" (dec-cache-2023)
+Edit `docs/redis-session-caching.md`:
+- Rename file → `docs/memcached-session-caching.md` (Write new + rm old)
+- Update `title` → `"Use Memcached for Session Caching"`
+- Rewrite content to document the Memcached decision with context about why Redis was replaced
 
-Proposed operation: **Supersede** (replacing old decision with new one)
-
-I'll create a new decision and link them:
-
-1. Create new decision [autology_capture]:
-   - title: "Memcached for Session Caching"
-   - type: "decision"
-   - content: [ADR format with supersession context]
-
-2. Link decisions [autology_relate]:
-   - source: new-decision-id
-   - target: dec-cache-2023
-   - type: "supersedes"
-
-3. Mark old as superseded [autology_update]:
-   - id: dec-cache-2023
-   - status: "superseded"
-
-✅ Decision superseded:
-Old: dec-cache-2023 (Redis)
-New: dec-cache-2024 (Memcached)
-Reason: Simpler solution, lower operational overhead
+```
+Updated [decision] node: docs/memcached-session-caching.md
+Title: Use Memcached for Session Caching
+Change: Replaced Redis decision — edit in place, git tracks history
 ```
 
 ---
@@ -237,42 +250,38 @@ Reason: Simpler solution, lower operational overhead
 ### Pattern 1: Decision After Implementation
 
 When code is written first, then the decision is captured:
-1. Gather context from file changes
-2. Extract technical approach
-3. Ask for alternatives considered
-4. Structure as ADR with full context
+1. Grep docs/ for related keywords to find existing nodes
+2. Extract technical approach from conversation
+3. Write new node or Edit existing with full ADR context
 
 ### Pattern 2: Update After Refinement
 
 When existing knowledge is enhanced:
-1. Query for existing node
-2. Compare with new information
-3. Propose update with diff preview
-4. Merge and update confidence
+1. Grep docs/ to find the existing node
+2. Read it to understand current state
+3. Edit with the new information
 
-### Pattern 3: Supersession with Migration Path
+### Pattern 3: Technology Replacement
 
 When decisions change:
-1. Create new decision with full ADR
-2. Link with supersedes relation
-3. Mark old as superseded
-4. Update dependent components
+1. Find existing node with Grep
+2. Edit in place — update to reflect current reality
+3. Git history preserves the old decision automatically
 
-### Pattern 4: Component After Commit
+### Pattern 4: Component After Creation
 
-When hook triggers after git commit:
-1. Focus on committed files
-2. Extract component purpose
-3. Find related decisions
-4. Create with references and relations
+When a new component is built:
+1. Grep docs/ to check for existing node and related decisions
+2. Write new component node with wikilinks to related decisions
+3. Edit related nodes to add reverse wikilinks
 
 ---
 
 ## Tips for Effective Capture
 
-1. **Let conversation flow naturally**: Don't interrupt to capture, wait for natural pause
-2. **Confirm before executing**: Always show what will be captured
-3. **Link related nodes**: Search and connect to existing knowledge
-4. **Use ADR for decisions**: Structure ensures completeness
-5. **Prefer update over duplicate**: Query before creating new nodes
-6. **Preserve history**: Use supersede instead of delete for decisions
+1. **Let conversation flow naturally**: Capture at natural pauses, not mid-implementation
+2. **Save autonomously**: Don't ask for confirmation — just capture and report
+3. **Link related nodes**: Use `[[node-slug]]` wikilinks in body text
+4. **Prefer edit over duplicate**: Grep before creating new nodes
+5. **Edit in place**: Git tracks history — no need for separate "superseded" nodes
+6. **Use ADR for decisions**: Context/Decision/Alternatives/Consequences structure

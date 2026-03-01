@@ -2,7 +2,7 @@
 
 Skills provide interactive commands for using Autology.
 
-**For complete documentation, see**: [`docs/concepts/guide-moc.md`](../docs/concepts/guide-moc.md)
+**For complete documentation, see**: [`docs/autology-user-guide.md`](../docs/autology-user-guide.md)
 
 ## Quick Reference
 
@@ -23,4 +23,4 @@ Skills provide interactive commands for using Autology.
 /autology:explore tagged X   # Filter by tag
 ```
 
-See [`docs/concepts/guide-moc.md`](../docs/concepts/guide-moc.md) for full usage, hooks, MCP tools, and workflows.
+See [`docs/autology-user-guide.md`](../docs/autology-user-guide.md) for full usage and workflows.

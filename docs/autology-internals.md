@@ -1,12 +1,4 @@
 ---
-confidence: 0.8
-created: "2026-02-11T13:34:47+09:00"
-id: autology-internals
-modified: "2026-02-11T13:34:47+09:00"
-references: []
-relations: []
-source: manual
-status: active
 tags:
   - docs
   - internals
@@ -31,4 +23,5 @@ Autology is implemented as a code-less system with shell script hooks:
 ## Cross-References
 
 - Specification: [[autology-system-specification]]
+- Shell scripts: [[shell-hook-scripts]]
 - User guide: [[autology-user-guide]]

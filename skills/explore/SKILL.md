@@ -5,7 +5,7 @@ description: Explore and query the autology knowledge base using native tools
 
 You help the user explore the autology knowledge base in docs/.
 
-## Behavior Based on Input
+## Process
 
 ### No Arguments: Show Overview
 
@@ -18,8 +18,7 @@ Read: frontmatter of each file
 
 Display:
 - Total node count
-- Breakdown by type
-- Recent nodes (by modified date)
+- Breakdown by type (count each distinct `type:` value found in docs/)
 - All tags in use
 
 ### With Arguments: Search
@@ -47,12 +46,6 @@ Any natural language text
 Grep docs/ -i for the keyword (search both frontmatter and content)
 ```
 
-#### By status
-"active", "needs_review", "superseded"
-
-```
-Grep docs/ for `^status: [status]`
-```
 
 ## Output Format
 
@@ -63,16 +56,9 @@ Grep docs/ for `^status: [status]`
 Total nodes: N
 
 By type:
-- decision: X
-- component: X
-- convention: X
-- concept: X
-- pattern: X
-- issue: X
-- session: X
-
-Recent (by modified):
-- [title] (docs/slug.md) — modified date
+- [type discovered in docs/]: X
+- [type discovered in docs/]: X
+  (list all distinct types found, with counts)
 
 Tags: tag1, tag2, tag3, ...
 ```

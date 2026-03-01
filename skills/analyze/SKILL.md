@@ -18,16 +18,15 @@ Glob: docs/*.md
 Read: each file (frontmatter + content)
 ```
 
-Extract: id, title, type, tags, status, content, wikilinks (`[[target]]` patterns)
+Extract: title, type, tags, content, wikilinks (`[[target]]` patterns)
 
 ### 2. Survey Codebase
 
 ```
-Glob: agents/*.md
 Glob: skills/*/SKILL.md
 Read: hooks/hooks.json
-Glob: internal/*/ (if exists)
-Read: package.json
+Read: .claude-plugin/plugin.json
+Glob: scripts/*.sh
 ```
 
 ### 3. Find Knowledge Gaps

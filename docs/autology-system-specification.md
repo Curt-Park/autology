@@ -1,12 +1,4 @@
 ---
-confidence: 0.8
-created: "2026-02-11T13:34:47+09:00"
-id: autology-system-specification
-modified: "2026-02-11T13:34:47+09:00"
-references: []
-relations: []
-source: manual
-status: active
 tags:
   - docs
   - spec
@@ -25,10 +17,11 @@ Autology is a code-less knowledge management system. Claude uses native tools (R
 
 ## Specification Components
 
-- [[codeless-architecture-decision]] — Code-less architecture decision (v0.5.0 ADR)
+- [[codeless-architecture-decision]] — Code-less architecture decision (ADR)
 
 ## Cross-References
 
 - Implementation details: [[autology-internals]]
+- Shell scripts: [[shell-hook-scripts]]
 - Usage guide: [[autology-user-guide]]
 - Core philosophy: [[autology-philosophy]]

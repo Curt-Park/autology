@@ -2,4 +2,4 @@
 *.log
 .env
 .env.local
-.worktrees/
+.claude/worktrees/

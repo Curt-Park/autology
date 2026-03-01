@@ -1,33 +1,14 @@
 ---
-confidence: 0.95
-created: "2026-03-01T05:20:00+09:00"
-id: codeless-architecture-decision
-modified: "2026-03-01T05:20:00+09:00"
-references:
-  - hooks/hooks.json
-  - scripts/session-start.sh
-  - scripts/session-end.sh
-  - scripts/launcher.sh
-  - package.json
-relations:
-  - target: autology-internals
-    type: affects
-    description: "Defines new implementation layer"
-  - target: autology-system-specification
-    type: affects
-    description: "Changes core architecture described in spec"
-source: manual
-status: active
 tags:
   - architecture
   - spec
   - internals
   - decision
-title: Code-less Architecture Decision (v0.5.0)
+title: Code-less Architecture Decision
 type: decision
 ---
 
-# Code-less Architecture Decision (v0.5.0)
+# Code-less Architecture Decision
 
 
 ## Status
@@ -74,7 +55,7 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 - `.claude-plugin/bin/` — compiled binary
 - `scripts/install.sh` — binary installer
 - `agents/autology-advisor.md` — advisor agent
-- `hooks/hooks.json` PostToolUse + PreCompact hooks
+- PostToolUse + PreCompact hook entries (from hooks/hooks.json)
 - `docs/{type}s/{id}.md` nested structure → flat `docs/*.md`
 
 ## Consequences

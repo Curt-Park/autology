@@ -1,4 +1,5 @@
 #!/bin/bash
+# Launcher: routes hook subcommands to session scripts
 set -euo pipefail
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"

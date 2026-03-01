@@ -28,12 +28,7 @@ if [ -d "$AUTOLOGY_ROOT" ]; then
     # Extract frontmatter fields using awk
     title=$(awk '/^---$/{if(found) exit; found=1; next} found && /^title:/{sub(/^title:[[:space:]]*/, ""); gsub(/"/, ""); print; exit}' "$f")
     type=$(awk '/^---$/{if(found) exit; found=1; next} found && /^type:/{sub(/^type:[[:space:]]*/, ""); print; exit}' "$f")
-    status=$(awk '/^---$/{if(found) exit; found=1; next} found && /^status:/{sub(/^status:[[:space:]]*/, ""); print; exit}' "$f")
     tags=$(awk '/^---$/{if(found) exit; found=1; next} found && in_tags{if(/^[^ ]/ || /^---$/){exit} if(/^  - /){sub(/^  - /, ""); printf "%s,", $0}} found && /^tags:/{if(index($0,"[")>0){s=$0; sub(/^[^[]*\[/,"",s); sub(/\].*/,"",s); gsub(/ /,"",s); printf "%s,",s} else {in_tags=1}}' "$f")
-    modified=$(awk '/^---$/{if(found) exit; found=1; next} found && /^modified:/{sub(/^modified:[[:space:]]*/, ""); gsub(/"/, ""); print; exit}' "$f")
-
-    # Only include active nodes
-    [ "$status" = "active" ] || continue
 
     # Accumulate tags
     all_tags="${all_tags}${tags}"
@@ -60,6 +55,21 @@ else
   node_list="$nodes"
 fi
 
+# Shared capture instructions (base — no reuse-tags line)
+_capture_instructions="As you work, capture important knowledge into ${AUTOLOGY_ROOT}/:
+- Decisions, patterns, conventions, debugging insights → create new .md files
+- Check for existing similar docs first (use Grep to search ${AUTOLOGY_ROOT}/)
+- When user says \"remember this\" → save immediately
+- Don't save: session-specific context, incomplete information, trivial details
+- File format: YAML frontmatter (title, type, tags) + markdown content
+- type: single primary classification — what kind of knowledge? (decision, component, convention, concept, pattern, issue, session)
+- tags: multiple cross-cutting topics — what is it about? (e.g., [auth, api, database])
+- File naming: ${AUTOLOGY_ROOT}/{title-slug}.md (lowercase, hyphens, no special chars)
+- YAML frontmatter example:
+  title: \"Human Readable Title\"
+  type: decision
+  tags: [tag1, tag2]"
+
 # Build additionalContext
 if [ "$node_count" -eq 0 ]; then
   context="[Autology Knowledge Base — ${AUTOLOGY_ROOT}/]
@@ -67,24 +77,7 @@ if [ "$node_count" -eq 0 ]; then
 No knowledge nodes yet. Start capturing knowledge into ${AUTOLOGY_ROOT}/ as you work.
 
 [Autonomous Capture Instructions]
-As you work, capture important knowledge into ${AUTOLOGY_ROOT}/:
-- Decisions, patterns, conventions, debugging insights → create new .md files
-- Check for existing similar docs first (use Grep to search ${AUTOLOGY_ROOT}/)
-- When user says \"remember this\" → save immediately
-- Don't save: session-specific context, incomplete information, trivial details
-- File format: YAML frontmatter (id, title, type, tags, confidence, status, created, modified, references, relations) + markdown content
-- File naming: ${AUTOLOGY_ROOT}/{title-slug}.md (lowercase, hyphens, no special chars)
-- YAML frontmatter example:
-  id: title-slug
-  title: \"Human Readable Title\"
-  type: any descriptive label (decision, component, convention, ...)
-  tags: [tag1, tag2]
-  confidence: 0.85
-  status: active
-  created: \"$(date -u +%Y-%m-%dT%H:%M:%S+00:00)\"
-  modified: \"$(date -u +%Y-%m-%dT%H:%M:%S+00:00)\"
-  references: []
-  relations: []"
+${_capture_instructions}"
 else
   context="[Autology Knowledge Base — ${AUTOLOGY_ROOT}/]
 
@@ -95,25 +88,8 @@ $(echo -e "$node_list" | grep -v '^$')
 For details on any topic, read the corresponding ${AUTOLOGY_ROOT}/*.md file.
 
 [Autonomous Capture Instructions]
-As you work, capture important knowledge into ${AUTOLOGY_ROOT}/:
-- Decisions, patterns, conventions, debugging insights → create new .md files
-- Check for existing similar docs first (use Grep to search ${AUTOLOGY_ROOT}/)
-- Reuse existing tags from the list above when possible
-- When user says \"remember this\" → save immediately
-- Don't save: session-specific context, incomplete information, trivial details
-- File format: YAML frontmatter (id, title, type, tags, confidence, status, created, modified, references, relations) + markdown content
-- File naming: ${AUTOLOGY_ROOT}/{title-slug}.md (lowercase, hyphens, no special chars)
-- YAML frontmatter example:
-  id: title-slug
-  title: \"Human Readable Title\"
-  type: any descriptive label (decision, component, convention, ...)
-  tags: [tag1, tag2]
-  confidence: 0.85
-  status: active
-  created: \"$(date -u +%Y-%m-%dT%H:%M:%S+00:00)\"
-  modified: \"$(date -u +%Y-%m-%dT%H:%M:%S+00:00)\"
-  references: []
-  relations: []"
+${_capture_instructions}
+- Reuse existing tags from the list above when possible"
 fi
 
 # Output JSON

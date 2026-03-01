@@ -35,20 +35,13 @@ Use Write tool with YAML frontmatter + markdown content:
 
 ```yaml
 ---
-id: title-slug
 title: "Human Readable Title"
-type: any descriptive label (decision, component, convention, ...)
+type: decision
 tags: [tag1, tag2]
-confidence: 0.85
-status: active
-created: "2026-03-01T12:00:00+09:00"
-modified: "2026-03-01T12:00:00+09:00"
-references: []
-relations: []
 ---
 ```
 
-**Update existing node**: Use Edit tool to modify content and update `modified` timestamp.
+**Update existing node**: Use Edit tool to modify content.
 
 **File naming**: `docs/{title-slug}.md` — lowercase, hyphens, no special characters.
 
@@ -61,22 +54,16 @@ Grep docs/ for nodes sharing tags or mentioning related concepts
 ```
 
 For each related node found:
-- Add to `relations` array in the new node's frontmatter
-- Also Edit the related node to add the reverse relation
-
-**Relation types**: `affects`, `uses`, `relates_to`, `implements`, `depends_on`
-
-**Relation format** (in frontmatter):
-```yaml
-relations:
-  - target: other-node-id
-    type: affects
-    description: "Why related"
-```
-
-**Wikilinks in body**: Reference related nodes as `[[node-id]]`.
+- Add a `[[node-id]]` wikilink in the new node's body text
+- Also Edit the related node to add the reverse `[[node-id]]` wikilink
 
 ### 5. Classify Node Type
+
+**type vs tags**:
+- `type` — single primary classification: *what kind of knowledge is this?*
+- `tags` — multiple cross-cutting topics: *what is it about?*
+
+Example: a decision about JWT authentication → `type: decision`, `tags: [auth, api]`
 
 Choose the most descriptive label for the knowledge — there is no fixed list.
 Common labels and their typical signals:

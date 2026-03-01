@@ -5,7 +5,7 @@ description: Interactive tutorial for learning Autology's core concepts and mech
 
 Welcome to the Autology Tutorial. You will learn how knowledge is captured, reused, updated, and kept in sync with code — through a single continuous example.
 
-## Arguments Handling
+## Arguments
 
 - `/autology:tutorial` → Start from Step 1
 - `/autology:tutorial <1-5>` → Jump to specific step
@@ -35,16 +35,9 @@ Now capture the decision. Use Write tool to create `docs/sqlite-decision.md`:
 
 ```yaml
 ---
-id: sqlite-decision
 title: "Use SQLite for Database"
 type: decision
 tags: [database, architecture, tutorial]
-confidence: 0.85
-status: active
-created: "2026-03-01T12:00:00+09:00"
-modified: "2026-03-01T12:00:00+09:00"
-references: []
-relations: []
 ---
 
 # Use SQLite for Database
@@ -116,10 +109,8 @@ Ask: "Ready to see what happens when the decision changes?"
 
 The SQLite decision node is a living document — just update it in place. Git tracks what it used to say.
 
-Use Edit tool on `docs/sqlite-decision.md` to rewrite it:
-- Update `title` → `"Use PostgreSQL for Database"`
-- Update `id` → `postgresql-decision`, rename file to `docs/postgresql-decision.md`
-- Update `modified` timestamp
+Rename and update: Write new content to `docs/postgresql-decision.md`, then `rm docs/sqlite-decision.md`:
+- Update `title` → `"Use PostgreSQL for Database"` in frontmatter
 - Rewrite the content to reflect the current decision:
 
 ```markdown

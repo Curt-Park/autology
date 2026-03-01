@@ -1,12 +1,4 @@
 ---
-confidence: 0.8
-created: "2026-02-11T13:32:03+09:00"
-id: autology-philosophy
-modified: "2026-02-11T13:32:03+09:00"
-references: []
-relations: []
-source: manual
-status: active
 tags:
   - docs
   - philosophy
@@ -91,7 +83,7 @@ Knowledge flows bidirectionally: captured from work, retrieved when queried thro
 
 **Executable, not Documentary**: Knowledge actively guides development, not just documents it.
 
-**Immutable, not Mutable**: All data structures are immutable. Prevents hidden side effects.
+**Traceable, not Mutable**: All changes tracked through version control. Git history preserves the full evolution.
 
 ## What Success Looks Like
 
@@ -134,7 +126,7 @@ Knowledge flows bidirectionally: captured from work, retrieved when queried thro
 - 컬리 OMS팀 Claude AI 업무 방식 (2025-12)
 
 **Technologies**:
-- MCP (Model Context Protocol)
+- Claude Code Plugin System (hooks + skills)
 - Claude Code Plugin System
 - JSON-LD + RDFLib
 - Neo4j / FalkorDB (future consideration)
@@ -146,7 +138,7 @@ When designing features, ask:
 1. **Does this increase transparency?** Can users see why AI made this decision?
 2. **Does knowledge compound?** Will this information help future work?
 3. **Does understanding grow?** Are humans learning, not just delegating?
-4. **Is it immutable?** Are we preventing hidden mutations?
+4. **Is it traceable?** Are changes tracked in version control?
 
 If any answer is "no," reconsider the approach.
 

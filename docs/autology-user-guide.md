@@ -1,12 +1,4 @@
 ---
-confidence: 0.8
-created: "2026-02-11T13:34:47+09:00"
-id: autology-user-guide
-modified: "2026-02-11T13:34:47+09:00"
-references: []
-relations: []
-source: manual
-status: active
 tags:
   - docs
   - guide

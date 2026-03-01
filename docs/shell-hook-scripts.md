@@ -1,22 +1,4 @@
 ---
-confidence: 0.9
-created: "2026-03-01T05:20:00+09:00"
-id: shell-hook-scripts
-modified: "2026-03-01T05:20:00+09:00"
-references:
-  - scripts/session-start.sh
-  - scripts/session-end.sh
-  - scripts/launcher.sh
-  - hooks/hooks.json
-relations:
-  - target: codeless-architecture-decision
-    type: implements
-    description: "Implements the code-less architecture decision"
-  - target: autology-internals
-    type: relates_to
-    description: "Core implementation layer of autology"
-source: manual
-status: active
 tags:
   - internals
   - architecture
@@ -47,11 +29,10 @@ launcher.sh hook session-end    → session-end.sh
 **Core logic:**
 1. Consume stdin (avoid broken pipe with `set -euo pipefail`)
 2. Iterate `docs/*.md` — parse YAML frontmatter with awk
-3. Filter `status: active` nodes only
-4. Build node index: `- [type] Title (tags: ...) → docs/slug.md`
-5. Collect unique tags across all nodes
-6. Compose `additionalContext` string (node list + capture instructions)
-7. Output JSON: `{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}}`
+3. Build node index: `- [type] Title (tags: ...) → docs/slug.md`
+4. Collect unique tags across all nodes
+5. Compose `additionalContext` string (node list + capture instructions)
+6. Output JSON: `{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}}`
 
 **Bootstrap case** (0 nodes): outputs instructions only, no node list.
 
