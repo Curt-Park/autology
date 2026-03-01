@@ -1,234 +1,118 @@
 ---
 name: autology:capture
-description: Context-based knowledge capture with automatic classification and CRUD operations
+description: Capture knowledge from conversation into docs/ using native tools
 ---
 
-You help users capture knowledge from conversation context into the autology ontology.
-
-## How It Works
-
-When invoked, automatically analyze recent conversation to identify and capture knowledge-worthy events:
-- Decisions made
-- Components created
-- Conventions established
-- Concepts discussed
-- Patterns applied
-- Issues identified
+You help capture knowledge from conversation context into docs/ as markdown nodes.
 
 ## Process
 
-### 1. Gather Context
+### 1. Identify Knowledge
 
-Review recent conversation history (last 10-20 messages) to extract knowledge:
+Analyze recent conversation to find knowledge-worthy items:
+- Decisions made (technology choices, architectural choices)
+- Components created or modified
+- Conventions or patterns established
+- Concepts or domain knowledge explained
+- Issues or technical debt identified
 
-**Focus areas based on how you're triggered:**
-- **Advisor recommendation**: Use the advisor's signal as starting point
-- **Post-commit hook**: Focus on what was just committed
-- **Direct invocation**: Scan full recent conversation
+### 2. Check for Existing Nodes
 
-**Present summary:**
-```
-I noticed the following knowledge from our conversation:
-1. [Decision/Component/Convention]
-2. [Another knowledge item]
-
-Would you like to capture these?
-```
-
-### 2. Classify Knowledge
-
-Automatically determine node type from conversation context:
-
-| Type | Signals | Example |
-|------|---------|---------|
-| **decision** | "chose", "decided", "selected", "use", "adopt" | "We chose PostgreSQL" |
-| **component** | "created", "built", "implemented", "service", "module" | "AuthService handles auth" |
-| **convention** | "always", "never", "must", "should", "convention" | "All errors must include IDs" |
-| **concept** | "lifecycle", "workflow", "process", "represents" | "Order: pending → shipped" |
-| **pattern** | "pattern", "approach", "strategy", "reusable" | "Repository pattern" |
-| **issue** | "problem", "bug", "debt", "bottleneck" | "Performance issue in search" |
-| **session** | "finished", "completed", "implemented", "done" | "Implemented auth system" |
-
-### 3. Extract Metadata
-
-From conversation content:
-- **Title**: Short, descriptive (< 50 chars)
-- **Tags**: Relevant categorization
-- **References**: File paths mentioned
-- **Related nodes**: Query ontology with `autology_query`
-
-### 4. Determine Operation
-
-Query ontology to check if knowledge already exists:
+Before creating, search for similar content:
 
 ```
-autology_query { "query": "[extracted topic]", "tags": ["tag1", "tag2"] }
+Grep docs/ for relevant keywords or title fragments
 ```
 
-**Decision logic:**
+- If similar node exists → read it with Read tool, then update with Edit
+- If no match → create new file with Write tool
 
-| Query Result | Conversation Intent | Operation |
-|--------------|---------------------|-----------|
-| No match | New knowledge | **Create** |
-| Match found | Adds new info | **Update** |
-| Match found | Contradicts | **Supersede** |
-| Match found | Explicit removal | **Delete** |
-| Ambiguous | — | **Ask user** |
+### 3. Create or Update
 
-**Confirm with user:**
-```
-Found existing node: "JWT Authentication" (dec-auth-2024)
-Proposed operation: Update (adds RS256 algorithm info)
+**Create new node** (`docs/{title-slug}.md`):
 
-Proceed? (yes/no)
-```
+Use Write tool with YAML frontmatter + markdown content:
 
-### 5. Structure Decision Nodes (ADR Format)
-
-If type is **decision**, guide user through ADR format:
-
-```markdown
-# [Decision Title]
-
-## Context
-What circumstances led to this decision?
-
-## Decision
-What did we decide?
-
-## Alternatives Considered
-What other options were evaluated? Why rejected?
-
-## Consequences
-Positive and negative implications?
+```yaml
+---
+id: title-slug
+title: "Human Readable Title"
+type: any descriptive label (decision, component, convention, ...)
+tags: [tag1, tag2]
+confidence: 0.85
+status: active
+created: "2026-03-01T12:00:00+09:00"
+modified: "2026-03-01T12:00:00+09:00"
+references: []
+relations: []
+---
 ```
 
-**Ask clarifying questions if needed:**
-- "What problem does this decision solve?"
-- "What alternatives did you consider?"
-- "What are the main consequences?"
+**Update existing node**: Use Edit tool to modify content and update `modified` timestamp.
 
-### 6. Execute Operation
+**File naming**: `docs/{title-slug}.md` — lowercase, hyphens, no special characters.
 
-**Create:**
-```
-autology_capture {
-  "title": "Brief title",
-  "content": "Full markdown (ADR format for decisions)",
-  "type": "decision|component|convention|...",
-  "tags": ["tag1", "tag2"],
-  "confidence": 0.8-0.95
-}
-```
+### 4. Add Relations
 
-**Update:**
-```
-autology_update {
-  "id": "node-id",
-  "content": "[updated content]",
-  "confidence": 0.95
-}
-```
-
-**Delete:**
-```
-1. Query for relations (impact check)
-2. Warn: "Will remove N relations"
-3. Confirm, then: autology_delete { "id": "node-id" }
-```
-
-**Supersede:**
-```
-1. Create new node (autology_capture)
-2. Link: autology_relate { "source": "new-id", "target": "old-id", "type": "supersedes" }
-3. Mark old: autology_update { "id": "old-id", "status": "superseded" }
-```
-
-### 7. Create Relations
-
-Search for related nodes and suggest relations:
-- **affects**: Decision impacts component
-- **uses**: Component depends on another
-- **supersedes**: New replaces old
-- **relates_to**: General relationship
-- **implements**: Component implements pattern
-- **depends_on**: Dependency relationship
+Search for related nodes:
 
 ```
-autology_relate {
-  "source": "new-node-id",
-  "target": "related-node-id",
-  "type": "[relation-type]",
-  "description": "Why they're related"
-}
+Grep docs/ for nodes sharing tags or mentioning related concepts
 ```
 
-## Output Format
+For each related node found:
+- Add to `relations` array in the new node's frontmatter
+- Also Edit the related node to add the reverse relation
 
-**After Create:**
+**Relation types**: `affects`, `uses`, `relates_to`, `implements`, `depends_on`
+
+**Relation format** (in frontmatter):
+```yaml
+relations:
+  - target: other-node-id
+    type: affects
+    description: "Why related"
 ```
-✅ Captured [type] node: [node-id]
 
+**Wikilinks in body**: Reference related nodes as `[[node-id]]`.
+
+### 5. Classify Node Type
+
+Choose the most descriptive label for the knowledge — there is no fixed list.
+Common labels and their typical signals:
+
+| Type | Signals |
+|------|---------|
+| decision | "chose", "decided", "selected", "adopted" |
+| component | "created", "built", "implemented", new service/module |
+| convention | "always", "never", "must", "should", "the rule is" |
+| concept | lifecycle, workflow, domain model, process |
+| pattern | reusable approach, strategy, pattern |
+| issue | bug, technical debt, bottleneck, known problem |
+| session | work session summary, "finished", "completed" |
+
+Use a different label if it better describes the knowledge.
+
+### 6. Capture Immediately
+
+- Do not ask for user confirmation before saving
+- Save autonomously when knowledge is clearly worth capturing
+- When user says "remember this" — save immediately
+
+### 7. Report Result
+
+After saving:
+```
+Captured [type] node: docs/{slug}.md
 Title: [title]
 Tags: [tags]
-Relations: [N related nodes]
-File: docs/[type]s/[node-id].md
+Relations: [related nodes if any]
 ```
-
-**After Update:**
-```
-✅ Updated [type] node: [node-id]
-
-Fields changed: [content|tags|status|confidence]
-```
-
-**After Delete:**
-```
-✅ Deleted [type] node: [node-id]
-
-Relations removed: [count]
-```
-
-**After Supersede:**
-```
-✅ Decision superseded
-
-Old: [old-id] - [old-title]
-New: [new-id] - [new-title]
-```
-
-## Error Handling
-
-**Create failures:**
-- Duplicate title → Search for existing node, offer to update instead
-- Missing required fields → Ask user to provide
-
-**Update failures:**
-- Node not found → Search with broader query
-- No fields to update → Ask what to change
-
-**Delete failures:**
-- Node not found → Verify ID or search by title
-- High impact → Recommend marking as superseded instead
 
 ## Key Principles
 
-1. **Context-first**: Extract knowledge from conversation, not explicit statements
-2. **ADR for decisions**: Always use structured format
-3. **Query before create**: Avoid duplicates, create connections
-4. **Confirm operations**: Always show proposed action before executing
-5. **Prefer supersede over delete**: Preserve history for decisions
-6. **Check impact**: Query relations before deleting
-7. **Partial updates**: Only update fields that change
-
-## Examples
-
-See `EXAMPLES.md` for detailed context-based capture scenarios.
-
-## When to Use
-
-- **After conversations** about architectural decisions
-- **After creating** new components or modules
-- **After establishing** team conventions or standards
-- **When replacing** old decisions with new ones
-- **For documenting** known issues or technical debt
+- **Context-first**: Extract from conversation, not explicit statements
+- **Query before create**: Use Grep to avoid duplicates; update existing node if found
+- **Living documents**: Edit nodes in place — git tracks the history
+- **Reuse existing tags**: Check SessionStart context for current tag list
+- **Partial updates**: Only update fields that change

@@ -1,27 +1,15 @@
 {
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "tool == \"Bash\" && tool_input.command matches \"(git commit|gh pr create|gh pr merge)\"",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook post-commit"
-          }
-        ],
-        "description": "Suggest knowledge capture after git commit or PR events"
-      }
-    ],
-    "PreCompact": [
+    "SessionStart": [
       {
         "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook pre-compact"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/launcher.sh\" hook session-start"
           }
         ],
-        "description": "Suggest knowledge capture before context compaction"
+        "description": "Inject ontology summary and autonomous capture instructions"
       }
     ],
     "SessionEnd": [

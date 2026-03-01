@@ -1,7 +1,7 @@
 ---
 confidence: 0.8
 created: "2026-02-11T13:34:47+09:00"
-id: spec-moc
+id: autology-system-specification
 modified: "2026-02-11T13:34:47+09:00"
 references: []
 relations: []
@@ -21,14 +21,14 @@ Map of Contents for the Autology specification documents.
 
 ## Architecture Overview
 
-Autology uses a hybrid triggering system (hooks + agents) to integrate with Claude Code, exposing an MCP server with 7 tools and 4 skills.
+Autology is a code-less knowledge management system. Claude uses native tools (Read/Write/Edit/Grep/Glob) to directly CRUD docs/*.md files. Shell script hooks inject context at session start and show tips at session end.
 
 ## Specification Components
 
-- [[hybrid-triggering]] — Hook + Agent triggering strategy (ADR)
+- [[codeless-architecture-decision]] — Code-less architecture decision (v0.5.0 ADR)
 
 ## Cross-References
 
-- Implementation details: [[internals-moc]]
-- Usage guide: [[guide-moc]]
+- Implementation details: [[autology-internals]]
+- Usage guide: [[autology-user-guide]]
 - Core philosophy: [[autology-philosophy]]

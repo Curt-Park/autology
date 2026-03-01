@@ -23,29 +23,31 @@ Not "code faster"—but "understand deeper while coding faster."
 Autology captures the "why" behind decisions and feeds it back into future sessions:
 
 ```
-Your Work → Capture (Hooks) → Knowledge Graph → Inject (SessionStart) → Future Sessions
-                                     ↑                                           ↓
-                                     └────────────── Learning Loop ───────-──────┘
+      SessionStart hook
+            │ injects node index + capture instructions
+            ↓
+       Your Work
+      ↗          ↘
+read on demand    capture autonomously
+(/autology:explore)  (or /autology:capture)
+      ↖          ↙
+         docs/*.md
 ```
 
-**Three interaction modes**:
-1. **Automatic**: Hooks capture as you work (file changes, commits, sessions)
-2. **Interactive**: Skills for knowledge management (`/autology:capture`, `/autology:explore`, `/autology:analyze`, `/autology:tutorial`)
-3. **Programmatic**: MCP tools for automation (`autology_capture`, `autology_query`, `autology_relate`, etc.)
+**Two interaction modes**:
+1. **Skills**: `/autology:capture`, `/autology:explore`, `/autology:analyze`, `/autology:tutorial`
+2. **Direct**: Claude's native tools (Read/Write/Edit/Grep/Glob) on `docs/*.md`
 
-**7 Knowledge types**: `decisions` (ADR format), `components`, `conventions`, `concepts`, `patterns`, `issues`, `sessions`
+**Knowledge types**: any descriptive label — common examples: `decision` (ADR format), `component`, `convention`, `concept`, `pattern`, `issue`, `session`
 
-**7 Relationships**: `affects`, `uses`, `supersedes`, `relates_to`, `implements`, `depends_on`, `derived_from`
-
-**Storage**: Obsidian-compatible markdown in `docs/{type}s/` (e.g., `docs/decisions/`, `docs/components/`)
+**Storage**: Obsidian-compatible markdown in `docs/` — flat structure, title-based filenames
 
 ## Example
 
 **Without Autology**:
 ```
 Dev: "Claude, add authentication"
-→ Code appears
-→ Dev: "Looks good" (doesn't understand JWT)
+→ Code appears. Dev: "Looks good" (doesn't understand JWT)
 → Next dev: "Why JWT?" (no answer)
 ```
 
@@ -53,24 +55,21 @@ Dev: "Claude, add authentication"
 ```
 Dev: "Claude, add authentication"
 → Code appears
-→ Hook: "Capture decision?"
-→ ADR: Context (stateless for microservices), Decision (JWT RS256),
+→ /autology:capture
+→ ADR: Context (stateless microservices), Decision (JWT RS256),
        Alternatives (sessions, OAuth), Consequences (complexity vs scaling)
-→ Next dev: /autology:explore authentication
-→ Sees reasoning, builds on knowledge
+→ Next session: SessionStart injects the decision automatically
+→ Next dev: /autology:explore authentication → sees full reasoning
 ```
 
 ## Installation
 
 ```bash
-# Step 1: Add the marketplace
 /plugin marketplace add Curt-Park/autology
-
-# Step 2: Install the plugin
 /plugin install autology@autology
 ```
 
-The plugin will automatically download the correct binary for your platform (macOS, Linux, or Windows).
+Requires `jq` (`brew install jq` / `sudo apt install jq`).
 
 ## Quick Start
 
@@ -80,67 +79,37 @@ The plugin will automatically download the correct binary for your platform (mac
 
 # Capture knowledge from conversation context
 /autology:capture
-# → Summarizes recent conversation
-# → Identifies decisions, patterns, conventions
-# → Captures as structured knowledge nodes
 
-# Explore knowledge
+# Explore the knowledge base
 /autology:explore decisions
 
 # Verify doc-code sync
 /autology:analyze
-# → Reports: broken wikilinks, stale paths, missing documentation
-# → Fix all issues, commit changes
-# → Ensures documentation accurately describes codebase
 ```
 
-## Development Setup
-
-### Option 1: Using mise (Recommended)
-
-[mise](https://mise.jdx.dev/) automatically installs all required tools:
-
-```bash
-# Install mise (if not already installed)
-curl https://mise.run | sh
-# or: brew install mise (macOS)
-echo 'eval "$(mise activate bash)"' >> ~/.bashrc  # or ~/.zshrc
-source ~/.bashrc  # or source ~/.zshrc
-
-# Clone and setup
-git clone https://github.com/Curt-Park/autology.git
-cd autology
-
-# Install all tools (Go 1.23 + golangci-lint 1.64)
-mise trust
-mise install
-
-# Install dependencies, build, and test
-make install
-make build
-make check
-```
-
-### Option 2: Manual Setup
+## Development
 
 ```bash
 git clone https://github.com/Curt-Park/autology.git
 cd autology
 
-# Install Go 1.23+ (see https://go.dev/doc/install)
-# Install golangci-lint (https://golangci-lint.run/welcome/install/)
-
-# Install dependencies, build, and test
-make install
-make build
-make check
-```
-
-## Running Locally
-
-```bash
+# Run locally
 claude --plugin-dir .
 ```
+
+### Testing
+
+Autology has no unit tests — the system is Claude's behavior, not executable code.
+
+`/autology:tutorial` serves as the end-to-end test:
+
+1. **Capture** — writes a real node to `docs/`
+2. **SessionStart** — verify the node appears in injected context
+3. **Update** — edits the node in place, verify old content is gone
+4. **Analyze** — introduces a doc-code gap, verify it's detected and fixed
+5. **Reset** — cleans up all tutorial nodes
+
+If all 5 steps complete correctly, the full knowledge loop works.
 
 ## Philosophy
 

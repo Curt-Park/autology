@@ -1,7 +1,7 @@
 ---
 confidence: 0.8
 created: "2026-02-11T13:34:47+09:00"
-id: guide-moc
+id: autology-user-guide
 modified: "2026-02-11T13:34:47+09:00"
 references: []
 relations: []
@@ -22,7 +22,7 @@ Map of Contents for Autology user documentation.
 ## Three Ways to Use Autology
 
 1. **Skills** (Recommended): `/tutorial`, `/capture`, `/explore`, `/analyze`
-2. **MCP Tools** (Direct): Low-level MCP tool calls
+2. **Native Tools** (Direct): Claude's Read/Write/Edit/Grep/Glob tools on docs/
 3. **Obsidian**: Visual graph browsing and editing
 
 ## Guide Sections
@@ -31,6 +31,6 @@ Documentation is captured as autology nodes. Use `/autology:explore` to discover
 
 ## Cross-References
 
-- Specification: [[spec-moc]]
+- Specification: [[autology-system-specification]]
 - Philosophy: [[autology-philosophy]]
-- Internals: [[internals-moc]]
+- Internals: [[autology-internals]]

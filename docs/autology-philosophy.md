@@ -152,7 +152,7 @@ If any answer is "no," reconsider the approach.
 
 ## Example
 
-See [[hybrid-triggering]] for how these principles guided the decision to use both hooks (transparency, reliability) and agents (intelligence) rather than a single approach.
+See [[codeless-architecture-decision]] for how these principles guided the evolution to a code-less, shell-script-based approach that maximizes transparency and minimizes complexity.
 
 ---
 
