@@ -92,8 +92,7 @@ After editing a code file, check: does any ${AUTOLOGY_ROOT}/*.md node reference 
 ## Autology skills
 Invoke these skills at the right time — they handle the details:
 - \`/autology:capture\` — to save new knowledge (handles dedup, wikilinks, formatting)
-- \`/autology:sync\` — before committing, to verify docs match changed files
-- \`/autology:analyze\` — periodic full audit of docs vs entire codebase
+- \`/autology:sync\` — to verify docs match changed files (pre-commit) or full audit (\`sync full\`)
 - \`/autology:explore\` — to browse or query the knowledge base"
 
 # Build additionalContext

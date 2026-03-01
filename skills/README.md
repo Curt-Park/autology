@@ -19,6 +19,7 @@ Skills provide interactive commands for using Autology.
 **Sync**:
 ```bash
 /autology:sync               # Sync docs against git-changed files (fast, pre-commit)
+/autology:sync full          # Full audit of entire codebase
 ```
 
 **Explore**:

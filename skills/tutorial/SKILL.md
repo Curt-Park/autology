@@ -193,7 +193,7 @@ Ask: "Ready for the final step — keeping docs in sync with code?"
 
 ---
 
-## Step 5: Syncing Docs with Code — /autology:analyze
+## Step 5: Syncing Docs with Code — /autology:sync
 
 **The scenario**: A developer wrote a migration script at `scripts/migrate-to-pg.sh` but didn't document it. Meanwhile, `postgresql-migration.md` mentions `pgBouncer` but it hasn't been set up yet.
 
@@ -222,7 +222,7 @@ After fixes, run the check again — zero gaps.
 > **Autology Tutorial** — Step 5 complete
 ```
 
-**Key point**: `/autology:analyze` is the sync check. Run it after any significant code change or before commits.
+**Key point**: `/autology:sync` is the sync check. Run it before commits (fast, changed files only) or with `sync full` for a complete audit.
 
 ---
 
@@ -231,7 +231,7 @@ After fixes, run the check again — zero gaps.
 You've walked through the full Autology loop:
 
 ```
-Capture → Inject → Retrieve → Update in place → Inject (updated) → Analyze → Fix → Repeat
+Capture → Inject → Retrieve → Update in place → Inject (updated) → Sync → Fix → Repeat
 ```
 
 The nodes created in this tutorial stay in `docs/`. To remove them:
@@ -243,7 +243,7 @@ The nodes created in this tutorial stay in `docs/`. To remove them:
 **Next steps**:
 - `/autology:capture` — capture knowledge from real conversations
 - `/autology:explore` — browse the knowledge base
-- `/autology:analyze` — find doc-code drift anytime
+- `/autology:sync` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---
 
