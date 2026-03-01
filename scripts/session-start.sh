@@ -55,45 +55,13 @@ else
   node_list="$nodes"
 fi
 
-# Shared capture instructions (base — no reuse-tags line)
-_capture_instructions="## When to capture new knowledge
-Save new knowledge into ${AUTOLOGY_ROOT}/ when:
-- A decision is made (technology choice, architecture, convention)
-- A new component or pattern is created
-- A convention is established or changed
-- The user says \"remember this\" or similar
-- You learn something that would help in a future session
+# Skill trigger guidance injected into additionalContext each session
+_skill_triggers="Invoke autology skills at the right time:
+- \`/autology:capture\` — decision, convention, pattern, or when user says \"remember this\"
+- \`/autology:sync\` — before committing; \`sync full\` for periodic audit
+- \`/autology:explore\` — browse or query the knowledge base
 
-## Doc maintenance — update existing docs when editing code
-After editing a code file, check: does any ${AUTOLOGY_ROOT}/*.md node reference this file or its parent directory?
-- If unsure, run: Grep ${AUTOLOGY_ROOT}/ for the filename
-- If a doc references the edited file, verify it still matches reality (counts, names, types, paths, behavior)
-- Update the doc in-place immediately — don't defer to end of session
-- If no doc references the file, no action needed
-
-## How to save
-- Check for existing docs first (Grep ${AUTOLOGY_ROOT}/) — update existing nodes rather than creating duplicates
-- Update or remove docs that are wrong or outdated
-- File format: YAML frontmatter (title, type, tags) + markdown content
-- type: single primary classification (decision, component, convention, concept, pattern, issue, session)
-- tags: multiple cross-cutting topics (e.g., [auth, api, database]) — reuse existing tags when possible
-- File naming: ${AUTOLOGY_ROOT}/{title-slug}.md (lowercase, hyphens, no special chars)
-- YAML frontmatter example:
-  title: \"Human Readable Title\"
-  type: decision
-  tags: [tag1, tag2]
-
-## What NOT to save
-- Session-specific context (current task details, in-progress work)
-- Information that might be incomplete — verify before writing
-- Anything that duplicates existing docs
-- Speculative or unverified conclusions
-
-## Autology skills
-Invoke these skills at the right time — they handle the details:
-- \`/autology:capture\` — to save new knowledge (handles dedup, wikilinks, formatting)
-- \`/autology:sync\` — to verify docs match changed files (pre-commit) or full audit (\`sync full\`)
-- \`/autology:explore\` — to browse or query the knowledge base"
+Don't capture: session-specific context, incomplete info, or duplicates of existing docs."
 
 # Build additionalContext
 if [ "$node_count" -eq 0 ]; then
@@ -101,8 +69,8 @@ if [ "$node_count" -eq 0 ]; then
 
 No knowledge nodes yet. Start capturing knowledge into ${AUTOLOGY_ROOT}/ as you work.
 
-[Autonomous Capture Instructions]
-${_capture_instructions}"
+[Autology Skill Triggers]
+${_skill_triggers}"
 else
   context="[Autology Knowledge Base — ${AUTOLOGY_ROOT}/]
 
@@ -112,8 +80,8 @@ $(echo -e "$node_list" | grep -v '^$')
 
 For details on any topic, read the corresponding ${AUTOLOGY_ROOT}/*.md file.
 
-[Autonomous Capture Instructions]
-${_capture_instructions}"
+[Autology Skill Triggers]
+${_skill_triggers}"
 fi
 
 # Build systemMessage
