@@ -16,6 +16,11 @@ Skills provide interactive commands for using Autology.
 /autology:capture            # Capture from conversation context
 ```
 
+**Sync**:
+```bash
+/autology:sync               # Sync docs against git-changed files (fast, pre-commit)
+```
+
 **Explore**:
 ```bash
 /autology:explore            # View status

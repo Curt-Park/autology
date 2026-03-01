@@ -56,19 +56,45 @@ else
 fi
 
 # Shared capture instructions (base — no reuse-tags line)
-_capture_instructions="As you work, capture important knowledge into ${AUTOLOGY_ROOT}/:
-- Decisions, patterns, conventions, debugging insights → create new .md files
-- Check for existing similar docs first (use Grep to search ${AUTOLOGY_ROOT}/)
-- When user says \"remember this\" → save immediately
-- Don't save: session-specific context, incomplete information, trivial details
+_capture_instructions="## When to capture new knowledge
+Save new knowledge into ${AUTOLOGY_ROOT}/ when:
+- A decision is made (technology choice, architecture, convention)
+- A new component or pattern is created
+- A convention is established or changed
+- The user says \"remember this\" or similar
+- You learn something that would help in a future session
+
+## Doc maintenance — update existing docs when editing code
+After editing a code file, check: does any ${AUTOLOGY_ROOT}/*.md node reference this file or its parent directory?
+- If unsure, run: Grep ${AUTOLOGY_ROOT}/ for the filename
+- If a doc references the edited file, verify it still matches reality (counts, names, types, paths, behavior)
+- Update the doc in-place immediately — don't defer to end of session
+- If no doc references the file, no action needed
+
+## How to save
+- Check for existing docs first (Grep ${AUTOLOGY_ROOT}/) — update existing nodes rather than creating duplicates
+- Update or remove docs that are wrong or outdated
 - File format: YAML frontmatter (title, type, tags) + markdown content
-- type: single primary classification — what kind of knowledge? (decision, component, convention, concept, pattern, issue, session)
-- tags: multiple cross-cutting topics — what is it about? (e.g., [auth, api, database])
+- type: single primary classification (decision, component, convention, concept, pattern, issue, session)
+- tags: multiple cross-cutting topics (e.g., [auth, api, database]) — reuse existing tags when possible
 - File naming: ${AUTOLOGY_ROOT}/{title-slug}.md (lowercase, hyphens, no special chars)
 - YAML frontmatter example:
   title: \"Human Readable Title\"
   type: decision
-  tags: [tag1, tag2]"
+  tags: [tag1, tag2]
+
+## What NOT to save
+- Session-specific context (current task details, in-progress work)
+- Information that might be incomplete — verify before writing
+- Anything that duplicates existing docs
+- Speculative or unverified conclusions
+
+## Autology skills
+Invoke these skills at the right time — they handle the details:
+- \`/autology:capture\` — to save new knowledge (handles dedup, wikilinks, formatting)
+- \`/autology:sync\` — before committing, to verify docs match changed files
+- \`/autology:analyze\` — periodic full audit of docs vs entire codebase
+- \`/autology:explore\` — to browse or query the knowledge base"
 
 # Build additionalContext
 if [ "$node_count" -eq 0 ]; then
@@ -88,8 +114,7 @@ $(echo -e "$node_list" | grep -v '^$')
 For details on any topic, read the corresponding ${AUTOLOGY_ROOT}/*.md file.
 
 [Autonomous Capture Instructions]
-${_capture_instructions}
-- Reuse existing tags from the list above when possible"
+${_capture_instructions}"
 fi
 
 # Build systemMessage
