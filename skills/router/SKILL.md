@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: Route autology skills. User project question → explore for hints. Significant action (commit/push/PR, decision/convention) → explore, then sync if existing nodes found or capture if none. Determines which autology skills to run and in what order.
+description: Route autology skills after significant actions. After commit/push/PR or decision/convention: explore docs/ to determine sync (existing nodes) or capture (no nodes). Also invoked when user explicitly calls /autology:explore.
 ---
 
 <IMPORTANT>
@@ -10,24 +10,10 @@ This is not optional. You cannot rationalize your way out of this.
 
 ## Overview
 
-Route to the right autology skill at the right time. Two entry points:
-- **User message** → explore before responding to surface relevant context
-- **Action completed** → explore to determine whether to sync or capture
-
-`explore` is the pivot in both flows: it tells you what already exists in
-docs/ and guides the next step.
+Route to the right autology skill after significant actions. `explore` is
+used as a decision tool — not triggered by user messages.
 
 ## Trigger Points
-
-### [User message] User asks any question about the project
-
-```
-→ /autology:explore — BEFORE responding
-```
-
-Run explore to find docs/ nodes related to the question.
-- Found relevant nodes → use as context when formulating the answer
-- No relevant nodes found → knowledge base may be incomplete; note it
 
 ### [Action completed] After commit/push/PR or decision/convention discovered
 
@@ -35,49 +21,37 @@ Run explore to find docs/ nodes related to the question.
 → /autology:explore — check what already exists in docs/
 ```
 
-Then based on the result:
-- Existing related nodes found → `/autology:sync` — update them to reflect current reality
-- No related nodes found → `/autology:capture` — create a new node
+Based on the result:
+- Related nodes found → `/autology:sync` — update to reflect current reality
+- No related nodes → `/autology:capture` — create a new node
 
 Signals for "action completed":
 - commit, push, PR created
 - "decided", "chose", "always", "never", "the rule is", any architectural choice
 
+### [Explicit invocation] User calls /autology:explore directly
+
+Run explore as requested.
+
 ## The Rule
 
-**Two entry points. explore is always the first step.**
+**After every significant action, explore first.**
 Even a 1% chance applies means invoke it.
 
 ```dot
 digraph router {
-  "User message received" [shape=doublecircle];
   "Action completed" [shape=doublecircle];
-  "Is it a question about the project?" [shape=diamond];
-  "explore (for context)" [shape=box];
-  "Found relevant nodes?" [shape=diamond];
-  "use as context" [shape=box];
-  "note: knowledge gap" [shape=box];
-  "Respond" [shape=doublecircle];
   "Is it a significant action?" [shape=diamond];
-  "explore (for routing)" [shape=box];
+  "explore" [shape=box];
   "Related nodes exist?" [shape=diamond];
   "sync (update existing)" [shape=box];
   "capture (create new)" [shape=box];
   "Continue" [shape=doublecircle];
 
-  "User message received" -> "Is it a question about the project?";
-  "Is it a question about the project?" -> "explore (for context)" [label="yes"];
-  "Is it a question about the project?" -> "Respond" [label="no"];
-  "explore (for context)" -> "Found relevant nodes?";
-  "Found relevant nodes?" -> "use as context" [label="yes"];
-  "Found relevant nodes?" -> "note: knowledge gap" [label="no"];
-  "use as context" -> "Respond";
-  "note: knowledge gap" -> "Respond";
-
   "Action completed" -> "Is it a significant action?";
-  "Is it a significant action?" -> "explore (for routing)" [label="yes"];
+  "Is it a significant action?" -> "explore" [label="yes"];
   "Is it a significant action?" -> "Continue" [label="no"];
-  "explore (for routing)" -> "Related nodes exist?";
+  "explore" -> "Related nodes exist?";
   "Related nodes exist?" -> "sync (update existing)" [label="yes"];
   "Related nodes exist?" -> "capture (create new)" [label="no"];
   "sync (update existing)" -> "Continue";
@@ -91,8 +65,7 @@ These thoughts mean STOP — you're rationalizing:
 
 | Thought | Reality |
 |---------|---------|
-| "I already know the answer, no need to explore" | explore may surface relevant decisions or conventions you'd miss. |
-| "I just committed, no need to check docs" | Commit = trigger point. Run capture + sync. |
+| "I just committed, no need to check docs" | Commit = trigger point. explore → sync or capture. |
 | "This convention isn't worth capturing" | If it's a decision or convention, capture it. |
 | "The docs are probably fine" | sync verifies. Don't assume. |
 | "No docs/ in this repo" | capture still applies — knowledge goes to the autology project docs/. |
