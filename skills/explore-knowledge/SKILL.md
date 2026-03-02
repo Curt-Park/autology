@@ -1,6 +1,6 @@
 ---
 name: explore-knowledge
-description: Use when router triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
+description: Use when autology-workflow triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
 ---
 
 ## Overview
@@ -47,20 +47,57 @@ For unmatched new items:
 > - [item description] — no matching node
 >   Suggested relations: none
 
-## When invoked directly (/autology:explore-knowledge)
+If no existing docs match any items, use empty-state format:
 
-In addition to the triage above, provide a full graph overview:
+> **Autology** — Explore Results
+>
+> No existing matches found. All items classified as new.
+>
+> ### New (→ capture)
+> - [item description] — no matching node
+>   Suggested relations: [[foo]] (shared tags: architecture)
+
+## Graph Operations
+
+When invoked directly or with arguments, explore performs graph traversal in addition to triage.
+
+The `<node>` argument is a **title-slug** — the filename without the `.md` extension (e.g., `redis-storage-decision` for `docs/redis-storage-decision.md`).
+
+### Overview (`/autology:explore-knowledge overview`)
+
+Process:
+- Glob `docs/*.md`, read each file's frontmatter and wikilinks
+- Count nodes, links, and disconnected components
+
+Output:
 - Total node count, link count, component count
-- Top 5 hub nodes
-- Orphan node list
-- Specific node neighborhood (2-hop BFS)
-- Shortest path between two nodes
+- Top 5 hub nodes (most wikilink connections)
+- Orphan node list (no incoming or outgoing links)
 
-Quick Reference:
-/autology:explore-knowledge              # triage (default when called by router)
+### Neighborhood (`/autology:explore-knowledge <node>`)
+
+Process:
+- Read the target node
+- Find all nodes that link to or from the target (1-hop)
+- Find their connections (2-hop BFS)
+
+Output: node title, type, tags, and connections for each hop
+
+### Path (`/autology:explore-knowledge path A B`)
+
+Process:
+- Find shortest wikilink path from node A to node B
+
+Output: `A → [intermediate] → B` with each hop labeled
+
+### Quick Reference
+
+```
+/autology:explore-knowledge              # triage (default when called by autology-workflow)
 /autology:explore-knowledge overview     # graph overview
-/autology:explore-knowledge <node>       # neighborhood
+/autology:explore-knowledge <node>       # neighborhood (2-hop BFS)
 /autology:explore-knowledge path A B     # shortest path
+```
 
 ## Common Mistakes
 
@@ -69,3 +106,4 @@ Quick Reference:
 | Judge relevance by keyword match alone | Read the file to confirm actual relevance |
 | Omit topology hints | sync/capture rely on connected/suggested relations — always include |
 | Ignore implicit relations | Check tags and content overlap even without wikilinks |
+| Confuse triage with graph traversal | Triage classifies items for sync/capture; graph traversal answers user queries about existing nodes |

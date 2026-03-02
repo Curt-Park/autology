@@ -1,6 +1,6 @@
 ---
 name: capture-knowledge
-description: Use when a project decision, convention, or pattern should be saved to the autology knowledge base (docs/) — user says "remember this", "decided", "chose", "always do X", or autology router identifies new items from explore triage.
+description: Use when a project decision, convention, or pattern should be saved to the autology knowledge base (docs/) — user says "remember this", "decided", "chose", "always do X", or autology-workflow identifies new items from explore triage.
 ---
 
 ## Overview
@@ -73,8 +73,8 @@ tags: [tag1, tag2]
 
 Use explore's suggested relations for wikilinks:
 
-- Add `[[node-id]]` wikilink in the new node's body text
-- Also Edit the related node to add the reverse `[[node-id]]` wikilink
+- Add `[[title-slug]]` wikilink in the new node's body text (wikilink target = filename without `.md` extension)
+- Also Edit the related node to add the reverse `[[title-slug]]` wikilink
 
 ### 4. Report Result
 

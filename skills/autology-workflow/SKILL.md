@@ -1,6 +1,6 @@
 ---
 name: autology-workflow
-description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered. Triggers the autology explore → sync/capture workflow.
+description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered.
 ---
 
 <EXTREMELY-IMPORTANT>
@@ -54,8 +54,8 @@ digraph router {
   "Already in autology workflow?" -> "Is it a significant action?" [label="no"];
   "Is it a significant action?" -> "explore (context triage)" [label="yes"];
   "Is it a significant action?" -> "Continue" [label="no"];
-  "explore (context triage)" -> "batch sync (with hints)" [label="existing items"];
-  "explore (context triage)" -> "batch capture (with hints)" [label="new items"];
+  "explore (context triage)" -> "batch sync (with hints)" [label="existing items (if any)"];
+  "explore (context triage)" -> "batch capture (with hints)" [label="new items (if any)"];
   "batch sync (with hints)" -> "Continue";
   "batch capture (with hints)" -> "Continue";
 }

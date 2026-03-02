@@ -63,7 +63,6 @@ options:
 When user selects **Redis**, create `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
 services:
   redis:
     image: redis:7-alpine
@@ -83,14 +82,14 @@ git add docker-compose.yml
 git commit -m "tutorial: add Redis docker-compose"
 ```
 
-**Router fires** — commit = trigger point. Now invoke capture for real:
+**autology-workflow triggers** — commit = trigger point. Now invoke capture for real:
 
 Use Skill tool: `autology:capture-knowledge`
 
-Capture will create `docs/tutorial-url-shortener-db.md` with the Redis decision. After capture completes, commit the doc:
+Capture will create a doc in `docs/` (e.g., `docs/tutorial-url-shortener-db.md`). After capture completes, stage and commit the newly created doc:
 
 ```bash
-git add docs/tutorial-url-shortener-db.md
+git add docs/tutorial-*.md
 git commit -m "tutorial: capture Redis storage decision"
 ```
 
@@ -98,7 +97,7 @@ git commit -m "tutorial: capture Redis storage decision"
 
 ```
 > **Autology Tutorial** — Act 1 complete
-> Captured: docs/tutorial-url-shortener-db.md
+> Captured: docs/[title-slug].md
 ```
 
 **Wait for confirmation before Act 2.**
@@ -126,7 +125,6 @@ options:
 When user selects **PostgreSQL**, edit `docker-compose.yml` to replace Redis with PostgreSQL:
 
 ```yaml
-version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
@@ -150,14 +148,14 @@ git add docker-compose.yml
 git commit -m "tutorial: switch storage from Redis to PostgreSQL"
 ```
 
-**Router fires** — commit = trigger point. Now invoke sync for real:
+**autology-workflow triggers** — commit = trigger point. Now invoke sync for real:
 
 Use Skill tool: `autology:sync-knowledge`
 
-Sync will read both files, detect the drift, and update `docs/tutorial-url-shortener-db.md` in-place. After sync completes, commit the updated doc:
+Sync will read both files, detect the drift, and update the doc in-place. After sync completes, stage and commit the updated doc:
 
 ```bash
-git add docs/tutorial-url-shortener-db.md
+git add docs/tutorial-*.md
 git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 ```
 
@@ -165,7 +163,7 @@ git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 
 ```
 > **Autology Tutorial** — Act 2 complete
-> Synced: docs/tutorial-url-shortener-db.md (Redis → PostgreSQL)
+> Synced: docs/[title-slug].md (Redis → PostgreSQL)
 ```
 
 **Wait for confirmation before Act 3.**
@@ -220,7 +218,7 @@ You've seen all three core workflows:
 
 **The full loop**:
 ```
-code → commit → router → explore triage → capture/sync → commit → explore queries → answer from docs
+code → commit → autology-workflow → explore triage → capture/sync → commit → explore queries → answer from docs
 ```
 
 ---
@@ -269,4 +267,4 @@ When user runs `/autology:autology-tutorial reset`:
 2. **User interaction at each act**: user makes decisions, not just watches
 3. **Commit → sync**: sync always commits the updated doc
 4. **Three workflows**: capture (new), sync (drift), explore (query)
-5. **Organic triggers**: skills fire because conditions are met, not because script calls them
+5. **Guided invocation**: the tutorial calls skills explicitly to demonstrate each step — in real work, autology-workflow triggers them automatically after commits
