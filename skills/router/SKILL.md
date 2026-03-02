@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: Use after significant actions — commit, push, PR, or when a decision/convention is discovered. Also when user explicitly calls /autology:explore.
+description: Use after significant actions — commit, push, PR, or when a decision/convention is discovered.
 ---
 
 <IMPORTANT>
