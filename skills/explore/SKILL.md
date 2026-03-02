@@ -1,6 +1,6 @@
 ---
 name: autology:explore
-description: Use when router triggers context triage after significant actions, or when user asks about graph topology, node relationships, or knowledge base overview.
+description: Use when router triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
 ---
 
 ## Overview
