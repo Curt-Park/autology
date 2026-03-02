@@ -96,10 +96,11 @@ Dev B: new session — "jwt-decision" node injected at start
   → sees: jwt-decision → auth-middleware → api-gateway (2 hops)
 → implements the new service correctly, no re-research needed
 
-Dev C (before committing):
-→ /autology:sync
-  → finds: docs/jwt-decision.md says "HS256" but code uses RS256
-  → fixes the doc in-place automatically
+Dev C: 3 months later, migrates an internal service to HS256 (simpler for internal-only traffic)
+→ updates the code, forgets to update the doc
+→ /autology:sync (before committing)
+  → finds: code now uses HS256 but docs/jwt-decision.md still says RS256
+  → fixes the doc in-place
 
 New hire: full decision chain available at session start, zero onboarding cost
 ```
