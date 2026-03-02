@@ -30,9 +30,9 @@ Signals for "action completed":
 - commit, push, PR created
 - "decided", "chose", "always", "never", "the rule is", any architectural choice
 
-**Not a trigger — autology workflow actions do not re-trigger the router:**
-- Running explore, sync, or capture
-- Writing or editing docs/*.md files
+autology-workflow just completed (skip — do not re-trigger):
+- explore-knowledge, sync-knowledge, or capture-knowledge just ran
+- docs/*.md file was just written or edited
 
 ## The Rule
 
@@ -42,16 +42,16 @@ Even a 1% chance applies means invoke it.
 ```dot
 digraph router {
   "Action completed" [shape=doublecircle];
-  "Already in autology workflow?" [shape=diamond];
+  "Did autology-workflow\njust complete?" [shape=diamond];
   "Is it a significant action?" [shape=diamond];
   "explore (context triage)" [shape=box];
   "batch sync (with hints)" [shape=box];
   "batch capture (with hints)" [shape=box];
   "Continue" [shape=doublecircle];
 
-  "Action completed" -> "Already in autology workflow?";
-  "Already in autology workflow?" -> "Continue" [label="yes"];
-  "Already in autology workflow?" -> "Is it a significant action?" [label="no"];
+  "Action completed" -> "Did autology-workflow\njust complete?";
+  "Did autology-workflow\njust complete?" -> "Continue" [label="yes (skip)"];
+  "Did autology-workflow\njust complete?" -> "Is it a significant action?" [label="no"];
   "Is it a significant action?" -> "explore (context triage)" [label="yes"];
   "Is it a significant action?" -> "Continue" [label="no"];
   "explore (context triage)" -> "batch sync (with hints)" [label="existing items (if any)"];
@@ -76,7 +76,7 @@ These thoughts mean STOP — you're rationalizing:
 | "There's nothing worth capturing" | You haven't run explore yet. How would you know? |
 | "The user didn't ask me to" | The user configured this router. They already asked. |
 | "I'm in the middle of something" | Run the workflow after each action. Not after everything. |
-| "I just ran sync/capture" | autology workflow actions don't re-trigger. Only external actions do. |
+| "I just ran sync/capture" | That means autology-workflow just completed — check the completed action, not the current state. Skip. |
 
 ## Common Mistakes
 
