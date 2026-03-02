@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision/convention is discovered (→ capture), or when user asks about relationships between knowledge nodes in docs/ (→ explore). Determines which autology skills to run.
+description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision/convention is discovered (→ capture), or when user asks any question about the project (→ explore for context hints). Determines which autology skills to run.
 ---
 
 <IMPORTANT>
@@ -16,15 +16,18 @@ Route to the right autology skill at the right time. Two entry points:
 
 ## Trigger Points
 
-### [User message] User asks about relationships between knowledge nodes in docs/
+### [User message] User asks any question about the project
 
 ```
-→ /autology:explore — BEFORE responding
+→ /autology:explore — BEFORE responding, to surface relevant context hints
 ```
 
-Signals: "how does [doc node] relate to [doc node]", "what's connected to [node]",
-"show the knowledge base structure", "blast radius before refactoring docs",
-"which nodes are hubs", "are there orphan nodes in docs/".
+Run explore to find docs/ nodes related to the question. Use the result as
+context when formulating the answer — linked nodes, related decisions,
+established conventions.
+
+If explore finds no relevant nodes → the knowledge base may be incomplete.
+Consider whether `/autology:sync` is needed to catch undocumented reality.
 
 ### [Action completed] After git commit / git push / PR creation
 
@@ -54,19 +57,23 @@ Even a 1% chance applies means invoke it.
 digraph router {
   "User message received" [shape=doublecircle];
   "Action completed" [shape=doublecircle];
-  "Asks about docs/ node relationships?" [shape=diamond];
-  "explore" [shape=box];
-  "Respond" [shape=doublecircle];
+  "Is it a question about the project?" [shape=diamond];
+  "explore (surface context hints)" [shape=box];
+  "Found relevant nodes?" [shape=diamond];
+  "Use as context → Respond" [shape=doublecircle];
+  "sync may be needed → Respond" [shape=doublecircle];
   "Was it a commit/push/PR?" [shape=diamond];
   "capture then sync" [shape=box];
   "Was a decision/convention discovered?" [shape=diamond];
   "capture" [shape=box];
   "Continue" [shape=doublecircle];
 
-  "User message received" -> "Asks about docs/ node relationships?";
-  "Asks about docs/ node relationships?" -> "explore" [label="yes"];
-  "Asks about docs/ node relationships?" -> "Respond" [label="no"];
-  "explore" -> "Respond";
+  "User message received" -> "Is it a question about the project?";
+  "Is it a question about the project?" -> "explore (surface context hints)" [label="yes"];
+  "Is it a question about the project?" -> "Use as context → Respond" [label="no"];
+  "explore (surface context hints)" -> "Found relevant nodes?";
+  "Found relevant nodes?" -> "Use as context → Respond" [label="yes"];
+  "Found relevant nodes?" -> "sync may be needed → Respond" [label="no"];
 
   "Action completed" -> "Was it a commit/push/PR?";
   "Was it a commit/push/PR?" -> "capture then sync" [label="yes"];
@@ -84,6 +91,7 @@ These thoughts mean STOP — you're rationalizing:
 
 | Thought | Reality |
 |---------|---------|
+| "I already know the answer, no need to explore" | explore may surface relevant decisions or conventions you'd miss. |
 | "I just committed, no need to check docs" | Commit = trigger point. Run capture + sync. |
 | "This convention isn't worth capturing" | If it's a decision or convention, capture it. |
 | "The docs are probably fine" | sync verifies. Don't assume. |
