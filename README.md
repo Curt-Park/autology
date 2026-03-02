@@ -79,7 +79,7 @@ Detects and fixes doc-code drift in-place.
 ```
 Dev A: implements JWT RS256 in 30 min → reasoning lives only in their session
 Dev B: "Why JWT? Why RS256 over HS256?" → no answer in the codebase
-Dev C: new service needs auth → re-researches JWT from scratch
+Dev C: migrates internal service to HS256 → no record of why RS256 was chosen → rationale lost, change undocumented
 New hire: reads stale ADRs that don't match the code
 ```
 
