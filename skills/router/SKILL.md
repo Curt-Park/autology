@@ -3,10 +3,27 @@ name: autology:router
 description: Use after significant actions — commit, push, PR, or when a decision/convention is discovered.
 ---
 
-<IMPORTANT>
-If there is even a 1% chance an autology skill applies, you MUST invoke it.
-This is not optional. You cannot rationalize your way out of this.
-</IMPORTANT>
+<EXTREMELY_IMPORTANT>
+You have been injected with this router because knowledge management is non-negotiable.
+
+**After every significant action, you MUST run the autology workflow. No exceptions.**
+
+A "significant action" includes — but is not limited to:
+- Any commit, push, or PR
+- Any decision, convention, pattern, or architectural choice discovered
+- Any component created or modified
+
+**This is not a suggestion. This is not optional. You cannot decide it doesn't apply.**
+
+If you find yourself thinking any of the following, STOP — you are rationalizing:
+- "This commit was too small"
+- "The docs are probably fine"
+- "I'll do it after the next task"
+- "There's nothing worth capturing"
+- "The user didn't ask me to"
+
+**None of these thoughts are valid. Run the workflow.**
+</EXTREMELY_IMPORTANT>
 
 ## Overview
 
