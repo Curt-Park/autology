@@ -18,6 +18,7 @@ Autology is a code-less knowledge management system. Claude uses native tools (R
 ## Specification Components
 
 - [[codeless-architecture-decision]] — Code-less architecture decision (ADR)
+- [[autology-workflow-reentry-guard]] — Reentry guard design: event-based vs state-based
 
 ## Cross-References
 
