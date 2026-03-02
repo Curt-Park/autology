@@ -43,13 +43,24 @@ Tell the user: "We're now on `tutorial/autology-demo`. All tutorial commits happ
 
 **The scenario**: Design a URL shortener. First architectural decision: storage.
 
-Say to the user:
+Present the technical analysis to the user:
 
-> "We're building a URL shortener. For storage, Redis makes sense — O(1) lookups, built-in TTL. Shall we go with Redis?"
+> "We're building a URL shortener. The core operation is mapping short codes to original URLs — pure key-value lookups. Here are the options:
+> - **Redis**: O(1) GET/SET, built-in key expiry (TTL), designed for exactly this pattern
+> - **PostgreSQL**: relational, flexible — but a full SQL engine for what's essentially a hashmap
+> - **In-memory**: fastest, but no persistence — data lost on restart"
 
-**Wait for user confirmation.**
+Use AskUserQuestion:
 
-When confirmed, create `docker-compose.yml`:
+```
+question: "Which storage would you choose for the URL shortener?"
+options:
+  - Redis (Recommended) — O(1) lookups, native TTL, built for key-value
+  - PostgreSQL — familiar, flexible, but heavier than needed
+  - In-memory — fast but no persistence
+```
+
+When user selects **Redis**, create `docker-compose.yml`:
 
 ```yaml
 version: '3.8'
@@ -98,13 +109,21 @@ git commit -m "tutorial: capture Redis storage decision"
 
 **The scenario**: New constraint arrives. Discuss, change the code, watch the doc update automatically.
 
-Say to the user:
+Present the constraint to the user:
 
-> "Infrastructure constraint: Redis isn't available in our cluster. Should we switch to PostgreSQL?"
+> "New constraint from infra: Redis is not available in our existing cluster. We'd need to provision it separately — added cost and ops overhead. We do have a PostgreSQL cluster already running."
 
-**Wait for user confirmation.**
+Use AskUserQuestion:
 
-When confirmed, edit `docker-compose.yml` to replace Redis with PostgreSQL:
+```
+question: "Given the infra constraint, which alternative would you choose?"
+options:
+  - PostgreSQL (Recommended) — existing cluster available, no extra infra cost
+  - MySQL — similar overhead, team less familiar
+  - SQLite — no concurrency, not production-suitable
+```
+
+When user selects **PostgreSQL**, edit `docker-compose.yml` to replace Redis with PostgreSQL:
 
 ```yaml
 version: '3.8'
@@ -157,13 +176,17 @@ git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 
 **The scenario**: Some time has passed. You want to understand the current decision and its rationale.
 
-Say to the user:
+Use AskUserQuestion:
 
-> "Now let's explore the knowledge base. Ask me anything about the decisions we've made — why we're using PostgreSQL, what happened to Redis, what the trade-offs are."
+```
+question: "What would you like to explore in the knowledge base?"
+options:
+  - "Why did we switch from Redis to PostgreSQL?"
+  - "What are the trade-offs of the PostgreSQL choice?"
+  - "What alternatives were considered from the start?"
+```
 
-**Wait for user question.**
-
-When the user asks (e.g., "Why are we using PostgreSQL?", "What happened to Redis?", "What are the consequences?"):
+For each selected question:
 
 - `explore` triggers — question about existing knowledge
 
