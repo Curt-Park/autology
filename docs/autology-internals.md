@@ -25,3 +25,4 @@ Autology is implemented as a code-less system with shell script hooks:
 - Specification: [[autology-system-specification]]
 - Shell scripts: [[shell-hook-scripts]]
 - User guide: [[autology-user-guide]]
+- Reentry guard design: [[autology-workflow-reentry-guard]]
