@@ -1,5 +1,5 @@
 ---
-name: router
+name: autology-workflow
 description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered. Triggers the autology explore → sync/capture workflow.
 ---
 
@@ -20,9 +20,9 @@ Route to the right autology skill after significant actions. `explore` runs cont
 
 ### [Action completed] After commit/push/PR or decision/convention discovered
 
-1. `/autology:explore` — context triage: analyze action, return classified list + topology hints
-2. Existing items → batch `/autology:sync` (use topology hints to verify connected nodes too)
-3. New items → batch `/autology:capture` (use suggested relations from hints to add wikilinks)
+1. `/autology:explore-knowledge` — context triage: analyze action, return classified list + topology hints
+2. Existing items → batch `/autology:sync-knowledge` (use topology hints to verify connected nodes too)
+3. New items → batch `/autology:capture-knowledge` (use suggested relations from hints to add wikilinks)
 
 Both sync and capture can run from the same explore result.
 

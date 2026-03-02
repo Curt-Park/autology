@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Improve `skills/router/SKILL.md` enforcement section to match the superpowers pattern — tighter EXTREMELY-IMPORTANT block, expanded Red Flags table, cleaner structure.
+**Goal:** Improve `skills/autology-workflow/SKILL.md` enforcement section to match the superpowers pattern — tighter EXTREMELY-IMPORTANT block, expanded Red Flags table, cleaner structure.
 
-**Architecture:** Single-file edit to `skills/router/SKILL.md`. No new files. Reference: `using-superpowers` SKILL injected at session start.
+**Architecture:** Single-file edit to `skills/autology-workflow/SKILL.md`. No new files. Reference: `using-superpowers` SKILL injected at session start.
 
 **Tech Stack:** Markdown
 
@@ -23,7 +23,7 @@
 
 ## Task 1: Fix EXTREMELY-IMPORTANT tag name and tighten block
 
-**File:** `skills/router/SKILL.md` (lines 6–16)
+**File:** `skills/autology-workflow/SKILL.md` (lines 6–16)
 
 **Step 1: Replace block with this exact content**
 
@@ -42,7 +42,7 @@ The rationalizations list is removed from here — they move to Red Flags in Tas
 **Step 2: Verify**
 
 ```
-grep -A8 'EXTREMELY' skills/router/SKILL.md
+grep -A8 'EXTREMELY' skills/autology-workflow/SKILL.md
 ```
 Expected: 6 lines of content, no bullet list, hyphen in tag name.
 
@@ -50,7 +50,7 @@ Expected: 6 lines of content, no bullet list, hyphen in tag name.
 
 ## Task 2: Add "Rigid" marker to Overview
 
-**File:** `skills/router/SKILL.md`
+**File:** `skills/autology-workflow/SKILL.md`
 
 **Step 1: Add rigid marker after Overview heading**
 
@@ -64,7 +64,7 @@ After the line `Route to the right autology skill after significant actions.` ad
 
 ## Task 3: Expand Red Flags table
 
-**File:** `skills/router/SKILL.md`
+**File:** `skills/autology-workflow/SKILL.md`
 
 **Step 1: Replace the existing 6-row Red Flags table with this 9-row version**
 
@@ -85,7 +85,7 @@ After the line `Route to the right autology skill after significant actions.` ad
 **Step 2: Verify**
 
 ```
-grep -c '|' skills/router/SKILL.md
+grep -c '|' skills/autology-workflow/SKILL.md
 ```
 Expected: 11 pipe-separated lines (header + separator + 9 rows).
 
@@ -96,7 +96,7 @@ Expected: 11 pipe-separated lines (header + separator + 9 rows).
 **Step 1: Stage and commit**
 
 ```bash
-git add skills/router/SKILL.md
+git add skills/autology-workflow/SKILL.md
 git commit -m "refactor: apply superpowers pattern to router enforcement
 
 - EXTREMELY_IMPORTANT → EXTREMELY-IMPORTANT (standardize tag name)
@@ -117,15 +117,15 @@ git push
 
 ```bash
 # Tag uses hyphen, not underscore
-grep 'EXTREMELY-IMPORTANT' skills/router/SKILL.md
+grep 'EXTREMELY-IMPORTANT' skills/autology-workflow/SKILL.md
 
 # Block is tight (no bullet lists inside it)
-grep -A10 '<EXTREMELY-IMPORTANT>' skills/router/SKILL.md
+grep -A10 '<EXTREMELY-IMPORTANT>' skills/autology-workflow/SKILL.md
 
 # Rigid marker present
-grep 'rigid' skills/router/SKILL.md
+grep 'rigid' skills/autology-workflow/SKILL.md
 
 # Red Flags has 9 data rows
-grep '| "' skills/router/SKILL.md | wc -l
+grep '| "' skills/autology-workflow/SKILL.md | wc -l
 # Expected: 9
 ```

@@ -1,5 +1,5 @@
 ---
-name: sync
+name: sync-knowledge
 description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology router identifies existing nodes from explore triage. Also for periodic full audits.
 ---
 
@@ -17,18 +17,18 @@ Two modes:
 - Periodic full audit of the knowledge base
 
 When NOT to use:
-- Capturing new knowledge → `/autology:capture`
-- Finding what changed → `/autology:explore` (run explore first, then sync)
+- Capturing new knowledge → `/autology:capture-knowledge`
+- Finding what changed → `/autology:explore-knowledge` (run explore first, then sync)
 
 ## When invoked directly
 
-Fast mode requires explore to have run first. If explore output is not available, use `/autology:sync full`.
+Fast mode requires explore to have run first. If explore output is not available, use `/autology:sync-knowledge full`.
 
 ## Quick Reference
 
 ```
-/autology:sync        # fast — verifies nodes explore identified
-/autology:sync full   # full audit — no explore needed
+/autology:sync-knowledge        # fast — verifies nodes explore identified
+/autology:sync-knowledge full   # full audit — no explore needed
 ```
 
 ---
@@ -130,7 +130,7 @@ Report broken wikilinks.
 #### [Component Name]
 **What**: description
 **Where**: path/to/code
-**Fix**: /autology:capture as [type] with tags [...]
+**Fix**: /autology:capture-knowledge as [type] with tags [...]
 
 ### Doc → No Code
 #### [Node Title] (node-id)

@@ -31,7 +31,7 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 ## Architecture
 
 ### SessionStart Hook (shell script)
-- Reads `skills/router/SKILL.md`, strips YAML frontmatter with awk
+- Reads `skills/autology-workflow/SKILL.md`, strips YAML frontmatter with awk
 - Injects router skill as trigger guidance — tells Claude when/how to invoke autology skills
 - Outputs `additionalContext` JSON for Claude Code
 

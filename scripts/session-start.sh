@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Read router skill, strip YAML frontmatter
-_skill_content=$(awk '/^---$/{if(found){found=0;next}else{found=1;next}} !found{print}' "${PLUGIN_ROOT}/skills/router/SKILL.md")
+_skill_content=$(awk '/^---$/{if(found){found=0;next}else{found=1;next}} !found{print}' "${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md")
 
 context="Below is the full content of the autology router skill — your guide to when and how to invoke autology skills:
 

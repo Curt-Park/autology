@@ -1,5 +1,5 @@
 ---
-name: explore
+name: explore-knowledge
 description: Use when router triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
 ---
 
@@ -47,7 +47,7 @@ For unmatched new items:
 > - [item description] — no matching node
 >   Suggested relations: none
 
-## When invoked directly (/autology:explore)
+## When invoked directly (/autology:explore-knowledge)
 
 In addition to the triage above, provide a full graph overview:
 - Total node count, link count, component count
@@ -57,10 +57,10 @@ In addition to the triage above, provide a full graph overview:
 - Shortest path between two nodes
 
 Quick Reference:
-/autology:explore              # triage (default when called by router)
-/autology:explore overview     # graph overview
-/autology:explore <node>       # neighborhood
-/autology:explore path A B     # shortest path
+/autology:explore-knowledge              # triage (default when called by router)
+/autology:explore-knowledge overview     # graph overview
+/autology:explore-knowledge <node>       # neighborhood
+/autology:explore-knowledge path A B     # shortest path
 
 ## Common Mistakes
 

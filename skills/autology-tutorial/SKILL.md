@@ -1,5 +1,5 @@
 ---
-name: tutorial
+name: autology-tutorial
 description: Use when user is new to Autology, asks "how does Autology work", wants to learn about knowledge capture, or requests a guided introduction.
 ---
 
@@ -11,9 +11,9 @@ Interactive tutorial in a live git branch. Create real config files, commit them
 
 ## Arguments
 
-- `/autology:tutorial` → Start from Act 1
-- `/autology:tutorial <1-3>` → Jump to specific act
-- `/autology:tutorial reset` → Cleanup (return to original branch, delete tutorial branch, remove tutorial docs)
+- `/autology:autology-tutorial` → Start from Act 1
+- `/autology:autology-tutorial <1-3>` → Jump to specific act
+- `/autology:autology-tutorial reset` → Cleanup (return to original branch, delete tutorial branch, remove tutorial docs)
 
 ---
 
@@ -85,7 +85,7 @@ git commit -m "tutorial: add Redis docker-compose"
 
 **Router fires** — commit = trigger point. Now invoke capture for real:
 
-Use Skill tool: `autology:capture`
+Use Skill tool: `autology:capture-knowledge`
 
 Capture will create `docs/tutorial-url-shortener-db.md` with the Redis decision. After capture completes, commit the doc:
 
@@ -152,7 +152,7 @@ git commit -m "tutorial: switch storage from Redis to PostgreSQL"
 
 **Router fires** — commit = trigger point. Now invoke sync for real:
 
-Use Skill tool: `autology:sync`
+Use Skill tool: `autology:sync-knowledge`
 
 Sync will read both files, detect the drift, and update `docs/tutorial-url-shortener-db.md` in-place. After sync completes, commit the updated doc:
 
@@ -190,7 +190,7 @@ For each selected question:
 
 - `explore` triggers — question about existing knowledge
 
-Use Skill tool: `autology:explore`
+Use Skill tool: `autology:explore-knowledge`
 
 Explore will search the knowledge base and answer from the doc content. The node contains:
 - Why Redis was originally chosen
@@ -244,15 +244,15 @@ Delete each matched file with Bash rm
 Confirm: "Back on `<ORIGINAL_BRANCH>`. Tutorial branch deleted. Cleaned up N tutorial nodes."
 
 **Next steps**:
-- `/autology:capture` — capture knowledge from real conversations
-- `/autology:explore` — triage knowledge items, or explore graph topology
-- `/autology:sync` — find doc-code drift anytime (or `sync full` for complete audit)
+- `/autology:capture-knowledge` — capture knowledge from real conversations
+- `/autology:explore-knowledge` — triage knowledge items, or explore graph topology
+- `/autology:sync-knowledge` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---
 
 ## Reset Process
 
-When user runs `/autology:tutorial reset`:
+When user runs `/autology:autology-tutorial reset`:
 
 1. Check current branch — if on `tutorial/autology-demo`, need to know original branch
 2. `git checkout <original-branch>`

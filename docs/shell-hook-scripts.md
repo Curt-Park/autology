@@ -21,7 +21,7 @@ Autology's only code: two bash scripts that implement the SessionStart and Sessi
 **Core logic:**
 1. Consume stdin (avoid broken pipe with `set -euo pipefail`)
 2. Determine plugin root via `BASH_SOURCE[0]` + `cd && pwd`
-3. Read `skills/router/SKILL.md`, strip YAML frontmatter with awk
+3. Read `skills/autology-workflow/SKILL.md`, strip YAML frontmatter with awk
 4. Prepend plain framing text: `"Below is the full content of the autology router skill — your guide to when and how to invoke autology skills:"`
 5. Escape string for JSON using bash parameter substitution (`$'\n'` for newlines)
 6. Output JSON:
@@ -32,7 +32,7 @@ Autology's only code: two bash scripts that implement the SessionStart and Sessi
 ### scripts/session-end.sh
 Outputs a JSON `systemMessage` (user-visible) with a capture tip:
 ```json
-{"systemMessage": "Autology: /autology:capture to save knowledge from this session"}
+{"systemMessage": "Autology: /autology:capture-knowledge to save knowledge from this session"}
 ```
 
 ## Hook Configuration (`hooks/hooks.json`)
