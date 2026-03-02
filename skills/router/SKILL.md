@@ -76,6 +76,7 @@ These thoughts mean STOP — you're rationalizing:
 | "There's nothing worth capturing" | You haven't run explore yet. How would you know? |
 | "The user didn't ask me to" | The user configured this router. They already asked. |
 | "I'm in the middle of something" | Run the workflow after each action. Not after everything. |
+| "I just ran sync/capture" | autology workflow actions don't re-trigger. Only external actions do. |
 
 ## Common Mistakes
 
