@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/Curt-Park/autology/compare/autology-v0.7.0...autology-v0.8.0) (2026-03-02)
+
+
+### Features
+
+* redesign /autology:explore as graph traversal skill ([#40](https://github.com/Curt-Park/autology/issues/40)) ([4150428](https://github.com/Curt-Park/autology/commit/415042860f60738caba23a408494c6df0e093d47))
+
 ## [0.7.0](https://github.com/Curt-Park/autology/compare/autology-v0.6.0...autology-v0.7.0) (2026-03-01)
 
 
