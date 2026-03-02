@@ -26,8 +26,8 @@ As each developer moves faster with AI, decisions, conventions, and context beco
             ↓
        Your Work
       ↗          ↘
-graph traversal   capture autonomously
-(/autology:explore) (or /autology:capture)
+graph traversal   capture or sync autonomously
+(/autology:explore) (/autology:capture or /autology:sync)
       ↖          ↙
          docs/*.md
 ```
@@ -111,8 +111,6 @@ New hire: full decision chain available at session start, zero onboarding cost
 /plugin marketplace add Curt-Park/autology
 /plugin install autology@autology
 ```
-
-Requires `jq` (`brew install jq` on macOS · `sudo apt install jq` on Ubuntu/Debian).
 
 ## Quick Start
 

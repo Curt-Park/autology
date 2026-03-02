@@ -1,59 +1,55 @@
 ---
-name: autology:sync
-description: Use before committing when code has changed, when docs may be stale, or when asked to audit documentation accuracy.
+name: sync
+description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology router identifies existing nodes from explore triage. Also for periodic full audits.
 ---
 
 ## Overview
 
-docs/ nodes must accurately reflect the actual codebase. This skill verifies that and fixes any discrepancies in-place.
+docs/ nodes must accurately reflect the actual codebase and decisions. This skill verifies that and fixes any discrepancies in-place.
 
 Two modes:
-- **Fast** (default): only checks git-changed files. Use before committing.
-- **Full**: audits the entire codebase and knowledge base. Use for periodic reviews or when explicitly requested.
+- **Fast** (default): verifies the nodes explore identified. Requires explore output.
+- **Full**: audits the entire codebase and knowledge base independently. Use for periodic reviews or when explicitly requested.
 
 ## When to Use
 
-- Before committing (fast mode)
+- After explore triage (via router or directly) to verify matched existing nodes
 - Periodic full audit of the knowledge base
-- After large-scale code refactoring
-- When docs/ accuracy is in question
 
 When NOT to use:
 - Capturing new knowledge → `/autology:capture`
-- Understanding graph structure → `/autology:explore`
+- Finding what changed → `/autology:explore` (run explore first, then sync)
+
+## When invoked directly
+
+Fast mode requires explore to have run first. If explore output is not available, use `/autology:sync full`.
 
 ## Quick Reference
 
 ```
-/autology:sync        # fast — changed files only
-/autology:sync full   # full audit
+/autology:sync        # fast — verifies nodes explore identified
+/autology:sync full   # full audit — no explore needed
 ```
 
 ---
 
 ## Fast Mode
 
-### 1. Find Changed Files
+**Precondition**: explore has already run and returned matched existing nodes.
+
+### 1. Receive Explore Output
+
+Use explore's matched nodes as the sync scope:
 
 ```
-Bash: git diff --name-only HEAD
-Bash: git diff --name-only --cached
+Existing nodes from explore triage (→ sync):
+- docs/foo.md — matches [item description]
+  Connected: [[bar]], [[baz]] | Tags: arch, api
 ```
 
-Combine and deduplicate.
+Also include any connected nodes listed in the topology hints.
 
-### 2. Find Referenced Docs
-
-For each changed file, search the knowledge base for references:
-
-```
-Grep: docs/ for the filename (e.g., "session-start.sh")
-Grep: docs/ for the parent directory name (e.g., "scripts")
-```
-
-Collect all docs that reference any of the changed files.
-
-### 3. Verify and Fix
+### 2. Verify and Fix
 
 For each matched doc:
 - Read the doc
@@ -168,6 +164,7 @@ Report broken wikilinks.
 
 | Mistake | Fix |
 |---------|-----|
-| Report findings without fixing | Edit docs in-place immediately when discrepancies are found |
-| Judge doc accuracy without reading code | Always Read the actual file before comparing |
-| Run full audit before every commit | Use fast mode daily; full mode periodically |
+| Running fast mode without explore output | Fast mode needs explore's matched nodes as scope. Run explore first. |
+| Report findings without fixing | Edit docs in-place immediately when discrepancies are found. |
+| Judge doc accuracy without reading code | Always Read the actual file before comparing. |
+| Run full audit on every action | Fast mode (post-explore) for daily use; full mode for periodic audits. |

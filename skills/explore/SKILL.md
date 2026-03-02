@@ -1,107 +1,71 @@
 ---
-name: autology:explore
-description: Use when asked how concepts relate to each other, before refactoring to assess blast radius, or when looking for hub nodes, orphan nodes, or isolated clusters in the knowledge graph.
+name: explore
+description: Use when router triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
 ---
 
 ## Overview
 
-Explore knowledge graph topology. Builds a wikilink-based adjacency list to analyze hubs, orphans, paths between nodes, and neighborhood structure.
-
-## When to Use
-
-- Before refactoring — assess blast radius of a change
-- "How does X relate to Y?" questions
-- Identifying isolated (orphan) nodes
-- Health check of the knowledge base
-
-When NOT to use:
-- Reading a single node's content → use Read directly
-- Capturing new knowledge → `/autology:capture`
-
-## Quick Reference
-
-```
-/autology:explore              # graph overview (hubs, orphans, components)
-/autology:explore <node>       # neighborhood (2-hop expansion from node)
-/autology:explore path A B     # shortest path between two nodes
-```
+Scan docs/ against conversation context or an action summary.
+Classify each knowledge item as existing or new, and return topology hints
+(connected nodes, shared tags) so sync and capture can use them during execution.
 
 ## Process
 
-### Build Adjacency List
+### 1. Extract knowledge items from context
+From conversation or action summary, identify:
+- Decisions made, conventions established, components changed, patterns discovered
 
-```
-Glob docs/*.md → Read each file → extract [[wikilinks]] from content
-```
+### 2. Search docs/ for each item
+For each item:
+- Grep docs/ for keywords, titles, tags
+- Read matched files to confirm relevance
 
-For each file, collect all `[[wikilink]]` occurrences. Strip the `[[` and `]]` to get target slugs.
-Build two maps:
-- `outgoing`: `{slug: [target_slug, ...]}`
-- `incoming`: `{slug: [source_slug, ...]}` (reverse map)
+### 3. Build topology hints
+For matched nodes:
+- Extract wikilink connections ([[target]] patterns)
+- Identify nodes sharing tags
+- Flag hub/orphan status
 
-Node slug = filename without `.md` extension.
+For unmatched new items:
+- Suggest related existing nodes based on tags or content overlap
 
-### Graph Overview (no args)
-
-1. Count nodes and total links (sum of all outgoing edges)
-2. Compute degree for each node: `outgoing[node].length + incoming[node].length`
-3. Hub nodes: top 5 by degree, sorted descending
-4. Orphans: nodes with degree 0
-5. Connected components: BFS from each unvisited node
-
-### Neighborhood (with `<node>` arg)
-
-1. Normalize input to slug (lowercase, spaces → hyphens)
-2. BFS from center node up to depth 2
-3. At each hop, expand both outgoing links and backlinks
-4. Display as indented tree with hop distance labeled
-
-### Path Finding (`path A B`)
-
-1. Normalize both slugs
-2. BFS shortest path from A to B
-3. If found: display as a chain `A → B → C` with hop count
-4. If not found: report "no path — nodes may be in separate components"
+### 4. Return classified list
 
 ## Output Format
 
-### Graph Overview
-```
-> **Autology** — Graph Overview
+> **Autology** — Explore Results
+>
+> ### Existing (→ sync)
+> - docs/foo.md — matches [item description]
+>   Connected: [[bar]], [[baz]] | Tags: arch, api | Hub (5 links)
+> - docs/qux.md — matches [item description]
+>   Connected: [[foo]] | Tags: convention | Orphan-adjacent
+>
+> ### New (→ capture)
+> - [item description] — no matching node
+>   Suggested relations: [[foo]], [[bar]] (shared tags: architecture)
+> - [item description] — no matching node
+>   Suggested relations: none
 
-N nodes, M links, K component(s)
+## When invoked directly (/autology:explore)
 
-Hub nodes (most connected):
-  slug-name — X links
-  ...
+In addition to the triage above, provide a full graph overview:
+- Total node count, link count, component count
+- Top 5 hub nodes
+- Orphan node list
+- Specific node neighborhood (2-hop BFS)
+- Shortest path between two nodes
 
-Orphans (no links): none  [or list slugs]
-```
-
-### Neighborhood
-```
-> **Autology** — Neighborhood of <node>
-
-<node> (center)
-├── linked-node (1 hop)
-│   ├── deeper-node (2 hops)
-│   └── another-node (2 hops)
-└── other-link (1 hop, backlink)
-```
-
-### Path Finding
-```
-> **Autology** — Path: A → B
-
-node-a
-  → intermediate-node
-    → node-b
-(2 hops)
-```
+Quick Reference:
+/autology:explore              # triage (default when called by router)
+/autology:explore overview     # graph overview
+/autology:explore <node>       # neighborhood
+/autology:explore path A B     # shortest path
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Treat nodes with no wikilinks as "unrelated" | Check tags and content for implicit relationships |
-| Only traverse outgoing links | Always include backlinks (incoming) for full picture |
+| Judge relevance by keyword match alone | Read the file to confirm actual relevance |
+| Omit topology hints | sync/capture rely on connected/suggested relations — always include |
+| Ignore implicit relations | Check tags and content overlap even without wikilinks |
