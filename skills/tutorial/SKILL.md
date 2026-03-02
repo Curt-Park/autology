@@ -1,6 +1,6 @@
 ---
 name: autology:tutorial
-description: Use when a user is new to Autology, wants to understand how knowledge capture and sync works, or asks for a guided introduction to the system.
+description: Use when user is new to Autology, asks "how does Autology work", wants to learn about knowledge capture, or requests a guided introduction.
 ---
 
 ## Overview

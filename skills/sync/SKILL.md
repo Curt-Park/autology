@@ -1,6 +1,6 @@
 ---
 name: autology:sync
-description: Use before committing when code has changed, when docs may be stale, or when asked to audit documentation accuracy.
+description: Use after git commit, git push, or creating a PR to verify docs/ matches codebase. Also use when docs may be stale or when asked to audit documentation accuracy. Invoked by /autology:router after commits.
 ---
 
 ## Overview

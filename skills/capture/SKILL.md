@@ -1,6 +1,6 @@
 ---
 name: autology:capture
-description: Use when a decision, convention, pattern, or architectural choice emerges in conversation, or when the user says "remember this". Do not use for session-specific context or incomplete information.
+description: Use when a decision, convention, or pattern emerges — e.g. user says "decided", "chose", "always do X", "never do Y", "remember this", or Claude discovers a reusable convention. Also invoked by /autology:router after commits to capture session knowledge. Not for session-specific context or incomplete info.
 ---
 
 ## Overview

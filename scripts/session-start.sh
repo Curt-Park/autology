@@ -55,13 +55,16 @@ else
   node_list="$nodes"
 fi
 
-# Skill trigger guidance injected into additionalContext each session
-_skill_triggers="Invoke autology skills at the right time:
+# Inject router skill content as trigger guidance (strips YAML frontmatter)
+_router_skill_path="${CLAUDE_PLUGIN_ROOT:-$(dirname "$0")/..}/skills/router/SKILL.md"
+if [ -f "$_router_skill_path" ]; then
+  _skill_triggers=$(awk '/^---$/{if(found){found=0;next}else{found=1;next}} !found{print}' "$_router_skill_path")
+else
+  _skill_triggers="Invoke autology skills at the right time:
 - \`/autology:capture\` — decision, convention, pattern, or when user says \"remember this\"
-- \`/autology:sync\` — before committing; \`sync full\` for periodic audit
-- \`/autology:explore\` — graph topology: \"how does X relate to Y?\", blast radius before refactoring, hub/orphan nodes
-
-Don't capture: session-specific context, incomplete info, or duplicates of existing docs."
+- \`/autology:sync\` — after committing; \`sync full\` for periodic audit
+- \`/autology:explore\` — graph topology: \"how does X relate to Y?\", blast radius before refactoring, hub/orphan nodes"
+fi
 
 # Build additionalContext
 if [ "$node_count" -eq 0 ]; then

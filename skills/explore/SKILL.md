@@ -1,6 +1,6 @@
 ---
 name: autology:explore
-description: Use when asked how concepts relate to each other, before refactoring to assess blast radius, or when looking for hub nodes, orphan nodes, or isolated clusters in the knowledge graph.
+description: Use when asked how concepts relate, what's connected to a node, or to show the knowledge graph. Also before refactoring to assess blast radius, or when looking for hub/orphan nodes.
 ---
 
 ## Overview
