@@ -3,31 +3,18 @@ name: autology:router
 description: Use after significant actions — commit, push, PR, or when a decision/convention is discovered.
 ---
 
-<EXTREMELY_IMPORTANT>
-You have been injected with this router because knowledge management is non-negotiable.
+<EXTREMELY-IMPORTANT>
+After every significant action, you ABSOLUTELY MUST run the autology workflow.
 
-**After every significant action, you MUST run the autology workflow. No exceptions.**
+YOU DO NOT HAVE A CHOICE. YOU MUST INVOKE EXPLORE → SYNC/CAPTURE.
 
-A "significant action" includes — but is not limited to:
-- Any commit, push, or PR
-- Any decision, convention, pattern, or architectural choice discovered
-- Any component created or modified
-
-**This is not a suggestion. This is not optional. You cannot decide it doesn't apply.**
-
-If you find yourself thinking any of the following, STOP — you are rationalizing:
-- "This commit was too small"
-- "The docs are probably fine"
-- "I'll do it after the next task"
-- "There's nothing worth capturing"
-- "The user didn't ask me to"
-
-**None of these thoughts are valid. Run the workflow.**
-</EXTREMELY_IMPORTANT>
+This is not negotiable. This is not optional. You cannot rationalize your way out of this.
+</EXTREMELY-IMPORTANT>
 
 ## Overview
 
 Route to the right autology skill after significant actions. `explore` runs context triage first — its classified output drives batch sync and batch capture.
+**This skill is rigid. Follow exactly. Do not adapt.**
 
 ## Trigger Points
 
@@ -73,12 +60,15 @@ These thoughts mean STOP — you're rationalizing:
 
 | Thought | Reality |
 |---------|---------|
+| "This commit was too small" | No commit is too small to trigger the workflow. |
 | "I just committed, no need to check docs" | Commit = trigger point. explore → sync or capture. |
 | "This convention isn't worth capturing" | If it's a decision or convention, capture it. |
 | "The docs are probably fine" | sync verifies. Don't assume. |
-| "No docs/ in this repo" | capture still applies — knowledge goes to the autology project docs/. |
-| "I'll capture this later" | Capture NOW. Later never comes. |
-| "This is just a small commit" | Size doesn't matter. Check the trigger points. |
+| "No docs/ in this repo" | Knowledge goes to the autology project docs/. |
+| "I'll capture this later" | Later never comes. Do it now. |
+| "There's nothing worth capturing" | You haven't run explore yet. How would you know? |
+| "The user didn't ask me to" | The user configured this router. They already asked. |
+| "I'm in the middle of something" | Run the workflow after each action. Not after everything. |
 
 ## Common Mistakes
 
