@@ -36,10 +36,7 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 - Injects as `additionalContext` JSON — analogous to automemory's MEMORY.md
 
 ### SessionEnd Hook (shell script)
-- Outputs capture tip to stderr
-
-### Launcher (`scripts/launcher.sh`)
-- Routes `hook session-start|session-end` to respective shell scripts
+- Outputs JSON `systemMessage` with capture tip
 
 ### docs/*.md (flat structure)
 - Knowledge nodes as markdown files with YAML frontmatter

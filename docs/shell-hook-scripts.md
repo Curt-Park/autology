@@ -13,17 +13,9 @@ Part of [[autology-internals]]. Implements [[codeless-architecture-decision]].
 
 ## Overview
 
-Autology's only code: three bash scripts that implement the SessionStart and SessionEnd Claude Code hooks.
+Autology's only code: two bash scripts that implement the SessionStart and SessionEnd Claude Code hooks.
 
 ## Files
-
-### scripts/launcher.sh
-Routes hook subcommands to the appropriate script:
-```bash
-launcher.sh hook session-start  → session-start.sh
-launcher.sh hook session-end    → session-end.sh
-```
-`CLAUDE_PLUGIN_ROOT` env determines script location.
 
 ### scripts/session-start.sh
 **Core logic:**
