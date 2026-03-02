@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/Curt-Park/autology/compare/autology-v0.8.0...autology-v0.8.1) (2026-03-02)
+
+
+### Bug Fixes
+
+* restructure skills to writing-skills recommended format ([#42](https://github.com/Curt-Park/autology/issues/42)) ([00e32c4](https://github.com/Curt-Park/autology/commit/00e32c485dbfe3b698dfde7aacd609c2e1b7e833))
+
 ## [0.8.0](https://github.com/Curt-Park/autology/compare/autology-v0.7.0...autology-v0.8.0) (2026-03-02)
 
 
