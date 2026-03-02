@@ -59,7 +59,7 @@ fi
 _skill_triggers="Invoke autology skills at the right time:
 - \`/autology:capture\` — decision, convention, pattern, or when user says \"remember this\"
 - \`/autology:sync\` — before committing; \`sync full\` for periodic audit
-- \`/autology:explore\` — browse or query the knowledge base
+- \`/autology:explore\` — graph topology: \"how does X relate to Y?\", blast radius before refactoring, hub/orphan nodes
 
 Don't capture: session-specific context, incomplete info, or duplicates of existing docs."
 

@@ -19,7 +19,7 @@ Map of Contents for Autology user documentation.
 
 ## Guide Sections
 
-Documentation is captured as autology nodes. Use `/autology:explore` to discover usage guides and workflows.
+Documentation is captured as autology nodes. Use `/autology:explore` to traverse the knowledge graph — hub nodes, neighborhoods, and paths between concepts.
 
 ## Cross-References
 

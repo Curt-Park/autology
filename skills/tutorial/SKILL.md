@@ -242,7 +242,7 @@ The nodes created in this tutorial stay in `docs/`. To remove them:
 
 **Next steps**:
 - `/autology:capture` — capture knowledge from real conversations
-- `/autology:explore` — browse the knowledge base
+- `/autology:explore` — explore the knowledge graph (hubs, neighborhoods, paths)
 - `/autology:sync` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---

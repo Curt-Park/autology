@@ -1,94 +1,91 @@
 ---
 name: autology:explore
-description: Explore and query the autology knowledge base using native tools
+description: Explore the knowledge graph — neighborhood, hub nodes, paths between concepts
 ---
 
-You help the user explore the autology knowledge base in docs/.
+## Usage
+
+```
+/autology:explore              # graph overview (hubs, orphans, components)
+/autology:explore <node>       # neighborhood (2-hop expansion from node)
+/autology:explore path A B     # shortest path between two nodes
+```
 
 ## Process
 
-### No Arguments: Show Overview
-
-Use Glob to list `docs/*.md`, then read each file's frontmatter to build a summary:
+### Build Adjacency List
 
 ```
-Glob: docs/*.md
-Read: frontmatter of each file
+Glob docs/*.md → Read each file → extract [[wikilinks]] from content
 ```
 
-Display:
-- Total node count
-- Breakdown by type (count each distinct `type:` value found in docs/)
-- All tags in use
+For each file, collect all `[[wikilink]]` occurrences. Strip the `[[` and `]]` to get target slugs.
+Build two maps:
+- `outgoing`: `{slug: [target_slug, ...]}`
+- `incoming`: `{slug: [source_slug, ...]}` (reverse map)
 
-### With Arguments: Search
+Node slug = filename without `.md` extension.
 
-Parse the user's input:
+### Graph Overview (no args)
 
-#### By type
-"decisions", "components", "conventions", etc.
+1. Count nodes and total links (sum of all outgoing edges)
+2. Compute degree for each node: `outgoing[node].length + incoming[node].length`
+3. Hub nodes: top 5 by degree, sorted descending
+4. Orphans: nodes with degree 0
+5. Connected components: BFS from each unvisited node
 
-```
-Grep docs/ for `^type: decision` (or other type)
-```
+### Neighborhood (with `<node>` arg)
 
-#### By tag
-"tagged auth", "tag:auth", "#auth"
+1. Normalize input to slug (lowercase, spaces → hyphens)
+2. BFS from center node up to depth 2
+3. At each hop, expand both outgoing links and backlinks
+4. Display as indented tree with hop distance labeled
 
-```
-Grep docs/ for the tag in frontmatter tags blocks
-```
+### Path Finding (`path A B`)
 
-#### By keyword
-Any natural language text
-
-```
-Grep docs/ -i for the keyword (search both frontmatter and content)
-```
-
+1. Normalize both slugs
+2. BFS shortest path from A to B
+3. If found: display as a chain `A → B → C` with hop count
+4. If not found: report "no path — nodes may be in separate components"
 
 ## Output Format
 
-### Overview (no args)
+### Graph Overview
 ```
-> **Autology** — N nodes in docs/
+> **Autology** — Graph Overview
 
-# Autology Knowledge Base — docs/
+N nodes, M links, K component(s)
 
-Total nodes: N
+Hub nodes (most connected):
+  slug-name — X links
+  ...
 
-By type:
-- [type discovered in docs/]: X
-- [type discovered in docs/]: X
-  (list all distinct types found, with counts)
-
-Tags: tag1, tag2, tag3, ...
+Orphans (no links): none  [or list slugs]
 ```
 
-### Search Results
+### Neighborhood
 ```
-# Results: [query description]
+> **Autology** — Neighborhood of <node>
 
-Found N nodes:
-
-## [Title]
-Type: [type] | Tags: [tags] | Status: [status]
-File: docs/slug.md
-
-[First 150 chars of content...]
-
----
+<node> (center)
+├── linked-node (1 hop)
+│   ├── deeper-node (2 hops)
+│   └── another-node (2 hops)
+└── other-link (1 hop, backlink)
 ```
 
-### Empty Results
+### Path Finding
 ```
-No nodes match "[query]".
+> **Autology** — Path: A → B
 
-Try broader terms or use /autology:explore (no args) to see all nodes.
+node-a
+  → intermediate-node
+    → node-b
+(2 hops)
 ```
 
-## Key Principles
+## When to Use
 
-- Use Grep for search, Glob for listing, Read for full content
-- Show file paths so user can read full content if needed
-- Suggest next actions after results
+- **Graph overview**: understand knowledge structure health — which nodes are hubs, which are isolated
+- **Neighborhood**: before refactoring, see blast radius; find related context around a concept
+- **Path finding**: trace conceptual lineage ("how does this philosophy connect to this implementation?"), discover non-obvious links between nodes with different types/tags
