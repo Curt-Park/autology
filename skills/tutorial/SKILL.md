@@ -45,9 +45,9 @@ Tell the user: "We're now on `tutorial/autology-demo`. All tutorial commits happ
 
 Say to the user:
 
-> "We need to store URL mappings. I'm recommending Redis — O(1) lookups, built-in TTL support, and easy horizontal sharding. Do you agree, or do you prefer something else?"
+> "We need to store URL mappings. Redis is ideal — O(1) lookups, built-in TTL support. Do you agree, or prefer something else?"
 
-Wait for user response. When a decision is confirmed (any signal: "let's go with Redis", "agreed", "decided"):
+Wait for user response. When a decision is confirmed (any signal: "agreed", "go with Redis", "decided"):
 
 - `capture` triggers — "decided", "agreed", "let's use" are capture signals
 - Create `docs/tutorial-url-shortener-db.md`:
@@ -77,7 +77,21 @@ Use Redis. O(1) GET/SET, built-in key expiry, Redis Cluster for horizontal scale
 - Requires Redis for local dev (docker-compose)
 ```
 
-**📌 Why capture fired**: You said "decided" (or equivalent). Signals: `"decided"`, `"chose"`, `"let's use"`, `"going with"`, explicit confirmation. Every architectural decision becomes a node.
+Commit the decision doc:
+
+```bash
+git add docs/tutorial-url-shortener-db.md
+git commit -m "tutorial: capture Redis storage decision"
+```
+
+After commit, **router fires**. Walk through what just happened:
+
+1. **router** detected: commit = trigger point
+2. **explore** ran context triage:
+   - `tutorial-url-shortener-db.md` → just captured, already accurate → nothing to sync or capture
+3. Result: knowledge base is current, no action needed
+
+**📌 Why capture fired**: You said "agreed" (or equivalent). Signals: `"decided"`, `"chose"`, `"let's use"`, `"going with"`, explicit confirmation. The commit trigger checked if anything drifted — here it didn't.
 
 ```
 > **Autology Tutorial** — Act 1 complete
@@ -88,66 +102,84 @@ Use Redis. O(1) GET/SET, built-in key expiry, Redis Cluster for horizontal scale
 
 ---
 
-## Act 2: Commit — Router Fires
+## Act 2: Sync — A Decision Changes
 
-**The scenario**: Document the API spec, then commit. Watch the router trigger.
+**The scenario**: After Act 1, new information arrives. The infrastructure team says Redis isn't available — must use PostgreSQL.
 
-Create `docs/tutorial-url-shortener-spec.md`:
+Say to the user:
+
+> "Constraint from infra: Redis isn't available in our cluster. We need to switch to PostgreSQL."
+
+Create a config doc reflecting the new reality:
+
+Write `docs/tutorial-url-shortener-config.md`:
 
 ```yaml
 ---
-title: "URL Shortener API Spec"
+title: "URL Shortener Config"
 type: component
-tags: [api, spec, tutorial]
+tags: [config, tutorial]
 ---
 
-# URL Shortener API Spec
+# URL Shortener Config
 
-## Endpoints
-- `POST /shorten` — accepts `{ url }`, returns `{ short_code }`
-- `GET /:code` — redirects to original URL (302)
-
-## Storage
-Uses Redis — see [[tutorial-url-shortener-db]]
+## Database
+- host: postgres://...
+- table: url_mappings (short_code TEXT PK, original_url TEXT, expires_at TIMESTAMP)
 ```
 
-Now commit both docs:
+Commit it:
 
 ```bash
-git add docs/tutorial-url-shortener-db.md docs/tutorial-url-shortener-spec.md
-git commit -m "tutorial: add URL shortener decision and API spec"
+git add docs/tutorial-url-shortener-config.md
+git commit -m "tutorial: add PostgreSQL config"
 ```
 
-**After commit, router fires automatically.** Walk through what just happened:
+**After commit, router fires again.** Walk through explore's triage:
 
 1. **router** detected: commit = trigger point
-2. **explore** ran context triage against the commit
-   - `tutorial-url-shortener-db.md` → existing, already accurate → nothing to sync
-   - `tutorial-url-shortener-spec.md` → new, already captured → nothing to capture
-3. Result: docs are current, no action needed
+2. **explore** checked context against knowledge base:
+   - `tutorial-url-shortener-config.md` → new doc, already captured → nothing to capture
+   - `tutorial-url-shortener-db.md` → **existing node** that says "Use Redis" — but commit context shows PostgreSQL in use
+   - Classification: `tutorial-url-shortener-db.md` → **existing, stale → sync**
+3. **sync** runs on `tutorial-url-shortener-db.md`:
+   - Reads current doc: says Redis
+   - Reads new config: says PostgreSQL
+   - Detects drift → updates the decision doc in-place
 
-**📌 Why router fired**: Every commit triggers the router. Explore triage is lightweight — when docs are current, it reports nothing to do. The value shows when something drifts.
+Update `docs/tutorial-url-shortener-db.md` to reflect the changed decision:
 
-Now simulate drift: edit the spec to add an endpoint:
+```yaml
+---
+title: "URL Shortener: Use PostgreSQL for Storage"
+type: decision
+tags: [database, architecture, tutorial]
+---
 
-Open `docs/tutorial-url-shortener-spec.md` and add under Endpoints:
+# URL Shortener: Use PostgreSQL for Storage
+
+## Context
+Started with Redis plan. Infrastructure constraint: no Redis available in existing cluster.
+PostgreSQL cluster already provisioned — reuses existing infrastructure.
+
+## Decision
+Use PostgreSQL. Existing cluster available, no additional infra cost, sufficient for expected query load.
+
+## Alternatives Considered
+- Redis: Optimal for key-value, but not available in existing infra (rejected)
+- In-memory map: No persistence
+
+## Consequences
+- Reuses existing infrastructure
+- TTL handled via `expires_at` column + scheduled cleanup
+- Slightly higher lookup latency vs Redis (acceptable)
 ```
-- `DELETE /:code` — removes a short URL (admin only)
-```
 
-Commit without creating a new doc for the delete endpoint:
-
-```bash
-git add docs/tutorial-url-shortener-spec.md
-git commit -m "tutorial: add delete endpoint to spec"
-```
-
-Router fires again. This time explore finds the spec was updated but the decision node wasn't touched. Sync checks: does `tutorial-url-shortener-db.md` still match reality? It does — no drift there.
-
-**📌 Key point**: In real work, drift happens when you modify code or specs but forget to update related docs. Router + sync catch it automatically.
+**📌 Why sync fired**: Explore detected drift — the new config showed PostgreSQL while the decision node still said Redis. Sync read both, identified the mismatch, and updated the decision node in-place. This is the core value: **docs stay accurate automatically when decisions change**.
 
 ```
 > **Autology Tutorial** — Act 2 complete
+> Synced: docs/tutorial-url-shortener-db.md (Redis → PostgreSQL)
 ```
 
 **Wait for confirmation before Act 3.**
@@ -160,11 +192,11 @@ Router fires again. This time explore finds the spec was updated but the decisio
 
 Say to the user:
 
-> "Looking at the decision node we created — the 'Alternatives Considered' section is what makes it valuable. Should we make it a rule that every decision node must include alternatives?"
+> "Looking at the decision node we just updated — the 'Alternatives Considered' section is what made it easy to see that Redis was rejected for infra reasons. Should we make it a rule that every decision node must include alternatives?"
 
 When user agrees (or any "always X" phrasing):
 
-- `capture` triggers again — `"always"`, `"the rule is"`, `"we should always"` are capture signals
+- `capture` triggers — `"always"`, `"the rule is"`, `"we should always"` are capture signals
 - Create `docs/tutorial-decision-convention.md`:
 
 ```yaml
@@ -209,13 +241,13 @@ You've experienced all three trigger patterns in real git workflow:
 
 | Trigger | Signal | Skill fired |
 |---------|--------|-------------|
-| Decision in conversation | "decided", "let's use", confirmed choice | capture |
-| `git commit` | commit = significant action | router → explore → sync/capture |
+| Decision confirmed in conversation | "agreed", "let's use", "decided" | capture |
+| Commit reveals stale existing node | router → explore detects drift | sync |
 | Convention established | "always", "never", "the rule is" | capture |
 
 **The full loop**:
 ```
-decide → capture → commit → router verifies → convention → capture → repeat
+decide → capture → commit → router checks → decision changes → commit → router detects drift → sync fixes → convention → capture → repeat
 ```
 
 ---
@@ -249,7 +281,7 @@ Confirm: "Back on `<ORIGINAL_BRANCH>`. Tutorial branch deleted. Cleaned up N tut
 
 When user runs `/autology:tutorial reset`:
 
-1. Check current branch — if on `tutorial/autology-demo`, ask for original branch name
+1. Check current branch — if on `tutorial/autology-demo`, need to know original branch
 2. `git checkout <original-branch>`
 3. `git branch -D tutorial/autology-demo`
 4. Grep `docs/` for files with `tutorial` in tags frontmatter
@@ -264,4 +296,4 @@ When user runs `/autology:tutorial reset`:
 2. **Organic triggers**: Skills fire because conditions are met, not because script calls them
 3. **Annotate every trigger**: After each skill fires, explain the signal that caused it
 4. **Interactive decisions**: User makes real choices, not just watches
-5. **Three trigger patterns**: Decision (capture), Commit (router), Convention (capture)
+5. **Three trigger patterns**: Decision (capture), Drift detection (sync), Convention (capture)
