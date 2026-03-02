@@ -112,7 +112,7 @@ New hire: full decision chain available at session start, zero onboarding cost
 /plugin install autology@autology
 ```
 
-Requires `jq` (`brew install jq` / `sudo apt install jq`).
+Requires `jq` (`brew install jq` on macOS · `sudo apt install jq` on Ubuntu/Debian).
 
 ## Quick Start
 
