@@ -22,7 +22,7 @@ As each developer moves faster with AI, decisions, conventions, and context beco
 
 ```
       SessionStart hook
-            │ injects router skill as trigger guidance
+            │ injects autology-workflow skill as trigger guidance
             ↓
     Your Work: commit / decision
       ↑             │
@@ -71,6 +71,16 @@ Detects and fixes doc-code drift in-place.
 |------|---------|----------|
 | Fast | `/autology:sync-knowledge` | Changed files only — run before every commit |
 | Full | `/autology:sync-knowledge full` | Gaps, broken wikilinks, missing links — periodic audit |
+
+### `/autology:autology-tutorial` — Interactive Tutorial
+
+3-act hands-on walkthrough: capture a decision → detect doc-code drift with sync → query the knowledge graph with explore. Runs in a live git branch (~15 minutes).
+
+```bash
+/autology:autology-tutorial          # start from Act 1
+/autology:autology-tutorial <1-3>    # jump to specific act
+/autology:autology-tutorial reset    # clean up tutorial branch and docs
+```
 
 ## Example
 
