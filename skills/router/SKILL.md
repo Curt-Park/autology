@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: Use after significant actions — commit, push, PR, or when a decision/convention is discovered.
+description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered. Triggers the autology explore → sync/capture workflow.
 ---
 
 <EXTREMELY-IMPORTANT>

@@ -1,6 +1,6 @@
 ---
 name: autology:sync
-description: Use when docs may be stale — after commits, large refactors, or when router identifies existing nodes from explore triage. Also for periodic full audits.
+description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology router identifies existing nodes from explore triage. Also for periodic full audits.
 ---
 
 ## Overview
