@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision/convention is discovered (→ capture), or when user asks any question about the project (→ explore for context hints). Determines which autology skills to run.
+description: Route autology skills. User project question → explore for hints. Significant action (commit/push/PR, decision/convention) → explore, then sync if existing nodes found or capture if none. Determines which autology skills to run and in what order.
 ---
 
 <IMPORTANT>
@@ -11,46 +11,41 @@ This is not optional. You cannot rationalize your way out of this.
 ## Overview
 
 Route to the right autology skill at the right time. Two entry points:
-- **User message** → check if explore applies before responding
-- **Action completed** → check if capture and/or sync applies after acting
+- **User message** → explore before responding to surface relevant context
+- **Action completed** → explore to determine whether to sync or capture
+
+`explore` is the pivot in both flows: it tells you what already exists in
+docs/ and guides the next step.
 
 ## Trigger Points
 
 ### [User message] User asks any question about the project
 
 ```
-→ /autology:explore — BEFORE responding, to surface relevant context hints
+→ /autology:explore — BEFORE responding
 ```
 
-Run explore to find docs/ nodes related to the question. Use the result as
-context when formulating the answer — linked nodes, related decisions,
-established conventions.
+Run explore to find docs/ nodes related to the question.
+- Found relevant nodes → use as context when formulating the answer
+- No relevant nodes found → knowledge base may be incomplete; note it
 
-If explore finds no relevant nodes → the knowledge base may be incomplete.
-Consider whether `/autology:sync` is needed to catch undocumented reality.
-
-### [Action completed] After git commit / git push / PR creation
+### [Action completed] After commit/push/PR or decision/convention discovered
 
 ```
-1. /autology:capture — were any decisions, conventions, or patterns
-   discussed this session that aren't yet in docs/?
-2. /autology:sync    — do docs/ nodes still match the codebase?
+→ /autology:explore — check what already exists in docs/
 ```
 
-Run capture first, then sync. Both are required after every commit.
+Then based on the result:
+- Existing related nodes found → `/autology:sync` — update them to reflect current reality
+- No related nodes found → `/autology:capture` — create a new node
 
-### [Action completed] After discovering a decision, convention, or pattern
-
-```
-→ /autology:capture — save it immediately, then report
-```
-
-Signals: "decided", "chose", "always", "never", "the rule is",
-a new reusable approach, or any architectural choice.
+Signals for "action completed":
+- commit, push, PR created
+- "decided", "chose", "always", "never", "the rule is", any architectural choice
 
 ## The Rule
 
-**Two checks — one per entry point. Miss neither.**
+**Two entry points. explore is always the first step.**
 Even a 1% chance applies means invoke it.
 
 ```dot
@@ -58,33 +53,35 @@ digraph router {
   "User message received" [shape=doublecircle];
   "Action completed" [shape=doublecircle];
   "Is it a question about the project?" [shape=diamond];
-  "explore" [shape=box];
+  "explore (for context)" [shape=box];
   "Found relevant nodes?" [shape=diamond];
   "use as context" [shape=box];
-  "consider sync" [shape=box];
+  "note: knowledge gap" [shape=box];
   "Respond" [shape=doublecircle];
-  "Was it a commit/push/PR?" [shape=diamond];
-  "capture then sync" [shape=box];
-  "Was a decision/convention discovered?" [shape=diamond];
-  "capture" [shape=box];
+  "Is it a significant action?" [shape=diamond];
+  "explore (for routing)" [shape=box];
+  "Related nodes exist?" [shape=diamond];
+  "sync (update existing)" [shape=box];
+  "capture (create new)" [shape=box];
   "Continue" [shape=doublecircle];
 
   "User message received" -> "Is it a question about the project?";
-  "Is it a question about the project?" -> "explore" [label="yes"];
+  "Is it a question about the project?" -> "explore (for context)" [label="yes"];
   "Is it a question about the project?" -> "Respond" [label="no"];
-  "explore" -> "Found relevant nodes?";
+  "explore (for context)" -> "Found relevant nodes?";
   "Found relevant nodes?" -> "use as context" [label="yes"];
-  "Found relevant nodes?" -> "consider sync" [label="no"];
+  "Found relevant nodes?" -> "note: knowledge gap" [label="no"];
   "use as context" -> "Respond";
-  "consider sync" -> "Respond";
+  "note: knowledge gap" -> "Respond";
 
-  "Action completed" -> "Was it a commit/push/PR?";
-  "Was it a commit/push/PR?" -> "capture then sync" [label="yes"];
-  "Was it a commit/push/PR?" -> "Was a decision/convention discovered?" [label="no"];
-  "Was a decision/convention discovered?" -> "capture" [label="yes"];
-  "Was a decision/convention discovered?" -> "Continue" [label="no"];
-  "capture then sync" -> "Continue";
-  "capture" -> "Continue";
+  "Action completed" -> "Is it a significant action?";
+  "Is it a significant action?" -> "explore (for routing)" [label="yes"];
+  "Is it a significant action?" -> "Continue" [label="no"];
+  "explore (for routing)" -> "Related nodes exist?";
+  "Related nodes exist?" -> "sync (update existing)" [label="yes"];
+  "Related nodes exist?" -> "capture (create new)" [label="no"];
+  "sync (update existing)" -> "Continue";
+  "capture (create new)" -> "Continue";
 }
 ```
 
@@ -106,6 +103,7 @@ These thoughts mean STOP — you're rationalizing:
 
 | Mistake | Fix |
 |---------|-----|
-| Skip skills after "quick" commits | Every commit is a trigger point |
+| Skip explore after commit | explore first — it determines sync vs capture |
+| Always capture without checking docs/ | If related node exists, sync instead |
+| Always sync without checking docs/ | If no related node exists, capture instead |
 | Only capture when user says "remember this" | Also capture self-discovered conventions |
-| Run sync but skip capture | Always capture first, then sync |
