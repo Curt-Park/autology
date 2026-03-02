@@ -44,7 +44,7 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 - Claude CRUDs these directly with native tools
 
 ### Skills
-- `capture`, `explore`, `sync`, `tutorial` — guide Claude through workflows using native tools only
+- `router`, `capture`, `explore`, `sync`, `tutorial` — guide Claude through workflows using native tools only
 
 ## Removed
 - `cmd/`, `internal/` — Go entrypoint and packages
