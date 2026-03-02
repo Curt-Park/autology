@@ -21,16 +21,13 @@ As each developer moves faster with AI, decisions, conventions, and context beco
 ## How It Works
 
 ```
-      SessionStart hook
-            │ injects router skill as trigger guidance
-            ↓
-       Your Work
-      ↗          ↘
-  commit/decision   router → explore (triage)
-                         ↓              ↓
-                    sync existing   capture new
-      ↖                  ↘          ↙
-              docs/*.md (flat markdown graph)
+SessionStart hook → injects router skill as trigger guidance
+
+Your Work: commit / decision
+  → explore
+    → sync existing
+    → capture new
+      → docs/*.md
 ```
 
 **Storage**: Obsidian-compatible markdown in `docs/` — flat structure, YAML frontmatter, `[[wikilinks]]`
