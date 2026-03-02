@@ -1,4 +1,6 @@
 ```
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+
   ██  █  █ ████  ██  █     ██   ███ █  █
  █  █ █  █  █   █  █ █    █  █ █    █  █
  ████ █  █  █   █  █ █    █  █ █ ██  ██
@@ -14,63 +16,90 @@
 
 AI tools have made individual developers dramatically more productive — but organizational knowledge is not keeping up.
 
-```
-Individual output ↑↑  +  Shared knowledge accumulation ↓  =  Organizational debt
-```
-
-As each developer moves faster with AI, the decisions, conventions, and context behind the code become harder to share. Knowledge stays trapped in individual sessions. Teams repeat the same mistakes. New members can't onboard from docs that don't exist or are already stale.
-
-The bottleneck has shifted: it's no longer how fast one person can produce code — it's how fast a team can accumulate and reuse what they collectively know.
-
-## The Goal
-
-**Match organizational knowledge accumulation to individual productivity gains.**
-
-When AI helps one developer go 10x faster, the team's shared understanding should grow with it — not fall further behind.
+As each developer moves faster with AI, decisions, conventions, and context become harder to share. Knowledge stays trapped in individual sessions. Teams repeat the same mistakes. New members onboard from docs that don't exist or are already stale.
 
 ## How It Works
 
-Autology captures the "why" behind decisions and feeds it back into future sessions:
-
 ```
       SessionStart hook
-            │ injects node index + capture instructions
+            │ injects node index into every session
             ↓
        Your Work
       ↗          ↘
-read on demand    capture autonomously
-(/autology:explore)  (or /autology:capture)
+graph traversal   capture autonomously
+(/autology:explore) (or /autology:capture)
       ↖          ↙
          docs/*.md
 ```
 
-**Two interaction modes**:
-1. **Skills**: `/autology:capture`, `/autology:explore`, `/autology:sync`, `/autology:tutorial`
-2. **Direct**: Claude's native tools (Read/Write/Edit/Grep/Glob) on `docs/*.md`
+**Storage**: Obsidian-compatible markdown in `docs/` — flat structure, YAML frontmatter, `[[wikilinks]]`
 
-**Knowledge types**: any descriptive label — common examples: `decision` (ADR format), `component`, `convention`, `concept`, `pattern`, `issue`, `session`
+## Skills
 
-**Storage**: Obsidian-compatible markdown in `docs/` — flat structure, title-based filenames
+### `/autology:capture` — Capture Knowledge
+
+Extracts decisions, conventions, and context from conversation and writes them to `docs/*.md`.
+
+- **Autonomous**: saves without being asked when knowledge is clearly worth capturing
+- **Deduplicates**: Grep-checks before creating; updates existing nodes in place
+- **Connects**: adds `[[wikilinks]]` to related nodes and updates the reverse links
+- **Types**: `decision` · `component` · `convention` · `concept` · `pattern` · `issue` · `session`
+
+```bash
+/autology:capture      # extract from current conversation
+"remember this"        # triggers automatic capture
+```
+
+### `/autology:explore` — Navigate the Knowledge Graph
+
+Traverses the `[[wikilink]]` graph — operations that Grep alone cannot do.
+
+| Mode | Command | Use Case |
+|------|---------|----------|
+| Graph overview | `/autology:explore` | Hub nodes, orphans, connected components |
+| Neighborhood | `/autology:explore <node>` | 2-hop expansion — blast radius before refactoring |
+| Path finding | `/autology:explore path A B` | Shortest path between two concepts |
+
+### `/autology:sync` — Keep Docs in Sync
+
+Detects and fixes doc-code drift in-place.
+
+| Mode | Command | Use Case |
+|------|---------|----------|
+| Fast | `/autology:sync` | Changed files only — run before every commit |
+| Full | `/autology:sync full` | Gaps, broken wikilinks, missing links — periodic audit |
 
 ## Example
 
+**Scenario**: a team implementing JWT authentication across multiple services.
+
 **Without Autology**:
 ```
-Dev A (with Claude): implements JWT auth in 30 minutes
-→ Context stays in Dev A's session
-→ Dev B: "Why JWT? How does this work?" — no answer in the codebase
-→ Team repeats the same research next time
+Dev A: implements JWT RS256 in 30 min → reasoning lives only in their session
+Dev B: "Why JWT? Why RS256 over HS256?" → no answer in the codebase
+Dev C: new service needs auth → re-researches JWT from scratch
+New hire: reads stale ADRs that don't match the code
 ```
 
 **With Autology**:
 ```
-Dev A (with Claude): implements JWT auth in 30 minutes
-→ Claude captures the decision automatically:
-  ADR: Context (stateless microservices), Decision (JWT RS256),
-       Alternatives (sessions, OAuth), Consequences (complexity vs scaling)
-→ Dev B's next session: sees the decision injected automatically
-→ Dev B: /autology:explore authentication → full reasoning, zero onboarding cost
-→ Team's shared knowledge grows at the same pace as individual output
+Dev A: implements JWT RS256
+→ Claude captures automatically:
+  [decision] JWT RS256 — Context (stateless API), Alternatives (sessions, OAuth),
+             Consequences (token expiry UX, key rotation ops)
+  [convention] Always verify JWT expiry before role check (links to → jwt-decision)
+
+Dev B: new session — "jwt-decision" node injected at start
+→ /autology:explore path jwt-decision api-gateway
+  → sees: jwt-decision → auth-middleware → api-gateway (2 hops)
+→ implements the new service correctly, no re-research needed
+
+Dev C (before committing):
+→ /autology:sync
+  → finds: docs/jwt-decision.md says "HS256" but code uses RS256
+  → fixes the doc in-place automatically
+
+New hire: full decision chain available at session start, zero onboarding cost
 ```
 
 ## Installation
@@ -85,20 +114,20 @@ Requires `jq` (`brew install jq` / `sudo apt install jq`).
 ## Quick Start
 
 ```bash
-# Learn the model
+# Learn the full loop (5-step interactive tutorial)
 /autology:tutorial
 
-# Capture knowledge from conversation context
+# Capture knowledge from current conversation
 /autology:capture
 
 # Explore the knowledge graph
-/autology:explore
+/autology:explore                         # overview: hubs, orphans, components
+/autology:explore <node>                  # neighborhood (2-hop expansion)
+/autology:explore path <node-a> <node-b>  # path between two concepts
 
-# Verify doc-code sync (changed files only)
-/autology:sync
-
-# Full audit of entire codebase
-/autology:sync full
+# Sync docs with code
+/autology:sync       # fast — changed files only (run before commits)
+/autology:sync full  # full audit
 ```
 
 ## Development
@@ -106,32 +135,10 @@ Requires `jq` (`brew install jq` / `sudo apt install jq`).
 ```bash
 git clone https://github.com/Curt-Park/autology.git
 cd autology
-
-# Run locally
 claude --plugin-dir .
 ```
 
-### Testing
-
-Autology has no unit tests — the system is Claude's behavior, not executable code.
-
-`/autology:tutorial` serves as the end-to-end test:
-
-1. **Capture** — writes a real node to `docs/`
-2. **SessionStart** — verify the node appears in injected context
-3. **Update** — edits the node in place, verify old content is gone
-4. **Analyze** — introduces a doc-code gap, verify it's detected and fixed
-5. **Reset** — cleans up all tutorial nodes
-
-If all 5 steps complete correctly, the full knowledge loop works.
-
-## Philosophy
-
-AI tools accelerate individuals. Autology accelerates teams.
-
-By automatically capturing what Claude and developers decide, and keeping docs in sync with code, Autology turns individual AI-assisted work into organizational knowledge that anyone can build on — without friction, without manual effort.
-
-**Individuals move fast. Teams compound.**
+`/autology:tutorial` is the end-to-end test: 5 steps covering capture → inject → retrieve → update → sync. If all complete, the full loop works.
 
 ## License
 
