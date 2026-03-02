@@ -91,8 +91,8 @@ Requires `jq` (`brew install jq` / `sudo apt install jq`).
 # Capture knowledge from conversation context
 /autology:capture
 
-# Explore the knowledge base
-/autology:explore decisions
+# Explore the knowledge graph
+/autology:explore
 
 # Verify doc-code sync (changed files only)
 /autology:sync

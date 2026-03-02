@@ -24,9 +24,9 @@ Skills provide interactive commands for using Autology.
 
 **Explore**:
 ```bash
-/autology:explore            # View status
-/autology:explore decisions  # Filter by type
-/autology:explore tagged X   # Filter by tag
+/autology:explore            # Graph overview (hubs, orphans, components)
+/autology:explore <node>     # Neighborhood — 2-hop expansion from node
+/autology:explore path A B   # Shortest path between two nodes
 ```
 
 See [`docs/autology-user-guide.md`](../docs/autology-user-guide.md) for full usage and workflows.
