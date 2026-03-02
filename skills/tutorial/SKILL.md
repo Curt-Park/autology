@@ -5,235 +5,242 @@ description: Use when user is new to Autology, asks "how does Autology work", wa
 
 ## Overview
 
-Welcome to the Autology Tutorial. You will learn how knowledge is captured, reused, updated, and kept in sync with code — through a single continuous example.
+Interactive tutorial in a live git branch. You'll make real decisions, commit real code, and watch autology skills trigger naturally — exactly as they do in real work.
+
+**Duration**: ~10 minutes across 3 acts.
 
 ## Arguments
 
-- `/autology:tutorial` → Start from Step 1
-- `/autology:tutorial <1-5>` → Jump to specific step
-- `/autology:tutorial reset` → Delete all tutorial nodes from docs/
-
-## The Running Example
-
-Throughout this tutorial, we follow one realistic scenario:
-
-> You're building a web API. You make a database decision, use that knowledge later, change your mind, adapt, and finally sync your docs with the code.
+- `/autology:tutorial` → Start from Act 1
+- `/autology:tutorial <1-3>` → Jump to specific act
+- `/autology:tutorial reset` → Cleanup (return to original branch, delete tutorial branch, remove tutorial docs)
 
 ---
 
-## Step 1: Recording Memory — Capturing a Decision
+## Setup: Create Tutorial Branch
 
-**The scenario**: You just decided to use SQLite for your project's database.
+Check for uncommitted changes first:
 
-First, check what's already in the knowledge base:
-
-```
-Glob docs/*.md → read each frontmatter → show node count and tags
+```bash
+git status --short
 ```
 
-If empty, great — you're starting fresh. If nodes exist, note them.
+If clean, create the tutorial branch:
 
-Now capture the decision. Use Write tool to create `docs/sqlite-decision.md`:
+```bash
+ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git checkout -b tutorial/autology-demo
+echo "Saved original branch: $ORIGINAL_BRANCH"
+```
+
+Tell the user: "We're now on `tutorial/autology-demo`. All tutorial commits happen here. When we're done, we'll return to `$ORIGINAL_BRANCH` and delete this branch."
+
+**Wait for confirmation before Act 1.**
+
+---
+
+## Act 1: Capture — A Decision Gets Made
+
+**The scenario**: You're designing a URL shortener service. A key architectural decision comes up.
+
+Say to the user:
+
+> "We need to store URL mappings. I'm recommending Redis — O(1) lookups, built-in TTL support, and easy horizontal sharding. Do you agree, or do you prefer something else?"
+
+Wait for user response. When a decision is confirmed (any signal: "let's go with Redis", "agreed", "decided"):
+
+- `capture` triggers — "decided", "agreed", "let's use" are capture signals
+- Create `docs/tutorial-url-shortener-db.md`:
 
 ```yaml
 ---
-title: "Use SQLite for Database"
+title: "URL Shortener: Use Redis for Storage"
 type: decision
 tags: [database, architecture, tutorial]
 ---
 
-# Use SQLite for Database
+# URL Shortener: Use Redis for Storage
 
 ## Context
-Early-stage project. Need a simple, zero-config database to move fast.
+Building a URL shortener. Need fast key-value lookups with TTL support.
 
 ## Decision
-Use SQLite. File-based, no server, works locally and in CI.
+Use Redis. O(1) GET/SET, built-in key expiry, Redis Cluster for horizontal scale.
 
 ## Alternatives Considered
-- PostgreSQL: too heavy for current scale
-- In-memory store: no persistence
+- PostgreSQL: Too heavy for pure key-value access pattern
+- In-memory map: No persistence, single-node only
 
 ## Consequences
-- Fast local development
-- Will need migration if scale grows significantly
+- Fast redirects (<1ms lookup)
+- TTL-based expiry handled natively
+- Requires Redis for local dev (docker-compose)
 ```
 
-After writing the file, confirm:
+**📌 Why capture fired**: You said "decided" (or equivalent). Signals: `"decided"`, `"chose"`, `"let's use"`, `"going with"`, explicit confirmation. Every architectural decision becomes a node.
+
 ```
-> **Autology Tutorial** — Step 1 complete
+> **Autology Tutorial** — Act 1 complete
+> Captured: docs/tutorial-url-shortener-db.md
 ```
-Captured `sqlite-decision` → `docs/sqlite-decision.md`
 
-**Key point**: The node is now a plain markdown file in `docs/`. Nothing more.
-
-Ask: "Ready to see how this memory gets used in the next session?"
-
-**Wait for confirmation before Step 2.**
+**Wait for confirmation before Act 2.**
 
 ---
 
-## Step 2: Using Recorded Memory — The Next Session
+## Act 2: Commit — Router Fires
 
-**The scenario**: A new Claude session starts. You ask: "Add a user table to the database."
+**The scenario**: Document the API spec, then commit. Watch the router trigger.
 
-At session start, `scripts/session-start.sh` ran automatically. It injected the router skill as trigger guidance into Claude's context — telling Claude when to invoke explore, capture, and sync. The router skill is what makes Claude proactively check the knowledge base after significant actions.
+Create `docs/tutorial-url-shortener-spec.md`:
 
-To retrieve the actual decision, Claude uses explore or Grep to search docs/ on demand:
+```yaml
+---
+title: "URL Shortener API Spec"
+type: component
+tags: [api, spec, tutorial]
+---
+
+# URL Shortener API Spec
+
+## Endpoints
+- `POST /shorten` — accepts `{ url }`, returns `{ short_code }`
+- `GET /:code` — redirects to original URL (302)
+
+## Storage
+Uses Redis — see [[tutorial-url-shortener-db]]
+```
+
+Now commit both docs:
+
+```bash
+git add docs/tutorial-url-shortener-db.md docs/tutorial-url-shortener-spec.md
+git commit -m "tutorial: add URL shortener decision and API spec"
+```
+
+**After commit, router fires automatically.** Walk through what just happened:
+
+1. **router** detected: commit = trigger point
+2. **explore** ran context triage against the commit
+   - `tutorial-url-shortener-db.md` → existing, already accurate → nothing to sync
+   - `tutorial-url-shortener-spec.md` → new, already captured → nothing to capture
+3. Result: docs are current, no action needed
+
+**📌 Why router fired**: Every commit triggers the router. Explore triage is lightweight — when docs are current, it reports nothing to do. The value shows when something drifts.
+
+Now simulate drift: edit the spec to add an endpoint:
+
+Open `docs/tutorial-url-shortener-spec.md` and add under Endpoints:
+```
+- `DELETE /:code` — removes a short URL (admin only)
+```
+
+Commit without creating a new doc for the delete endpoint:
+
+```bash
+git add docs/tutorial-url-shortener-spec.md
+git commit -m "tutorial: add delete endpoint to spec"
+```
+
+Router fires again. This time explore finds the spec was updated but the decision node wasn't touched. Sync checks: does `tutorial-url-shortener-db.md` still match reality? It does — no drift there.
+
+**📌 Key point**: In real work, drift happens when you modify code or specs but forget to update related docs. Router + sync catch it automatically.
 
 ```
-Grep docs/ for "sqlite" (case-insensitive)
-Read docs/sqlite-decision.md
+> **Autology Tutorial** — Act 2 complete
 ```
 
-Show the full content. Point out:
-- Claude sees the Context, Decision, Alternatives, Consequences
-- This is why Claude gives SQLite-specific answers without being told
-
-**Key point**: session-start.sh injects router skill guidance (when to act), not a node list. The actual retrieval happens when Claude reads docs/ with Grep or Read.
-
-```
-> **Autology Tutorial** — Step 2 complete
-```
-
-Ask: "Ready to see what happens when the decision changes?"
-
-**Wait for confirmation before Step 3.**
+**Wait for confirmation before Act 3.**
 
 ---
 
-## Step 3: Updating Memory — When Things Change
+## Act 3: Convention — A Third Trigger Pattern
 
-**The scenario**: Three months later, traffic grew. You're migrating to PostgreSQL.
+**The scenario**: Reflect on what we built. Establish a team rule.
 
-The SQLite decision node is a living document — just update it in place. Git tracks what it used to say.
+Say to the user:
 
-Rename and update: Write new content to `docs/postgresql-decision.md`, then `rm docs/sqlite-decision.md`:
-- Update `title` → `"Use PostgreSQL for Database"` in frontmatter
-- Rewrite the content to reflect the current decision:
+> "Looking at the decision node we created — the 'Alternatives Considered' section is what makes it valuable. Should we make it a rule that every decision node must include alternatives?"
 
-```markdown
-# Use PostgreSQL for Database
+When user agrees (or any "always X" phrasing):
 
-## Context
-Started with SQLite. User table grew to 500k rows; SQLite write locks became a
-bottleneck under concurrent load.
+- `capture` triggers again — `"always"`, `"the rule is"`, `"we should always"` are capture signals
+- Create `docs/tutorial-decision-convention.md`:
 
-## Decision
-Migrate to PostgreSQL with pgBouncer for connection pooling.
-
-## Alternatives Considered
-- Stay on SQLite with WAL mode: insufficient for concurrent writes
-- MySQL: team has more PostgreSQL experience
-
-## Consequences
-- Requires Docker for local dev
-- Migration script needed for existing data
-- Better concurrency and indexing capabilities
-```
-
-After editing, confirm: "Updated `docs/postgresql-decision.md` — reflects current state."
-
-**Key point**: No need to keep a graveyard of superseded nodes. Git history has the full evolution. The knowledge base shows only what's true now.
-
-```
-> **Autology Tutorial** — Step 3 complete
-```
-
-Ask: "Ready to see how the updated memory affects the next session?"
-
-**Wait for confirmation before Step 4.**
-
+```yaml
+---
+title: "Decision Nodes Must Include Alternatives Considered"
+type: convention
+tags: [conventions, documentation, tutorial]
 ---
 
-## Step 4: Using Updated Memory — Adapted Context
+# Decision Nodes Must Include Alternatives Considered
 
-**The scenario**: Another new session. You ask: "How should I set up the database connection?"
+## Convention
+Every decision node in docs/ MUST include an "Alternatives Considered" section.
 
-SessionStart ran again. `session-start.sh` injected the router skill guidance as before — telling Claude when to invoke explore, capture, and sync. Claude retrieves the current decision on demand:
+## Rationale
+Forces deliberate choice over default choices.
+Prevents re-litigating the same decisions later.
+Future Claude and team members see why rejected options were rejected.
 
-```
-Grep docs/ for "database" (case-insensitive)
-```
-
-This now returns `docs/postgresql-decision.md`. Claude gives PostgreSQL-specific answers — connection strings, pgBouncer config, Docker setup — without any prompting.
-
-Demonstrate retrieval:
-
-```
-Grep docs/ for "database" (case-insensitive)
-Read docs/postgresql-decision.md → show full current content including migration context
+## Example
+See [[tutorial-url-shortener-db]] for correct format.
 ```
 
-To see the history — when SQLite was the decision — check git:
+Commit the convention:
 
-```
-git log --oneline docs/postgresql-decision.md
-git show HEAD~1:docs/sqlite-decision.md
-```
-
-**Key point**: The knowledge base shows what's true now. Git shows how it got there.
-
-```
-> **Autology Tutorial** — Step 4 complete
+```bash
+git add docs/tutorial-decision-convention.md
+git commit -m "tutorial: establish alternatives-required convention for decisions"
 ```
 
-Ask: "Ready for the final step — keeping docs in sync with code?"
-
-**Wait for confirmation before Step 5.**
-
----
-
-## Step 5: Syncing Docs with Code — /autology:sync
-
-**The scenario**: A developer wrote a migration script at `scripts/migrate-to-pg.sh` but didn't document it. Meanwhile, `postgresql-migration.md` mentions `pgBouncer` but it hasn't been set up yet.
-
-This is doc-code drift. Run the analyzer:
+**📌 Why capture fired**: You said "always" (or equivalent). Signals: `"always"`, `"never"`, `"must"`, `"the rule is"`, `"we should always"`. Conventions are first-class knowledge — future sessions inherit the rule automatically.
 
 ```
-Glob docs/*.md → read all nodes
-Glob scripts/*.sh → check what files exist
-Read docs/postgresql-migration.md → extract factual claims
+> **Autology Tutorial** — Act 3 complete
 ```
-
-Report what's out of sync:
-
-| Gap | Finding |
-|-----|---------|
-| Code → No Doc | `scripts/migrate-to-pg.sh` exists but no node documents it |
-| Doc ≠ Code | `postgresql-migration.md` mentions pgBouncer but no config exists yet |
-
-Then fix:
-1. Capture the migration script: Write `docs/pg-migration-script.md` (type: component)
-2. Edit `postgresql-migration.md` → note pgBouncer is planned, not yet implemented
-
-After fixes, run the check again — zero gaps.
-
-```
-> **Autology Tutorial** — Step 5 complete
-```
-
-**Key point**: `/autology:sync` is the sync check. Run it before commits (fast, changed files only) or with `sync full` for a complete audit.
 
 ---
 
 ## Tutorial Complete
 
-You've walked through the full Autology loop:
+You've experienced all three trigger patterns in real git workflow:
+
+| Trigger | Signal | Skill fired |
+|---------|--------|-------------|
+| Decision in conversation | "decided", "let's use", confirmed choice | capture |
+| `git commit` | commit = significant action | router → explore → sync/capture |
+| Convention established | "always", "never", "the rule is" | capture |
+
+**The full loop**:
+```
+decide → capture → commit → router verifies → convention → capture → repeat
+```
+
+---
+
+## Cleanup
+
+Return to original branch and remove all tutorial artifacts:
+
+```bash
+git checkout <ORIGINAL_BRANCH>
+git branch -D tutorial/autology-demo
+```
+
+Then remove tutorial docs:
 
 ```
-Capture → Inject → Retrieve → Update in place → Inject (updated) → Sync → Fix → Repeat
+Grep docs/ for frontmatter containing "tutorial" in tags
+Delete each matched file with Bash rm
 ```
 
-The nodes created in this tutorial stay in `docs/`. To remove them:
-
-```
-/autology:tutorial reset
-```
+Confirm: "Back on `<ORIGINAL_BRANCH>`. Tutorial branch deleted. Cleaned up N tutorial nodes."
 
 **Next steps**:
 - `/autology:capture` — capture knowledge from real conversations
-- `/autology:explore` — triage knowledge items, or explore graph topology (overview, neighborhood, paths)
+- `/autology:explore` — triage knowledge items, or explore graph topology
 - `/autology:sync` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---
@@ -242,16 +249,19 @@ The nodes created in this tutorial stay in `docs/`. To remove them:
 
 When user runs `/autology:tutorial reset`:
 
-1. Grep `docs/` for files containing `tutorial` in their tags frontmatter
-2. Delete each with Bash `rm`
-3. Confirm: "Cleaned up N tutorial nodes."
+1. Check current branch — if on `tutorial/autology-demo`, ask for original branch name
+2. `git checkout <original-branch>`
+3. `git branch -D tutorial/autology-demo`
+4. Grep `docs/` for files with `tutorial` in tags frontmatter
+5. Delete each with Bash `rm`
+6. Confirm: "Cleaned up tutorial branch and N tutorial nodes."
 
 ---
 
 ## Key Principles
 
-1. **One running example**: All 5 steps follow the same scenario (SQLite → PostgreSQL)
-2. **Show, don't just tell**: Demonstrate each concept with actual file operations
-3. **Wait between steps**: Confirm user is ready before proceeding
-4. **Real files**: Create actual nodes in `docs/` — not simulations
-5. **Native tools only**: Write, Edit, Read, Grep, Glob, Bash
+1. **Real git branch**: Tutorial is isolated — original branch untouched throughout
+2. **Organic triggers**: Skills fire because conditions are met, not because script calls them
+3. **Annotate every trigger**: After each skill fires, explain the signal that caused it
+4. **Interactive decisions**: User makes real choices, not just watches
+5. **Three trigger patterns**: Decision (capture), Commit (router), Convention (capture)
