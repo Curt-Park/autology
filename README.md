@@ -34,6 +34,8 @@ graph traversal   capture autonomously
 
 **Storage**: Obsidian-compatible markdown in `docs/` — flat structure, YAML frontmatter, `[[wikilinks]]`
 
+> **vs. automemory**: automemory is Claude's private notepad — flat files, single session, one assistant. Autology is a team knowledge base: typed nodes, `[[wikilinks]]` forming a graph, doc-code sync, and committed to git so knowledge compounds across developers and sessions.
+
 ## Skills
 
 ### `/autology:capture` — Capture Knowledge
