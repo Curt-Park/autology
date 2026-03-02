@@ -33,6 +33,12 @@ When NOT to use:
 
 Use a different label if it better describes the knowledge. `type` = primary classification (what kind?); `tags` = cross-cutting topics (what about?).
 
+## When invoked directly
+
+If called directly (not via autology router), consider running `/autology:explore` first.
+Explore returns topology hints — suggested relations and connected nodes — that make step 4 richer.
+If explore output is available, this skill uses it automatically. If not, it falls back to manual Grep.
+
 ## Process
 
 ### 1. Check for Existing Nodes

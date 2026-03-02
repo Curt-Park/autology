@@ -22,6 +22,12 @@ When NOT to use:
 - Capturing new knowledge → `/autology:capture`
 - Understanding graph structure → `/autology:explore`
 
+## When invoked directly
+
+If called directly (not via autology router), consider running `/autology:explore` first.
+Explore returns topology hints — connected nodes to also verify — that extend the fast mode scope beyond git-changed files.
+If explore output is available, this skill uses it automatically. If not, fast mode falls back to git-changed files only.
+
 ## Quick Reference
 
 ```
