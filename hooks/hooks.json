@@ -10,7 +10,7 @@
             "statusMessage": "Loading Autology knowledge base..."
           }
         ],
-        "description": "Inject ontology summary and autonomous capture instructions"
+        "description": "Inject router skill content as trigger guidance for autology skills"
       }
     ],
     "SessionEnd": [

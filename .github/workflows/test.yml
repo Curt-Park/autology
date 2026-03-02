@@ -12,65 +12,32 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
-      - name: session-start.sh — valid JSON output with node index
+      - name: session-start.sh — valid JSON with SessionStart event
         run: |
-          output=$(echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh)
-          echo "$output" | jq . > /dev/null
-          echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' > /dev/null
-          echo "$output" | jq -e '.hookSpecificOutput.additionalContext | length > 0' > /dev/null
+          output=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/session-start.sh)
+          echo "$output" | python3 -m json.tool > /dev/null
+          echo "$output" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+assert d['hookSpecificOutput']['hookEventName'] == 'SessionStart', 'Missing SessionStart'
+assert len(d['hookSpecificOutput']['additionalContext']) > 0, 'Empty additionalContext'
+"
           echo "✅ session-start.sh output is valid"
 
-      - name: session-start.sh — node list contains docs/ entries
+      - name: session-start.sh — additionalContext contains router skill content
         run: |
-          context=$(echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh | jq -r '.hookSpecificOutput.additionalContext')
-          echo "$context" | grep -q "docs/" || { echo "❌ No docs/ entries in context"; exit 1; }
-          echo "✅ Node list contains docs/ entries"
-
-      - name: session-start.sh — bootstrap (empty dir)
-        run: |
-          mkdir -p /tmp/empty-docs
-          output=$(echo '{}' | AUTOLOGY_ROOT=/tmp/empty-docs bash scripts/session-start.sh)
-          echo "$output" | jq . > /dev/null
-          echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("No knowledge nodes yet")' > /dev/null
-          echo "✅ Bootstrap case works"
+          context=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/session-start.sh | python3 -c "import json,sys; print(json.load(sys.stdin)['hookSpecificOutput']['additionalContext'])")
+          echo "$context" | grep -q "EXTREMELY-IMPORTANT" || { echo "❌ Missing EXTREMELY-IMPORTANT in router skill"; exit 1; }
+          echo "$context" | grep -q "autology" || { echo "❌ Missing autology skill content"; exit 1; }
+          echo "✅ additionalContext contains router skill content"
 
       - name: session-end.sh — outputs tip as JSON systemMessage
         run: |
           output=$(echo '{}' | bash scripts/session-end.sh)
-          echo "$output" | jq . > /dev/null
-          echo "$output" | jq -e '.systemMessage | test("autology"; "i")' > /dev/null || { echo "❌ No tip in systemMessage"; exit 1; }
+          echo "$output" | python3 -m json.tool > /dev/null
+          echo "$output" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+assert 'autology' in d['systemMessage'].lower(), 'Missing autology in systemMessage'
+"
           echo "✅ session-end.sh outputs tip as JSON systemMessage"
-
-
-      - name: session-start.sh — both tag formats parsed
-        run: |
-          mkdir -p /tmp/tag-test
-          cat > /tmp/tag-test/inline.md << 'EOF'
-          ---
-          id: inline-test
-          title: "Inline Tags Test"
-          type: concept
-          tags: [foo, bar, baz]
-          status: active
-          ---
-          Content
-          EOF
-          cat > /tmp/tag-test/multiline.md << 'EOF'
-          ---
-          id: multiline-test
-          title: "Multiline Tags Test"
-          type: concept
-          tags:
-            - alpha
-            - beta
-          status: active
-          ---
-          Content
-          EOF
-          context=$(echo '{}' | AUTOLOGY_ROOT=/tmp/tag-test bash scripts/session-start.sh | jq -r '.hookSpecificOutput.additionalContext')
-          echo "$context" | grep -q "foo" || { echo "❌ Inline tags not parsed"; exit 1; }
-          echo "$context" | grep -q "alpha" || { echo "❌ Multiline tags not parsed"; exit 1; }
-          echo "✅ Both tag formats parsed correctly"

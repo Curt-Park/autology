@@ -16,7 +16,7 @@
 <!-- How can reviewers verify this works? -->
 
 ```bash
-echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh | jq .  # Hook output valid
+echo '{}' | AUTOLOGY_ROOT=docs bash scripts/session-start.sh | python3 -m json.tool  # Hook output valid
 echo '{}' | bash scripts/session-end.sh 2>&1                          # Tip shown
 ```
 

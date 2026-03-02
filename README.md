@@ -22,14 +22,15 @@ As each developer moves faster with AI, decisions, conventions, and context beco
 
 ```
       SessionStart hook
-            │ injects node index into every session
+            │ injects router skill as trigger guidance
             ↓
-       Your Work
-      ↗          ↘
-graph traversal   capture autonomously
-(/autology:explore) (or /autology:capture)
-      ↖          ↙
-         docs/*.md
+    Your Work: commit / decision
+      ↑             │
+   explore        explore
+   (query)       ↙       ↘
+      ↑    sync existing  capture new
+      │          ↘       ↙
+      └───────── docs/*.md
 ```
 
 **Storage**: Obsidian-compatible markdown in `docs/` — flat structure, YAML frontmatter, `[[wikilinks]]`
@@ -91,7 +92,7 @@ Dev A: implements JWT RS256
              Consequences (token expiry UX, key rotation ops)
   [convention] Always verify JWT expiry before role check (links to → jwt-decision)
 
-Dev B: new session — "jwt-decision" node injected at start
+Dev B: new session — router skill injected at start, Claude knows to check docs/ for decisions
 → /autology:explore path jwt-decision api-gateway
   → sees: jwt-decision → auth-middleware → api-gateway (2 hops)
 → implements the new service correctly, no re-research needed
@@ -112,12 +113,10 @@ New hire: full decision chain available at session start, zero onboarding cost
 /plugin install autology@autology
 ```
 
-Requires `jq` (`brew install jq` on macOS · `sudo apt install jq` on Ubuntu/Debian).
-
 ## Quick Start
 
 ```bash
-# Learn the full loop (5-step interactive tutorial)
+# Learn the full loop (3-act interactive tutorial)
 /autology:tutorial
 
 # Capture knowledge from current conversation
@@ -141,7 +140,7 @@ cd autology
 claude --plugin-dir .
 ```
 
-`/autology:tutorial` is the end-to-end test: 5 steps covering capture → inject → retrieve → update → sync. If all complete, the full loop works.
+`/autology:tutorial` is the end-to-end test: 3 acts covering capture (decision + code) → sync (drift detection) → explore (query). If all complete, the full loop works.
 
 ## License
 
