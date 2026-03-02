@@ -22,7 +22,7 @@ When NOT to use:
 
 ## When invoked directly
 
-Fast mode requires explore to have run first. If explore output is not available, use `/autology:sync-knowledge full`.
+Fast mode requires explore output. If explore has not run, run `/autology:explore-knowledge` first — or use `/autology:sync-knowledge full` to audit everything without explore.
 
 ## Quick Reference
 
