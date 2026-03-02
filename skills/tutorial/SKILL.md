@@ -72,41 +72,11 @@ git add docker-compose.yml
 git commit -m "tutorial: add Redis docker-compose"
 ```
 
-**Router fires** — commit = trigger point.
+**Router fires** — commit = trigger point. Now invoke capture for real:
 
-**explore** runs context triage:
-- `docker-compose.yml` added with Redis service
-- No existing doc for this storage decision
-- → new item, needs capture
+Use Skill tool: `autology:capture`
 
-**capture fires**: create `docs/tutorial-url-shortener-db.md`:
-
-```yaml
----
-title: "URL Shortener: Use Redis for Storage"
-type: decision
-tags: [database, architecture, tutorial]
----
-
-# URL Shortener: Use Redis for Storage
-
-## Context
-Building a URL shortener. Need fast key-value lookups with TTL support.
-
-## Decision
-Use Redis. O(1) GET/SET, built-in key expiry, Redis Cluster for horizontal scale.
-
-## Alternatives Considered
-- PostgreSQL: Too heavy for pure key-value access pattern
-- In-memory map: No persistence, single-node only
-
-## Consequences
-- Fast redirects (<1ms lookup)
-- TTL-based expiry handled natively
-- Requires Redis for local dev (docker-compose)
-```
-
-Commit the captured doc:
+Capture will create `docs/tutorial-url-shortener-db.md` with the Redis decision. After capture completes, commit the doc:
 
 ```bash
 git add docs/tutorial-url-shortener-db.md
@@ -161,42 +131,11 @@ git add docker-compose.yml
 git commit -m "tutorial: switch storage from Redis to PostgreSQL"
 ```
 
-**Router fires** — commit = trigger point.
+**Router fires** — commit = trigger point. Now invoke sync for real:
 
-**explore** runs context triage:
-- `docker-compose.yml` now shows PostgreSQL
-- Existing node `tutorial-url-shortener-db.md` still says Redis
-- → existing node, stale → sync
+Use Skill tool: `autology:sync`
 
-**sync fires**: reads `docker-compose.yml` and `tutorial-url-shortener-db.md`, detects drift, updates in-place:
-
-```yaml
----
-title: "URL Shortener: Use PostgreSQL for Storage"
-type: decision
-tags: [database, architecture, tutorial]
----
-
-# URL Shortener: Use PostgreSQL for Storage
-
-## Context
-Started with Redis plan. Infrastructure constraint: no Redis available in existing cluster.
-PostgreSQL cluster already provisioned — reuses existing infrastructure.
-
-## Decision
-Use PostgreSQL. Existing cluster available, no additional infra cost, sufficient for expected query load.
-
-## Alternatives Considered
-- Redis: Optimal for key-value, but not available in existing infra (rejected)
-- In-memory map: No persistence
-
-## Consequences
-- Reuses existing infrastructure
-- TTL handled via `expires_at` column + scheduled cleanup
-- Slightly higher lookup latency vs Redis (acceptable)
-```
-
-Commit the synced doc:
+Sync will read both files, detect the drift, and update `docs/tutorial-url-shortener-db.md` in-place. After sync completes, commit the updated doc:
 
 ```bash
 git add docs/tutorial-url-shortener-db.md
@@ -227,14 +166,10 @@ Say to the user:
 When the user asks (e.g., "Why are we using PostgreSQL?", "What happened to Redis?", "What are the consequences?"):
 
 - `explore` triggers — question about existing knowledge
-- Search and read:
 
-```
-Grep docs/ for relevant terms (case-insensitive)
-Read docs/tutorial-url-shortener-db.md
-```
+Use Skill tool: `autology:explore`
 
-Answer from the doc content. The node contains:
+Explore will search the knowledge base and answer from the doc content. The node contains:
 - Why Redis was originally chosen
 - Why Redis was rejected (infra constraint)
 - PostgreSQL rationale and trade-offs
