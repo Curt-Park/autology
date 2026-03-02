@@ -25,12 +25,12 @@ As each developer moves faster with AI, decisions, conventions, and context beco
             │ injects router skill as trigger guidance
             ↓
     Your Work: commit / decision
-            │
-          explore
-         ↙       ↘
-  sync existing  capture new
-         ↘       ↙
-          docs/*.md
+      ↑             │
+   explore        explore
+   (query)       ↙       ↘
+      ↑    sync existing  capture new
+      │          ↘       ↙
+      └──── docs/*.md
 ```
 
 **Storage**: Obsidian-compatible markdown in `docs/` — flat structure, YAML frontmatter, `[[wikilinks]]`
