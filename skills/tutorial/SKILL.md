@@ -1,5 +1,5 @@
 ---
-name: autology:tutorial
+name: tutorial
 description: Use when user is new to Autology, asks "how does Autology work", wants to learn about knowledge capture, or requests a guided introduction.
 ---
 

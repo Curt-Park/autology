@@ -1,5 +1,5 @@
 ---
-name: autology:explore
+name: explore
 description: Use when router triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
 ---
 

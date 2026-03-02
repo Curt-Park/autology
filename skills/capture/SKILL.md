@@ -1,5 +1,5 @@
 ---
-name: autology:capture
+name: capture
 description: Use when a project decision, convention, or pattern should be saved to the autology knowledge base (docs/) — user says "remember this", "decided", "chose", "always do X", or autology router identifies new items from explore triage.
 ---
 

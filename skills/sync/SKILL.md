@@ -1,5 +1,5 @@
 ---
-name: autology:sync
+name: sync
 description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology router identifies existing nodes from explore triage. Also for periodic full audits.
 ---
 
