@@ -60,6 +60,7 @@ digraph router {
   "Is it a question about the project?" [shape=diamond];
   "explore (surface context hints)" [shape=box];
   "Found relevant nodes?" [shape=diamond];
+  "Respond" [shape=doublecircle];
   "Use as context → Respond" [shape=doublecircle];
   "sync may be needed → Respond" [shape=doublecircle];
   "Was it a commit/push/PR?" [shape=diamond];
@@ -70,7 +71,7 @@ digraph router {
 
   "User message received" -> "Is it a question about the project?";
   "Is it a question about the project?" -> "explore (surface context hints)" [label="yes"];
-  "Is it a question about the project?" -> "Use as context → Respond" [label="no"];
+  "Is it a question about the project?" -> "Respond" [label="no"];
   "explore (surface context hints)" -> "Found relevant nodes?";
   "Found relevant nodes?" -> "Use as context → Respond" [label="yes"];
   "Found relevant nodes?" -> "sync may be needed → Respond" [label="no"];
