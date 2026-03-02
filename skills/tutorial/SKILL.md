@@ -5,9 +5,9 @@ description: Use when user is new to Autology, asks "how does Autology work", wa
 
 ## Overview
 
-Interactive tutorial in a live git branch. You'll make real decisions, commit real code, and watch autology skills trigger naturally — exactly as they do in real work.
+Interactive tutorial in a live git branch. Create real config files, commit them, and watch autology skills trigger naturally.
 
-**Duration**: ~10 minutes across 3 acts.
+**Duration**: ~15 minutes across 3 acts.
 
 ## Arguments
 
@@ -39,18 +39,47 @@ Tell the user: "We're now on `tutorial/autology-demo`. All tutorial commits happ
 
 ---
 
-## Act 1: Capture — A Decision Gets Made
+## Act 1: Capture — Decision + Code
 
-**The scenario**: You're designing a URL shortener service. A key architectural decision comes up.
+**The scenario**: Design a URL shortener. First architectural decision: storage.
 
 Say to the user:
 
-> "We need to store URL mappings. Redis is ideal — O(1) lookups, built-in TTL support. Do you agree, or prefer something else?"
+> "We're building a URL shortener. For storage, Redis makes sense — O(1) lookups, built-in TTL. Shall we go with Redis?"
 
-Wait for user response. When a decision is confirmed (any signal: "agreed", "go with Redis", "decided"):
+**Wait for user confirmation.**
 
-- `capture` triggers — "decided", "agreed", "let's use" are capture signals
-- Create `docs/tutorial-url-shortener-db.md`:
+When confirmed, create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+```
+
+Commit:
+
+```bash
+git add docker-compose.yml
+git commit -m "tutorial: add Redis docker-compose"
+```
+
+**Router fires** — commit = trigger point.
+
+**explore** runs context triage:
+- `docker-compose.yml` added with Redis service
+- No existing doc for this storage decision
+- → new item, needs capture
+
+**capture fires**: create `docs/tutorial-url-shortener-db.md`:
 
 ```yaml
 ---
@@ -77,21 +106,14 @@ Use Redis. O(1) GET/SET, built-in key expiry, Redis Cluster for horizontal scale
 - Requires Redis for local dev (docker-compose)
 ```
 
-Commit the decision doc:
+Commit the captured doc:
 
 ```bash
 git add docs/tutorial-url-shortener-db.md
 git commit -m "tutorial: capture Redis storage decision"
 ```
 
-After commit, **router fires**. Walk through what just happened:
-
-1. **router** detected: commit = trigger point
-2. **explore** ran context triage:
-   - `tutorial-url-shortener-db.md` → just captured, already accurate → nothing to sync or capture
-3. Result: knowledge base is current, no action needed
-
-**📌 Why capture fired**: You said "agreed" (or equivalent). Signals: `"decided"`, `"chose"`, `"let's use"`, `"going with"`, explicit confirmation. The commit trigger checked if anything drifted — here it didn't.
+**📌 Why capture fired**: Commit introduced a Redis config with no corresponding decision doc. Explore classified it as new → capture created the doc automatically.
 
 ```
 > **Autology Tutorial** — Act 1 complete
@@ -102,52 +124,51 @@ After commit, **router fires**. Walk through what just happened:
 
 ---
 
-## Act 2: Sync — A Decision Changes
+## Act 2: Sync — Decision Changes
 
-**The scenario**: After Act 1, new information arrives. The infrastructure team says Redis isn't available — must use PostgreSQL.
+**The scenario**: New constraint arrives. Discuss, change the code, watch the doc update automatically.
 
 Say to the user:
 
-> "Constraint from infra: Redis isn't available in our cluster. We need to switch to PostgreSQL."
+> "Infrastructure constraint: Redis isn't available in our cluster. Should we switch to PostgreSQL?"
 
-Create a config doc reflecting the new reality:
+**Wait for user confirmation.**
 
-Write `docs/tutorial-url-shortener-config.md`:
+When confirmed, edit `docker-compose.yml` to replace Redis with PostgreSQL:
 
 ```yaml
----
-title: "URL Shortener Config"
-type: component
-tags: [config, tutorial]
----
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: urlshortener
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
 
-# URL Shortener Config
-
-## Database
-- host: postgres://...
-- table: url_mappings (short_code TEXT PK, original_url TEXT, expires_at TIMESTAMP)
+volumes:
+  pg_data:
 ```
 
-Commit it:
+Commit:
 
 ```bash
-git add docs/tutorial-url-shortener-config.md
-git commit -m "tutorial: add PostgreSQL config"
+git add docker-compose.yml
+git commit -m "tutorial: switch storage from Redis to PostgreSQL"
 ```
 
-**After commit, router fires again.** Walk through explore's triage:
+**Router fires** — commit = trigger point.
 
-1. **router** detected: commit = trigger point
-2. **explore** checked context against knowledge base:
-   - `tutorial-url-shortener-config.md` → new doc, already captured → nothing to capture
-   - `tutorial-url-shortener-db.md` → **existing node** that says "Use Redis" — but commit context shows PostgreSQL in use
-   - Classification: `tutorial-url-shortener-db.md` → **existing, stale → sync**
-3. **sync** runs on `tutorial-url-shortener-db.md`:
-   - Reads current doc: says Redis
-   - Reads new config: says PostgreSQL
-   - Detects drift → updates the decision doc in-place
+**explore** runs context triage:
+- `docker-compose.yml` now shows PostgreSQL
+- Existing node `tutorial-url-shortener-db.md` still says Redis
+- → existing node, stale → sync
 
-Update `docs/tutorial-url-shortener-db.md` to reflect the changed decision:
+**sync fires**: reads `docker-compose.yml` and `tutorial-url-shortener-db.md`, detects drift, updates in-place:
 
 ```yaml
 ---
@@ -175,7 +196,14 @@ Use PostgreSQL. Existing cluster available, no additional infra cost, sufficient
 - Slightly higher lookup latency vs Redis (acceptable)
 ```
 
-**📌 Why sync fired**: Explore detected drift — the new config showed PostgreSQL while the decision node still said Redis. Sync read both, identified the mismatch, and updated the decision node in-place. This is the core value: **docs stay accurate automatically when decisions change**.
+Commit the synced doc:
+
+```bash
+git add docs/tutorial-url-shortener-db.md
+git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
+```
+
+**📌 Why sync fired**: docker-compose changed to PostgreSQL but the decision doc still said Redis. Explore detected the mismatch, sync updated the doc in-place to match reality.
 
 ```
 > **Autology Tutorial** — Act 2 complete
@@ -186,48 +214,35 @@ Use PostgreSQL. Existing cluster available, no additional infra cost, sufficient
 
 ---
 
-## Act 3: Convention — A Third Trigger Pattern
+## Act 3: Explore — Query the Knowledge Graph
 
-**The scenario**: Reflect on what we built. Establish a team rule.
+**The scenario**: Some time has passed. You want to understand the current decision and its rationale.
 
 Say to the user:
 
-> "Looking at the decision node we just updated — the 'Alternatives Considered' section is what made it easy to see that Redis was rejected for infra reasons. Should we make it a rule that every decision node must include alternatives?"
+> "Now let's explore the knowledge base. Ask me anything about the decisions we've made — why we're using PostgreSQL, what happened to Redis, what the trade-offs are."
 
-When user agrees (or any "always X" phrasing):
+**Wait for user question.**
 
-- `capture` triggers — `"always"`, `"the rule is"`, `"we should always"` are capture signals
-- Create `docs/tutorial-decision-convention.md`:
+When the user asks (e.g., "Why are we using PostgreSQL?", "What happened to Redis?", "What are the consequences?"):
 
-```yaml
----
-title: "Decision Nodes Must Include Alternatives Considered"
-type: convention
-tags: [conventions, documentation, tutorial]
----
+- `explore` triggers — question about existing knowledge
+- Search and read:
 
-# Decision Nodes Must Include Alternatives Considered
-
-## Convention
-Every decision node in docs/ MUST include an "Alternatives Considered" section.
-
-## Rationale
-Forces deliberate choice over default choices.
-Prevents re-litigating the same decisions later.
-Future Claude and team members see why rejected options were rejected.
-
-## Example
-See [[tutorial-url-shortener-db]] for correct format.
+```
+Grep docs/ for relevant terms (case-insensitive)
+Read docs/tutorial-url-shortener-db.md
 ```
 
-Commit the convention:
+Answer from the doc content. The node contains:
+- Why Redis was originally chosen
+- Why Redis was rejected (infra constraint)
+- PostgreSQL rationale and trade-offs
+- Consequences for the team
 
-```bash
-git add docs/tutorial-decision-convention.md
-git commit -m "tutorial: establish alternatives-required convention for decisions"
-```
+Point out: this is what `explore` does in real work — you don't have to remember decisions. The knowledge base answers.
 
-**📌 Why capture fired**: You said "always" (or equivalent). Signals: `"always"`, `"never"`, `"must"`, `"the rule is"`, `"we should always"`. Conventions are first-class knowledge — future sessions inherit the rule automatically.
+**📌 Why explore fires**: Question about existing project knowledge. Explore searches docs/, finds the relevant node, reads it, and answers from captured context.
 
 ```
 > **Autology Tutorial** — Act 3 complete
@@ -237,17 +252,17 @@ git commit -m "tutorial: establish alternatives-required convention for decision
 
 ## Tutorial Complete
 
-You've experienced all three trigger patterns in real git workflow:
+You've seen all three core workflows:
 
-| Trigger | Signal | Skill fired |
-|---------|--------|-------------|
-| Decision confirmed in conversation | "agreed", "let's use", "decided" | capture |
-| Commit reveals stale existing node | router → explore detects drift | sync |
-| Convention established | "always", "never", "the rule is" | capture |
+| Act | What happened | Skill fired |
+|-----|---------------|-------------|
+| 1: Capture | Redis config committed, no doc existed | explore → capture |
+| 2: Sync | Config changed to PostgreSQL, doc said Redis | explore → sync |
+| 3: Explore | Asked about the storage decision | explore → answer |
 
 **The full loop**:
 ```
-decide → capture → commit → router checks → decision changes → commit → router detects drift → sync fixes → convention → capture → repeat
+code → commit → router → explore triage → capture/sync → commit → explore queries → answer from docs
 ```
 
 ---
@@ -292,8 +307,8 @@ When user runs `/autology:tutorial reset`:
 
 ## Key Principles
 
-1. **Real git branch**: Tutorial is isolated — original branch untouched throughout
-2. **Organic triggers**: Skills fire because conditions are met, not because script calls them
-3. **Annotate every trigger**: After each skill fires, explain the signal that caused it
-4. **Interactive decisions**: User makes real choices, not just watches
-5. **Three trigger patterns**: Decision (capture), Drift detection (sync), Convention (capture)
+1. **Real artifacts**: docker-compose is a concrete, tangible file — not just docs
+2. **User interaction at each act**: user makes decisions, not just watches
+3. **Commit → sync**: sync always commits the updated doc
+4. **Three workflows**: capture (new), sync (drift), explore (query)
+5. **Organic triggers**: skills fire because conditions are met, not because script calls them
