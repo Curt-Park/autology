@@ -22,7 +22,7 @@ As each developer moves faster with AI, decisions, conventions, and context beco
 
 ```
       SessionStart hook
-            │ injects router skill as trigger guidance
+            │ injects autology-workflow skill as trigger guidance
             ↓
     Your Work: commit / decision
       ↑             │
@@ -39,7 +39,7 @@ As each developer moves faster with AI, decisions, conventions, and context beco
 
 ## Skills
 
-### `/autology:capture` — Capture Knowledge
+### `/autology:capture-knowledge` — Capture Knowledge
 
 Extracts decisions, conventions, and context from conversation and writes them to `docs/*.md`.
 
@@ -49,28 +49,38 @@ Extracts decisions, conventions, and context from conversation and writes them t
 - **Types**: `decision` · `component` · `convention` · `concept` · `pattern` · `issue` · `session`
 
 ```bash
-/autology:capture      # extract from current conversation
+/autology:capture-knowledge      # extract from current conversation
 "remember this"        # triggers automatic capture
 ```
 
-### `/autology:explore` — Navigate the Knowledge Graph
+### `/autology:explore-knowledge` — Navigate the Knowledge Graph
 
 Traverses the `[[wikilink]]` graph — operations that Grep alone cannot do.
 
 | Mode | Command | Use Case |
 |------|---------|----------|
-| Graph overview | `/autology:explore` | Hub nodes, orphans, connected components |
-| Neighborhood | `/autology:explore <node>` | 2-hop expansion — blast radius before refactoring |
-| Path finding | `/autology:explore path A B` | Shortest path between two concepts |
+| Graph overview | `/autology:explore-knowledge` | Hub nodes, orphans, connected components |
+| Neighborhood | `/autology:explore-knowledge <node>` | 2-hop expansion — blast radius before refactoring |
+| Path finding | `/autology:explore-knowledge path A B` | Shortest path between two concepts |
 
-### `/autology:sync` — Keep Docs in Sync
+### `/autology:sync-knowledge` — Keep Docs in Sync
 
 Detects and fixes doc-code drift in-place.
 
 | Mode | Command | Use Case |
 |------|---------|----------|
-| Fast | `/autology:sync` | Changed files only — run before every commit |
-| Full | `/autology:sync full` | Gaps, broken wikilinks, missing links — periodic audit |
+| Fast | `/autology:sync-knowledge` | Changed files only — run before every commit |
+| Full | `/autology:sync-knowledge full` | Gaps, broken wikilinks, missing links — periodic audit |
+
+### `/autology:autology-tutorial` — Interactive Tutorial
+
+3-act hands-on walkthrough: capture a decision → detect doc-code drift with sync → query the knowledge graph with explore. Runs in a live git branch (~15 minutes).
+
+```bash
+/autology:autology-tutorial          # start from Act 1
+/autology:autology-tutorial <1-3>    # jump to specific act
+/autology:autology-tutorial reset    # clean up tutorial branch and docs
+```
 
 ## Example
 
@@ -93,13 +103,13 @@ Dev A: implements JWT RS256
   [convention] Always verify JWT expiry before role check (links to → jwt-decision)
 
 Dev B: new session — router skill injected at start, Claude knows to check docs/ for decisions
-→ /autology:explore path jwt-decision api-gateway
+→ /autology:explore-knowledge path jwt-decision api-gateway
   → sees: jwt-decision → auth-middleware → api-gateway (2 hops)
 → implements the new service correctly, no re-research needed
 
 Dev C: 3 months later, migrates an internal service to HS256 (simpler for internal-only traffic)
 → updates the code, forgets to update the doc
-→ /autology:sync (before committing)
+→ /autology:sync-knowledge (before committing)
   → finds: code now uses HS256 but docs/jwt-decision.md still says RS256
   → fixes the doc in-place
 
@@ -117,19 +127,19 @@ New hire: full decision chain available at session start, zero onboarding cost
 
 ```bash
 # Learn the full loop (3-act interactive tutorial)
-/autology:tutorial
+/autology:autology-tutorial
 
 # Capture knowledge from current conversation
-/autology:capture
+/autology:capture-knowledge
 
 # Explore the knowledge graph
-/autology:explore                         # overview: hubs, orphans, components
-/autology:explore <node>                  # neighborhood (2-hop expansion)
-/autology:explore path <node-a> <node-b>  # path between two concepts
+/autology:explore-knowledge                         # overview: hubs, orphans, components
+/autology:explore-knowledge <node>                  # neighborhood (2-hop expansion)
+/autology:explore-knowledge path <node-a> <node-b>  # path between two concepts
 
 # Sync docs with code
-/autology:sync       # fast — changed files only (run before commits)
-/autology:sync full  # full audit
+/autology:sync-knowledge       # fast — changed files only (run before commits)
+/autology:sync-knowledge full  # full audit
 ```
 
 ## Development
@@ -140,7 +150,7 @@ cd autology
 claude --plugin-dir .
 ```
 
-`/autology:tutorial` is the end-to-end test: 3 acts covering capture (decision + code) → sync (drift detection) → explore (query). If all complete, the full loop works.
+`/autology:autology-tutorial` is the end-to-end test: 3 acts covering capture (decision + code) → sync (drift detection) → explore (query). If all complete, the full loop works.
 
 ## License
 

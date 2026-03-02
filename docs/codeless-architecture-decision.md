@@ -31,8 +31,8 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 ## Architecture
 
 ### SessionStart Hook (shell script)
-- Reads `skills/router/SKILL.md`, strips YAML frontmatter with awk
-- Injects router skill as trigger guidance — tells Claude when/how to invoke autology skills
+- Reads `skills/autology-workflow/SKILL.md`, strips YAML frontmatter with awk
+- Injects autology-workflow skill as trigger guidance — tells Claude when/how to invoke autology skills
 - Outputs `additionalContext` JSON for Claude Code
 
 ### SessionEnd Hook (shell script)
@@ -44,7 +44,7 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 - Claude CRUDs these directly with native tools
 
 ### Skills
-- `router`, `capture`, `explore`, `sync`, `tutorial` — guide Claude through workflows using native tools only
+- `autology-workflow`, `capture-knowledge`, `explore-knowledge`, `sync-knowledge`, `autology-tutorial` — guide Claude through workflows using native tools only
 
 ## Removed
 - `cmd/`, `internal/` — Go entrypoint and packages

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Session start hook: inject autology router skill as trigger guidance
+# Session start hook: inject autology-workflow skill as trigger guidance
 set -euo pipefail
 
 # Consume stdin to avoid broken pipe
@@ -9,10 +9,10 @@ cat /dev/stdin > /dev/null 2>&1 || true
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Read router skill, strip YAML frontmatter
-_skill_content=$(awk '/^---$/{if(found){found=0;next}else{found=1;next}} !found{print}' "${PLUGIN_ROOT}/skills/router/SKILL.md")
+# Read autology-workflow skill, strip YAML frontmatter
+_skill_content=$(awk '/^---$/{if(found){found=0;next}else{found=1;next}} !found{print}' "${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md")
 
-context="Below is the full content of the autology router skill — your guide to when and how to invoke autology skills:
+context="Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills:
 
 ${_skill_content}"
 

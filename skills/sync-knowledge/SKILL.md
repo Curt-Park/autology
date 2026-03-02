@@ -1,6 +1,6 @@
 ---
-name: sync
-description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology router identifies existing nodes from explore triage. Also for periodic full audits.
+name: sync-knowledge
+description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology-workflow identifies existing nodes from explore triage. Also for periodic full audits.
 ---
 
 ## Overview
@@ -13,22 +13,22 @@ Two modes:
 
 ## When to Use
 
-- After explore triage (via router or directly) to verify matched existing nodes
+- After explore triage (via autology-workflow or directly) to verify matched existing nodes
 - Periodic full audit of the knowledge base
 
 When NOT to use:
-- Capturing new knowledge → `/autology:capture`
-- Finding what changed → `/autology:explore` (run explore first, then sync)
+- Capturing new knowledge → `/autology:capture-knowledge`
+- Finding what changed → `/autology:explore-knowledge` (run explore first, then sync)
 
 ## When invoked directly
 
-Fast mode requires explore to have run first. If explore output is not available, use `/autology:sync full`.
+Fast mode requires explore output. If explore has not run, run `/autology:explore-knowledge` first — or use `/autology:sync-knowledge full` to audit everything without explore.
 
 ## Quick Reference
 
 ```
-/autology:sync        # fast — verifies nodes explore identified
-/autology:sync full   # full audit — no explore needed
+/autology:sync-knowledge        # fast — verifies nodes explore identified
+/autology:sync-knowledge full   # full audit — no explore needed
 ```
 
 ---
@@ -57,7 +57,7 @@ For each matched doc:
 - Compare: do counts, names, types, paths, and behavior claims still match?
 - If discrepancies found: edit the doc in-place to reflect current reality
 
-### 4. Report
+### 3. Report
 
 ```markdown
 ## Sync Report (fast)
@@ -90,11 +90,12 @@ Extract: title, type, tags, content, wikilinks (`[[target]]` patterns)
 
 ### 2. Survey Codebase
 
+Identify the project's key files based on its structure:
+
 ```
-Glob: skills/*/SKILL.md
-Read: hooks/hooks.json
-Read: package.json
-Glob: scripts/*.sh
+Glob: common project manifests (package.json, go.mod, Cargo.toml, pyproject.toml, etc.)
+Glob: source directories identified from project structure
+Read: key config files (hooks/, scripts/, config/, etc.)
 ```
 
 ### 3. Find Knowledge Gaps
@@ -119,6 +120,8 @@ Report broken wikilinks.
 - Nodes with 2+ shared tags but no wikilink between them → suggest link
 - Node A's content mentions node B's title but no `[[B]]` link → suggest link
 
+**Fix policy**: For Doc ≠ Code discrepancies — edit the doc in-place immediately, then report what was fixed. For Code → No Doc gaps — report only (capture handles new nodes).
+
 ### 6. Report
 
 ```markdown
@@ -130,7 +133,7 @@ Report broken wikilinks.
 #### [Component Name]
 **What**: description
 **Where**: path/to/code
-**Fix**: /autology:capture as [type] with tags [...]
+**Fix**: /autology:capture-knowledge as [type] with tags [...]
 
 ### Doc → No Code
 #### [Node Title] (node-id)

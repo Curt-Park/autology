@@ -1,5 +1,5 @@
 ---
-name: tutorial
+name: autology-tutorial
 description: Use when user is new to Autology, asks "how does Autology work", wants to learn about knowledge capture, or requests a guided introduction.
 ---
 
@@ -11,9 +11,9 @@ Interactive tutorial in a live git branch. Create real config files, commit them
 
 ## Arguments
 
-- `/autology:tutorial` → Start from Act 1
-- `/autology:tutorial <1-3>` → Jump to specific act
-- `/autology:tutorial reset` → Cleanup (return to original branch, delete tutorial branch, remove tutorial docs)
+- `/autology:autology-tutorial` → Start from Act 1
+- `/autology:autology-tutorial <1-3>` → Jump to specific act
+- `/autology:autology-tutorial reset` → Cleanup (return to original branch, delete tutorial branch, remove tutorial docs)
 
 ---
 
@@ -63,7 +63,6 @@ options:
 When user selects **Redis**, create `docker-compose.yml`:
 
 ```yaml
-version: '3.8'
 services:
   redis:
     image: redis:7-alpine
@@ -83,14 +82,14 @@ git add docker-compose.yml
 git commit -m "tutorial: add Redis docker-compose"
 ```
 
-**Router fires** — commit = trigger point. Now invoke capture for real:
+**autology-workflow triggers** — commit = trigger point. Now invoke capture for real:
 
-Use Skill tool: `autology:capture`
+Use Skill tool: `autology:capture-knowledge`
 
-Capture will create `docs/tutorial-url-shortener-db.md` with the Redis decision. After capture completes, commit the doc:
+Capture will create a doc in `docs/` (e.g., `docs/tutorial-url-shortener-db.md`). After capture completes, stage and commit the newly created doc:
 
 ```bash
-git add docs/tutorial-url-shortener-db.md
+git add docs/tutorial-*.md
 git commit -m "tutorial: capture Redis storage decision"
 ```
 
@@ -98,7 +97,7 @@ git commit -m "tutorial: capture Redis storage decision"
 
 ```
 > **Autology Tutorial** — Act 1 complete
-> Captured: docs/tutorial-url-shortener-db.md
+> Captured: docs/[title-slug].md
 ```
 
 **Wait for confirmation before Act 2.**
@@ -126,7 +125,6 @@ options:
 When user selects **PostgreSQL**, edit `docker-compose.yml` to replace Redis with PostgreSQL:
 
 ```yaml
-version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
@@ -150,14 +148,14 @@ git add docker-compose.yml
 git commit -m "tutorial: switch storage from Redis to PostgreSQL"
 ```
 
-**Router fires** — commit = trigger point. Now invoke sync for real:
+**autology-workflow triggers** — commit = trigger point. Now invoke sync for real:
 
-Use Skill tool: `autology:sync`
+Use Skill tool: `autology:sync-knowledge`
 
-Sync will read both files, detect the drift, and update `docs/tutorial-url-shortener-db.md` in-place. After sync completes, commit the updated doc:
+Sync will read both files, detect the drift, and update the doc in-place. After sync completes, stage and commit the updated doc:
 
 ```bash
-git add docs/tutorial-url-shortener-db.md
+git add docs/tutorial-*.md
 git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 ```
 
@@ -165,7 +163,7 @@ git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 
 ```
 > **Autology Tutorial** — Act 2 complete
-> Synced: docs/tutorial-url-shortener-db.md (Redis → PostgreSQL)
+> Synced: docs/[title-slug].md (Redis → PostgreSQL)
 ```
 
 **Wait for confirmation before Act 3.**
@@ -190,7 +188,7 @@ For each selected question:
 
 - `explore` triggers — question about existing knowledge
 
-Use Skill tool: `autology:explore`
+Use Skill tool: `autology:explore-knowledge`
 
 Explore will search the knowledge base and answer from the doc content. The node contains:
 - Why Redis was originally chosen
@@ -220,7 +218,7 @@ You've seen all three core workflows:
 
 **The full loop**:
 ```
-code → commit → router → explore triage → capture/sync → commit → explore queries → answer from docs
+code → commit → autology-workflow → explore triage → capture/sync → commit → explore queries → answer from docs
 ```
 
 ---
@@ -244,15 +242,15 @@ Delete each matched file with Bash rm
 Confirm: "Back on `<ORIGINAL_BRANCH>`. Tutorial branch deleted. Cleaned up N tutorial nodes."
 
 **Next steps**:
-- `/autology:capture` — capture knowledge from real conversations
-- `/autology:explore` — triage knowledge items, or explore graph topology
-- `/autology:sync` — find doc-code drift anytime (or `sync full` for complete audit)
+- `/autology:capture-knowledge` — capture knowledge from real conversations
+- `/autology:explore-knowledge` — triage knowledge items, or explore graph topology
+- `/autology:sync-knowledge` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---
 
 ## Reset Process
 
-When user runs `/autology:tutorial reset`:
+When user runs `/autology:autology-tutorial reset`:
 
 1. Check current branch — if on `tutorial/autology-demo`, need to know original branch
 2. `git checkout <original-branch>`
@@ -269,4 +267,4 @@ When user runs `/autology:tutorial reset`:
 2. **User interaction at each act**: user makes decisions, not just watches
 3. **Commit → sync**: sync always commits the updated doc
 4. **Three workflows**: capture (new), sync (drift), explore (query)
-5. **Organic triggers**: skills fire because conditions are met, not because script calls them
+5. **Guided invocation**: the tutorial calls skills explicitly to demonstrate each step — in real work, autology-workflow triggers them automatically after commits
