@@ -17,13 +17,18 @@ used as a decision tool — not triggered by user messages.
 
 ### [Action completed] After commit/push/PR or decision/convention discovered
 
+Per-item routing — each item from the action summary is handled independently:
+
 ```
-→ /autology:explore — check what already exists in docs/
+1. Summarize the action into knowledge items
+   (decisions made, conventions established, components changed, etc.)
+2. For each item:
+   → /autology:explore — does a related node already exist in docs/?
+     yes → /autology:sync  — update existing node
+     no  → /autology:capture — create new node
 ```
 
-Based on the result:
-- Related nodes found → `/autology:sync` — update to reflect current reality
-- No related nodes → `/autology:capture` — create a new node
+Same action can result in both sync and capture for different items.
 
 Signals for "action completed":
 - commit, push, PR created
@@ -35,27 +40,32 @@ Run explore as requested.
 
 ## The Rule
 
-**After every significant action, explore first.**
+**After every significant action: summarize → per-item explore → sync or capture.**
 Even a 1% chance applies means invoke it.
 
 ```dot
 digraph router {
   "Action completed" [shape=doublecircle];
   "Is it a significant action?" [shape=diamond];
-  "explore" [shape=box];
-  "Related nodes exist?" [shape=diamond];
+  "summarize action into items" [shape=box];
+  "for each item: explore" [shape=box];
+  "Node exists in docs/?" [shape=diamond];
   "sync (update existing)" [shape=box];
   "capture (create new)" [shape=box];
+  "More items?" [shape=diamond];
   "Continue" [shape=doublecircle];
 
   "Action completed" -> "Is it a significant action?";
-  "Is it a significant action?" -> "explore" [label="yes"];
+  "Is it a significant action?" -> "summarize action into items" [label="yes"];
   "Is it a significant action?" -> "Continue" [label="no"];
-  "explore" -> "Related nodes exist?";
-  "Related nodes exist?" -> "sync (update existing)" [label="yes"];
-  "Related nodes exist?" -> "capture (create new)" [label="no"];
-  "sync (update existing)" -> "Continue";
-  "capture (create new)" -> "Continue";
+  "summarize action into items" -> "for each item: explore";
+  "for each item: explore" -> "Node exists in docs/?";
+  "Node exists in docs/?" -> "sync (update existing)" [label="yes"];
+  "Node exists in docs/?" -> "capture (create new)" [label="no"];
+  "sync (update existing)" -> "More items?";
+  "capture (create new)" -> "More items?";
+  "More items?" -> "for each item: explore" [label="yes"];
+  "More items?" -> "Continue" [label="no"];
 }
 ```
 
@@ -76,7 +86,7 @@ These thoughts mean STOP — you're rationalizing:
 
 | Mistake | Fix |
 |---------|-----|
-| Skip explore after commit | explore first — it determines sync vs capture |
-| Always capture without checking docs/ | If related node exists, sync instead |
-| Always sync without checking docs/ | If no related node exists, capture instead |
+| Treat action as one item | Summarize into individual items; each routes independently |
+| Skip explore, go straight to capture | explore first — existing node means sync, not duplicate |
+| Skip explore, go straight to sync | explore first — no existing node means capture, not update |
 | Only capture when user says "remember this" | Also capture self-discovered conventions |
