@@ -1,9 +1,24 @@
 ---
 name: autology:explore
-description: Explore the knowledge graph — neighborhood, hub nodes, paths between concepts
+description: Use when asked how concepts relate to each other, before refactoring to assess blast radius, or when looking for hub nodes, orphan nodes, or isolated clusters in the knowledge graph.
 ---
 
-## Usage
+## Overview
+
+Explore knowledge graph topology. Builds a wikilink-based adjacency list to analyze hubs, orphans, paths between nodes, and neighborhood structure.
+
+## When to Use
+
+- Before refactoring — assess blast radius of a change
+- "How does X relate to Y?" questions
+- Identifying isolated (orphan) nodes
+- Health check of the knowledge base
+
+When NOT to use:
+- Reading a single node's content → use Read directly
+- Capturing new knowledge → `/autology:capture`
+
+## Quick Reference
 
 ```
 /autology:explore              # graph overview (hubs, orphans, components)
@@ -84,8 +99,9 @@ node-a
 (2 hops)
 ```
 
-## When to Use
+## Common Mistakes
 
-- **Graph overview**: understand knowledge structure health — which nodes are hubs, which are isolated
-- **Neighborhood**: before refactoring, see blast radius; find related context around a concept
-- **Path finding**: trace conceptual lineage ("how does this philosophy connect to this implementation?"), discover non-obvious links between nodes with different types/tags
+| Mistake | Fix |
+|---------|-----|
+| Treat nodes with no wikilinks as "unrelated" | Check tags and content for implicit relationships |
+| Only traverse outgoing links | Always include backlinks (incoming) for full picture |

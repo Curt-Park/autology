@@ -1,7 +1,9 @@
 ---
 name: autology:tutorial
-description: Interactive tutorial for learning Autology's core concepts and mechanisms
+description: Use when a user is new to Autology, wants to understand how knowledge capture and sync works, or asks for a guided introduction to the system.
 ---
+
+## Overview
 
 Welcome to the Autology Tutorial. You will learn how knowledge is captured, reused, updated, and kept in sync with code — through a single continuous example.
 

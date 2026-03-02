@@ -1,13 +1,52 @@
 ---
 name: autology:capture
-description: Capture knowledge from conversation into docs/ using native tools
+description: Use when a decision, convention, pattern, or architectural choice emerges in conversation, or when the user says "remember this". Do not use for session-specific context or incomplete information.
 ---
 
-You help capture knowledge from conversation context into docs/ as markdown nodes.
+## Overview
+
+Capture knowledge from conversation context into docs/ as markdown nodes. Save immediately — no confirmation needed. Always Grep for duplicates before creating.
+
+## When to Use
+
+- A technology or architecture decision was made
+- A new component was built or implemented
+- A convention was established ("always X", "never Y")
+- The user explicitly asks: "remember this"
+
+When NOT to use:
+- Session-specific context (current task, temporary state)
+- Incomplete or unverified information
+- Content already covered in existing docs/
+
+## Quick Reference
+
+| Type | Signals |
+|------|---------|
+| decision | "chose", "decided", "selected", "adopted" |
+| component | "created", "built", "implemented", new service/module |
+| convention | "always", "never", "must", "should", "the rule is" |
+| concept | lifecycle, workflow, domain model, process |
+| pattern | reusable approach, strategy, pattern |
+| issue | bug, technical debt, bottleneck, known problem |
+| session | work session summary, "finished", "completed" |
+
+Use a different label if it better describes the knowledge. `type` = primary classification (what kind?); `tags` = cross-cutting topics (what about?).
 
 ## Process
 
-### 1. Identify Knowledge
+### 1. Check for Existing Nodes
+
+Before creating, search for similar content:
+
+```
+Grep docs/ for relevant keywords or title fragments
+```
+
+- If similar node exists → Read it, then update with Edit
+- If no match → create new file with Write
+
+### 2. Identify Knowledge
 
 Analyze recent conversation to find knowledge-worthy items:
 - Decisions made (technology choices, architectural choices)
@@ -16,22 +55,9 @@ Analyze recent conversation to find knowledge-worthy items:
 - Concepts or domain knowledge explained
 - Issues or technical debt identified
 
-### 2. Check for Existing Nodes
-
-Before creating, search for similar content:
-
-```
-Grep docs/ for relevant keywords or title fragments
-```
-
-- If similar node exists → read it with Read tool, then update with Edit
-- If no match → create new file with Write tool
-
 ### 3. Create or Update
 
 **Create new node** (`docs/{title-slug}.md`):
-
-Use Write tool with YAML frontmatter + markdown content:
 
 ```yaml
 ---
@@ -57,47 +83,18 @@ For each related node found:
 - Add a `[[node-id]]` wikilink in the new node's body text
 - Also Edit the related node to add the reverse `[[node-id]]` wikilink
 
-### 5. Classify Node Type
+### 5. Report Result
 
-**type vs tags**:
-- `type` — single primary classification: *what kind of knowledge is this?*
-- `tags` — multiple cross-cutting topics: *what is it about?*
-
-Example: a decision about JWT authentication → `type: decision`, `tags: [auth, api]`
-
-Choose the most descriptive label for the knowledge — there is no fixed list.
-Common labels and their typical signals:
-
-| Type | Signals |
-|------|---------|
-| decision | "chose", "decided", "selected", "adopted" |
-| component | "created", "built", "implemented", new service/module |
-| convention | "always", "never", "must", "should", "the rule is" |
-| concept | lifecycle, workflow, domain model, process |
-| pattern | reusable approach, strategy, pattern |
-| issue | bug, technical debt, bottleneck, known problem |
-| session | work session summary, "finished", "completed" |
-
-Use a different label if it better describes the knowledge.
-
-### 6. Capture Immediately
-
-- Do not ask for user confirmation before saving
-- Save autonomously when knowledge is clearly worth capturing
-- When user says "remember this" — save immediately
-
-### 7. Report Result
-
-After saving:
 ```
 > **Autology** — Captured [type]: docs/{slug}.md
 > Tags: [tags] | Relations: [related nodes if any]
 ```
 
-## Key Principles
+## Common Mistakes
 
-- **Context-first**: Extract from conversation, not explicit statements
-- **Query before create**: Use Grep to avoid duplicates; update existing node if found
-- **Living documents**: Edit nodes in place — git tracks the history
-- **Reuse existing tags**: Check SessionStart context for current tag list
-- **Partial updates**: Only update fields that change
+| Mistake | Fix |
+|---------|-----|
+| Create new node without checking for duplicates | Always Grep first |
+| Ask user for confirmation before saving | Save immediately, then report |
+| Leave nodes for deleted code active | Set `status: archived` |
+| Add wikilink only to new node | Also add reverse link to related node |

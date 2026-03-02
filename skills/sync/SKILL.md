@@ -1,15 +1,28 @@
 ---
 name: autology:sync
-description: Sync knowledge base with codebase — fast check for changed files, or full audit of everything
+description: Use before committing when code has changed, when docs may be stale, or when asked to audit documentation accuracy.
 ---
 
-This skill verifies that documentation nodes accurately describe the actual codebase and fixes any discrepancies in-place.
+## Overview
 
-Two modes — the skill selects automatically based on context:
+docs/ nodes must accurately reflect the actual codebase. This skill verifies that and fixes any discrepancies in-place.
+
+Two modes:
 - **Fast** (default): only checks git-changed files. Use before committing.
 - **Full**: audits the entire codebase and knowledge base. Use for periodic reviews or when explicitly requested.
 
-## Usage
+## When to Use
+
+- Before committing (fast mode)
+- Periodic full audit of the knowledge base
+- After large-scale code refactoring
+- When docs/ accuracy is in question
+
+When NOT to use:
+- Capturing new knowledge → `/autology:capture`
+- Understanding graph structure → `/autology:explore`
+
+## Quick Reference
 
 ```
 /autology:sync        # fast — changed files only
@@ -34,8 +47,8 @@ Combine and deduplicate.
 For each changed file, search the knowledge base for references:
 
 ```
-Grep: AUTOLOGY_ROOT/ for the filename (e.g., "plugin.go")
-Grep: AUTOLOGY_ROOT/ for the parent directory name (e.g., "internal/model")
+Grep: docs/ for the filename (e.g., "session-start.sh")
+Grep: docs/ for the parent directory name (e.g., "scripts")
 ```
 
 Collect all docs that reference any of the changed files.
@@ -84,7 +97,7 @@ Extract: title, type, tags, content, wikilinks (`[[target]]` patterns)
 ```
 Glob: skills/*/SKILL.md
 Read: hooks/hooks.json
-Read: .claude-plugin/plugin.json
+Read: package.json
 Glob: scripts/*.sh
 ```
 
@@ -151,9 +164,10 @@ Report broken wikilinks.
 
 ---
 
-## Key Principles
+## Common Mistakes
 
-- Fix discrepancies immediately — don't just report them
-- Every finding must be verified against actual file/code state
-- Each finding includes a specific fix
-- When uncertain, read the actual files to confirm before editing
+| Mistake | Fix |
+|---------|-----|
+| Report findings without fixing | Edit docs in-place immediately when discrepancies are found |
+| Judge doc accuracy without reading code | Always Read the actual file before comparing |
+| Run full audit before every commit | Use fast mode daily; full mode periodically |
