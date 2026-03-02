@@ -31,9 +31,9 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 ## Architecture
 
 ### SessionStart Hook (shell script)
-- Parses `docs/*.md` YAML frontmatter with awk
-- Builds node index + tag list + autonomous capture instructions
-- Injects as `additionalContext` JSON — analogous to automemory's MEMORY.md
+- Reads `skills/router/SKILL.md`, strips YAML frontmatter with awk
+- Injects router skill as trigger guidance — tells Claude when/how to invoke autology skills
+- Outputs `additionalContext` JSON for Claude Code
 
 ### SessionEnd Hook (shell script)
 - Outputs JSON `systemMessage` with capture tip
