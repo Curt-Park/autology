@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/Curt-Park/autology/compare/autology-v0.8.1...autology-v0.9.0) (2026-03-02)
+
+
+### Features
+
+* router meta-skill for reliable post-event skill triggering ([#44](https://github.com/Curt-Park/autology/issues/44)) ([8347a90](https://github.com/Curt-Park/autology/commit/8347a904a06f2fcb81b16447e0f22a828d78c013))
+
 ## [0.8.1](https://github.com/Curt-Park/autology/compare/autology-v0.8.0...autology-v0.8.1) (2026-03-02)
 
 
