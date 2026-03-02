@@ -44,22 +44,6 @@ jobs:
           echo "$output" | jq -e '.systemMessage | test("autology"; "i")' > /dev/null || { echo "❌ No tip in systemMessage"; exit 1; }
           echo "✅ session-end.sh outputs tip as JSON systemMessage"
 
-      - name: launcher.sh — routes session-start
-        run: |
-          output=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook session-start)
-          echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' > /dev/null
-          echo "✅ launcher.sh routes session-start correctly"
-
-      - name: launcher.sh — routes session-end
-        run: |
-          output=$(echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook session-end)
-          echo "$output" | jq -e '.systemMessage | test("autology"; "i")' > /dev/null || { echo "❌ session-end route failed"; exit 1; }
-          echo "✅ launcher.sh routes session-end correctly"
-
-      - name: launcher.sh — unknown hook exits 1
-        run: |
-          echo '{}' | CLAUDE_PLUGIN_ROOT=. bash scripts/launcher.sh hook unknown-hook 2>/dev/null && exit 1 || true
-          echo "✅ Unknown hook exits with error"
 
       - name: session-start.sh — both tag formats parsed
         run: |
