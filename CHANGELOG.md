@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/Curt-Park/autology/compare/autology-v0.9.0...autology-v0.9.1) (2026-03-02)
+
+
+### Bug Fixes
+
+* router reentry guard + skill rename ([#46](https://github.com/Curt-Park/autology/issues/46)) ([bcb431d](https://github.com/Curt-Park/autology/commit/bcb431d079608f3f23106c3b16211233778df3d8))
+
 ## [0.9.0](https://github.com/Curt-Park/autology/compare/autology-v0.8.1...autology-v0.9.0) (2026-03-02)
 
 
