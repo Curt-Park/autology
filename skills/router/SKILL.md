@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: Route autology skills after significant actions. After commit/push/PR or decision/convention: explore docs/ to determine sync (existing nodes) or capture (no nodes). Also invoked when user explicitly calls /autology:explore.
+description: Use after significant actions — commit, push, PR, or when a decision/convention is discovered. Also when user explicitly calls /autology:explore.
 ---
 
 <IMPORTANT>
@@ -10,62 +10,43 @@ This is not optional. You cannot rationalize your way out of this.
 
 ## Overview
 
-Route to the right autology skill after significant actions. `explore` is
-used as a decision tool — not triggered by user messages.
+Route to the right autology skill after significant actions. `explore` runs context triage first — its classified output drives batch sync and batch capture.
 
 ## Trigger Points
 
 ### [Action completed] After commit/push/PR or decision/convention discovered
 
-Per-item routing — each item from the action summary is handled independently:
+1. `/autology:explore` — context triage: analyze action, return classified list + topology hints
+2. Existing items → batch `/autology:sync` (use topology hints to verify connected nodes too)
+3. New items → batch `/autology:capture` (use suggested relations from hints to add wikilinks)
 
-```
-1. Summarize the action into knowledge items
-   (decisions made, conventions established, components changed, etc.)
-2. For each item:
-   → /autology:explore — does a related node already exist in docs/?
-     yes → /autology:sync  — update existing node
-     no  → /autology:capture — create new node
-```
-
-Same action can result in both sync and capture for different items.
+Both sync and capture can run from the same explore result.
 
 Signals for "action completed":
 - commit, push, PR created
 - "decided", "chose", "always", "never", "the rule is", any architectural choice
 
-### [Explicit invocation] User calls /autology:explore directly
-
-Run explore as requested.
-
 ## The Rule
 
-**After every significant action: summarize → per-item explore → sync or capture.**
+**After every significant action: explore (triage) → batch sync + batch capture.**
 Even a 1% chance applies means invoke it.
 
 ```dot
 digraph router {
   "Action completed" [shape=doublecircle];
   "Is it a significant action?" [shape=diamond];
-  "summarize action into items" [shape=box];
-  "for each item: explore" [shape=box];
-  "Node exists in docs/?" [shape=diamond];
-  "sync (update existing)" [shape=box];
-  "capture (create new)" [shape=box];
-  "More items?" [shape=diamond];
+  "explore (context triage)" [shape=box];
+  "batch sync (with hints)" [shape=box];
+  "batch capture (with hints)" [shape=box];
   "Continue" [shape=doublecircle];
 
   "Action completed" -> "Is it a significant action?";
-  "Is it a significant action?" -> "summarize action into items" [label="yes"];
+  "Is it a significant action?" -> "explore (context triage)" [label="yes"];
   "Is it a significant action?" -> "Continue" [label="no"];
-  "summarize action into items" -> "for each item: explore";
-  "for each item: explore" -> "Node exists in docs/?";
-  "Node exists in docs/?" -> "sync (update existing)" [label="yes"];
-  "Node exists in docs/?" -> "capture (create new)" [label="no"];
-  "sync (update existing)" -> "More items?";
-  "capture (create new)" -> "More items?";
-  "More items?" -> "for each item: explore" [label="yes"];
-  "More items?" -> "Continue" [label="no"];
+  "explore (context triage)" -> "batch sync (with hints)" [label="existing items"];
+  "explore (context triage)" -> "batch capture (with hints)" [label="new items"];
+  "batch sync (with hints)" -> "Continue";
+  "batch capture (with hints)" -> "Continue";
 }
 ```
 
@@ -86,7 +67,6 @@ These thoughts mean STOP — you're rationalizing:
 
 | Mistake | Fix |
 |---------|-----|
-| Treat action as one item | Summarize into individual items; each routes independently |
-| Skip explore, go straight to capture | explore first — existing node means sync, not duplicate |
-| Skip explore, go straight to sync | explore first — no existing node means capture, not update |
-| Only capture when user says "remember this" | Also capture self-discovered conventions |
+| sync/capture without explore first | Without triage + hints, risk duplicates or missing nodes |
+| Ignore topology hints in sync/capture | Use connected/suggested relations to strengthen wikilinks |
+| Only capture when user says "remember" | Self-discovered conventions are also capture targets |

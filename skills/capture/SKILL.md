@@ -1,6 +1,6 @@
 ---
 name: autology:capture
-description: Use when a decision, convention, or pattern emerges — e.g. user says "decided", "chose", "always do X", "never do Y", "remember this", or Claude discovers a reusable convention. Also invoked by /autology:router after commits to capture session knowledge. Not for session-specific context or incomplete info.
+description: Use when a decision, convention, or pattern emerges — user says "remember this", "decided", "chose", "always do X", or router identifies new items from explore triage.
 ---
 
 ## Overview
@@ -73,7 +73,8 @@ tags: [tag1, tag2]
 
 ### 4. Add Relations
 
-Search for related nodes:
+If explore provided suggested relations, use those as starting relations.
+Otherwise, search manually:
 
 ```
 Grep docs/ for nodes sharing tags or mentioning related concepts

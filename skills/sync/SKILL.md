@@ -1,6 +1,6 @@
 ---
 name: autology:sync
-description: Use after git commit, git push, or creating a PR to verify docs/ matches codebase. Also use when docs may be stale or when asked to audit documentation accuracy. Invoked by /autology:router after commits.
+description: Use when docs may be stale — after commits, large refactors, or when router identifies existing nodes from explore triage. Also for periodic full audits.
 ---
 
 ## Overview
@@ -52,6 +52,8 @@ Grep: docs/ for the parent directory name (e.g., "scripts")
 ```
 
 Collect all docs that reference any of the changed files.
+
+If explore provided topology hints (connected nodes), also include those in the verification scope.
 
 ### 3. Verify and Fix
 

@@ -77,20 +77,9 @@ Ask: "Ready to see how this memory gets used in the next session?"
 
 **The scenario**: A new Claude session starts. You ask: "Add a user table to the database."
 
-At session start, `scripts/session-start.sh` ran automatically. It read `docs/sqlite-decision.md` and injected this into Claude's context before the first message:
+At session start, `scripts/session-start.sh` ran automatically. It injected the router skill as trigger guidance into Claude's context — telling Claude when to invoke explore, capture, and sync. The router skill is what makes Claude proactively check the knowledge base after significant actions.
 
-```
-[Autology Knowledge Base — docs/]
-
-- [decision] Use SQLite for Database (tags: database, architecture) → docs/sqlite-decision.md
-
-[Autonomous Capture Instructions]
-...
-```
-
-So Claude already knows the database is SQLite — without you saying anything.
-
-Now demonstrate retrieval on demand. Search for the decision:
+To retrieve the actual decision, Claude uses explore or Grep to search docs/ on demand:
 
 ```
 Grep docs/ for "sqlite" (case-insensitive)
@@ -101,7 +90,7 @@ Show the full content. Point out:
 - Claude sees the Context, Decision, Alternatives, Consequences
 - This is why Claude gives SQLite-specific answers without being told
 
-**Key point**: Memory injection happens at session start (like loading context). On-demand Read is for deeper detail.
+**Key point**: session-start.sh injects router skill guidance (when to act), not a node list. The actual retrieval happens when Claude reads docs/ with Grep or Read.
 
 ```
 > **Autology Tutorial** — Step 2 complete
@@ -161,13 +150,13 @@ Ask: "Ready to see how the updated memory affects the next session?"
 
 **The scenario**: Another new session. You ask: "How should I set up the database connection?"
 
-SessionStart ran again. `session-start.sh` read `docs/postgresql-decision.md` and injected it. Claude sees:
+SessionStart ran again. `session-start.sh` injected the router skill guidance as before — telling Claude when to invoke explore, capture, and sync. Claude retrieves the current decision on demand:
 
 ```
-- [decision] Use PostgreSQL for Database (tags: database, architecture) → docs/postgresql-decision.md
+Grep docs/ for "database" (case-insensitive)
 ```
 
-Claude now gives PostgreSQL-specific answers — connection strings, pgBouncer config, Docker setup — without any prompting.
+This now returns `docs/postgresql-decision.md`. Claude gives PostgreSQL-specific answers — connection strings, pgBouncer config, Docker setup — without any prompting.
 
 Demonstrate retrieval:
 
@@ -244,7 +233,7 @@ The nodes created in this tutorial stay in `docs/`. To remove them:
 
 **Next steps**:
 - `/autology:capture` — capture knowledge from real conversations
-- `/autology:explore` — explore the knowledge graph (hubs, neighborhoods, paths)
+- `/autology:explore` — triage knowledge items, or explore graph topology (overview, neighborhood, paths)
 - `/autology:sync` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---
