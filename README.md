@@ -30,7 +30,7 @@ As each developer moves faster with AI, decisions, conventions, and context beco
    (query)       ↙       ↘
       ↑    sync existing  capture new
       │          ↘       ↙
-      └──── docs/*.md
+      └───────── docs/*.md
 ```
 
 **Storage**: Obsidian-compatible markdown in `docs/` — flat structure, YAML frontmatter, `[[wikilinks]]`
