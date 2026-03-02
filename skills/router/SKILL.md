@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision/convention is discovered (→ capture), or when user asks how concepts relate or wants graph analysis (→ explore). Determines which autology skills to run.
+description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision/convention is discovered (→ capture), or when user asks about relationships between knowledge nodes in docs/ (→ explore). Determines which autology skills to run.
 ---
 
 <IMPORTANT>
@@ -16,14 +16,15 @@ Route to the right autology skill at the right time. Two entry points:
 
 ## Trigger Points
 
-### [User message] User asks about relationships, graph, or refactoring
+### [User message] User asks about relationships between knowledge nodes in docs/
 
 ```
 → /autology:explore — BEFORE responding
 ```
 
-Signals: "how does X relate to Y", "what's connected to", "show the graph",
-"blast radius", "what would break if I change", "hub nodes", "orphans".
+Signals: "how does [doc node] relate to [doc node]", "what's connected to [node]",
+"show the knowledge base structure", "blast radius before refactoring docs",
+"which nodes are hubs", "are there orphan nodes in docs/".
 
 ### [Action completed] After git commit / git push / PR creation
 
@@ -53,7 +54,7 @@ Even a 1% chance applies means invoke it.
 digraph router {
   "User message received" [shape=doublecircle];
   "Action completed" [shape=doublecircle];
-  "Asks about graph/relations?" [shape=diamond];
+  "Asks about docs/ node relationships?" [shape=diamond];
   "explore" [shape=box];
   "Respond" [shape=doublecircle];
   "Was it a commit/push/PR?" [shape=diamond];
@@ -62,9 +63,9 @@ digraph router {
   "capture" [shape=box];
   "Continue" [shape=doublecircle];
 
-  "User message received" -> "Asks about graph/relations?";
-  "Asks about graph/relations?" -> "explore" [label="yes"];
-  "Asks about graph/relations?" -> "Respond" [label="no"];
+  "User message received" -> "Asks about docs/ node relationships?";
+  "Asks about docs/ node relationships?" -> "explore" [label="yes"];
+  "Asks about docs/ node relationships?" -> "Respond" [label="no"];
   "explore" -> "Respond";
 
   "Action completed" -> "Was it a commit/push/PR?";
