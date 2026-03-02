@@ -1,6 +1,6 @@
 ---
 name: autology:router
-description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision, convention, or pattern is discovered to route to capture. Determines which autology skills to run and in what order.
+description: AFTER git commit, git push, or creating a PR — route to capture and sync. Also invoke when a decision/convention is discovered (→ capture), or when user asks how concepts relate or wants graph analysis (→ explore). Determines which autology skills to run.
 ---
 
 <IMPORTANT>
@@ -10,12 +10,22 @@ This is not optional. You cannot rationalize your way out of this.
 
 ## Overview
 
-Route to the right autology skill at the right time. This skill is your
-checklist — consult it after key events to ensure nothing is missed.
+Route to the right autology skill at the right time. Two entry points:
+- **User message** → check if explore applies before responding
+- **Action completed** → check if capture and/or sync applies after acting
 
 ## Trigger Points
 
-### After git commit / git push / PR creation
+### [User message] User asks about relationships, graph, or refactoring
+
+```
+→ /autology:explore — BEFORE responding
+```
+
+Signals: "how does X relate to Y", "what's connected to", "show the graph",
+"blast radius", "what would break if I change", "hub nodes", "orphans".
+
+### [Action completed] After git commit / git push / PR creation
 
 ```
 1. /autology:capture — were any decisions, conventions, or patterns
@@ -25,7 +35,7 @@ checklist — consult it after key events to ensure nothing is missed.
 
 Run capture first, then sync. Both are required after every commit.
 
-### After discovering a decision, convention, or pattern
+### [Action completed] After discovering a decision, convention, or pattern
 
 ```
 → /autology:capture — save it immediately, then report
@@ -34,38 +44,36 @@ Run capture first, then sync. Both are required after every commit.
 Signals: "decided", "chose", "always", "never", "the rule is",
 a new reusable approach, or any architectural choice.
 
-### When asked about relationships or before refactoring
-
-```
-→ /autology:explore — analyze knowledge graph topology
-```
-
 ## The Rule
 
-**Check this skill's trigger points after every significant action.**
-Even a 1% chance that capture or sync applies means invoke it.
+**Two checks — one per entry point. Miss neither.**
+Even a 1% chance applies means invoke it.
 
 ```dot
 digraph router {
+  "User message received" [shape=doublecircle];
   "Action completed" [shape=doublecircle];
+  "Asks about graph/relations?" [shape=diamond];
+  "explore" [shape=box];
+  "Respond" [shape=doublecircle];
   "Was it a commit/push/PR?" [shape=diamond];
   "capture then sync" [shape=box];
   "Was a decision/convention discovered?" [shape=diamond];
   "capture" [shape=box];
-  "Was it a refactoring or relationship question?" [shape=diamond];
-  "explore" [shape=box];
   "Continue" [shape=doublecircle];
+
+  "User message received" -> "Asks about graph/relations?";
+  "Asks about graph/relations?" -> "explore" [label="yes"];
+  "Asks about graph/relations?" -> "Respond" [label="no"];
+  "explore" -> "Respond";
 
   "Action completed" -> "Was it a commit/push/PR?";
   "Was it a commit/push/PR?" -> "capture then sync" [label="yes"];
   "Was it a commit/push/PR?" -> "Was a decision/convention discovered?" [label="no"];
   "Was a decision/convention discovered?" -> "capture" [label="yes"];
-  "Was a decision/convention discovered?" -> "Was it a refactoring or relationship question?" [label="no"];
-  "Was it a refactoring or relationship question?" -> "explore" [label="yes"];
-  "Was it a refactoring or relationship question?" -> "Continue" [label="no"];
+  "Was a decision/convention discovered?" -> "Continue" [label="no"];
   "capture then sync" -> "Continue";
   "capture" -> "Continue";
-  "explore" -> "Continue";
 }
 ```
 
