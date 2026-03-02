@@ -22,7 +22,7 @@ Autology's only code: two bash scripts that implement the SessionStart and Sessi
 1. Consume stdin (avoid broken pipe with `set -euo pipefail`)
 2. Determine plugin root via `BASH_SOURCE[0]` + `cd && pwd`
 3. Read `skills/autology-workflow/SKILL.md`, strip YAML frontmatter with awk
-4. Prepend plain framing text: `"Below is the full content of the autology router skill — your guide to when and how to invoke autology skills:"`
+4. Prepend plain framing text: `"Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills:"`
 5. Escape string for JSON using bash parameter substitution (`$'\n'` for newlines)
 6. Output JSON:
    ```json
