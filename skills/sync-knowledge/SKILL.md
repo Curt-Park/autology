@@ -1,6 +1,6 @@
 ---
 name: sync-knowledge
-description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when autology-workflow identifies existing nodes from explore triage. Also for periodic full audits.
+description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when triage identifies existing nodes to verify. Also for periodic full audits.
 ---
 
 ## Overview
@@ -8,41 +8,41 @@ description: Use when autology docs/ nodes may be out of sync with the codebase 
 docs/ nodes must accurately reflect the actual codebase and decisions. This skill verifies that and fixes any discrepancies in-place.
 
 Two modes:
-- **Fast** (default): verifies the nodes explore identified. Requires explore output.
+- **Fast** (default): verifies the nodes triage identified. Requires triage output.
 - **Full**: audits the entire codebase and knowledge base independently. Use for periodic reviews or when explicitly requested.
 
 ## When to Use
 
-- After explore triage (via autology-workflow or directly) to verify matched existing nodes
+- After triage classifies existing nodes to verify
 - Periodic full audit of the knowledge base
 
 When NOT to use:
 - Capturing new knowledge → `/autology:capture-knowledge`
-- Finding what changed → `/autology:explore-knowledge` (run explore first, then sync)
+- Finding what changed → `/autology:triage-knowledge` (run triage first, then sync)
 
 ## When invoked directly
 
-Fast mode requires explore output. If explore has not run, run `/autology:explore-knowledge` first — or use `/autology:sync-knowledge full` to audit everything without explore.
+Fast mode requires triage output. If triage has not run, run `/autology:triage-knowledge` first — or use `/autology:sync-knowledge full` to audit everything without triage.
 
 ## Quick Reference
 
 ```
-/autology:sync-knowledge        # fast — verifies nodes explore identified
-/autology:sync-knowledge full   # full audit — no explore needed
+/autology:sync-knowledge        # fast — verifies nodes triage identified
+/autology:sync-knowledge full   # full audit — no triage needed
 ```
 
 ---
 
 ## Fast Mode
 
-**Precondition**: explore has already run and returned matched existing nodes.
+**Precondition**: triage has already run and returned matched existing nodes.
 
-### 1. Receive Explore Output
+### 1. Receive Triage Output
 
-Use explore's matched nodes as the sync scope:
+Use triage's matched nodes as the sync scope:
 
 ```
-Existing nodes from explore triage (→ sync):
+Existing nodes from triage (→ sync):
 - docs/foo.md — matches [item description]
   Connected: [[bar]], [[baz]] | Tags: arch, api
 ```
@@ -167,7 +167,7 @@ Report broken wikilinks.
 
 | Mistake | Fix |
 |---------|-----|
-| Running fast mode without explore output | Fast mode needs explore's matched nodes as scope. Run explore first. |
+| Running fast mode without triage output | Fast mode needs triage's matched nodes as scope. Run triage first. |
 | Report findings without fixing | Edit docs in-place immediately when discrepancies are found. |
 | Judge doc accuracy without reading code | Always Read the actual file before comparing. |
-| Run full audit on every action | Fast mode (post-explore) for daily use; full mode for periodic audits. |
+| Run full audit on every action | Fast mode (post-triage) for daily use; full mode for periodic audits. |
