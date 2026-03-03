@@ -143,7 +143,7 @@ New hire: full decision chain available at session start, zero onboarding cost
 /autology:explore-knowledge path <node-a> <node-b>  # path between two concepts
 
 # Sync docs with code
-/autology:sync-knowledge       # fast — changed files only (run before commits)
+/autology:sync-knowledge       # fast — recent changed files only
 /autology:sync-knowledge full  # full audit
 ```
 
