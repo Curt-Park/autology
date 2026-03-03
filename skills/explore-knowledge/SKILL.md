@@ -1,65 +1,15 @@
 ---
 name: explore-knowledge
-description: Use when autology-workflow triggers context triage after significant actions, or when user asks about the autology knowledge graph — topology, node relationships, hub nodes, or overview.
+description: Use when user asks about project conventions, architecture, decisions, or relationships between documented concepts — leverages the ontology to provide rich, connected answers.
 ---
 
 ## Overview
 
-Scan docs/ against conversation context or an action summary.
-Classify each knowledge item as existing or new, and return topology hints
-(connected nodes, shared tags) so sync and capture can use them during execution.
-
-## Process
-
-### 1. Extract knowledge items from context
-From conversation or action summary, identify:
-- Decisions made, conventions established, components changed, patterns discovered
-
-### 2. Search docs/ for each item
-For each item:
-- Grep docs/ for keywords, titles, tags
-- Read matched files to confirm relevance
-
-### 3. Build topology hints
-For matched nodes:
-- Extract wikilink connections ([[target]] patterns)
-- Identify nodes sharing tags
-- Flag hub/orphan status
-
-For unmatched new items:
-- Suggest related existing nodes based on tags or content overlap
-
-### 4. Return classified list
-
-## Output Format
-
-> **Autology** — Explore Results
->
-> ### Existing (→ sync)
-> - docs/foo.md — matches [item description]
->   Connected: [[bar]], [[baz]] | Tags: arch, api | Hub (5 links)
-> - docs/qux.md — matches [item description]
->   Connected: [[foo]] | Tags: convention | Orphan-adjacent
->
-> ### New (→ capture)
-> - [item description] — no matching node
->   Suggested relations: [[foo]], [[bar]] (shared tags: architecture)
-> - [item description] — no matching node
->   Suggested relations: none
-
-If no existing docs match any items, use empty-state format:
-
-> **Autology** — Explore Results
->
-> No existing matches found. All items classified as new.
->
-> ### New (→ capture)
-> - [item description] — no matching node
->   Suggested relations: [[foo]] (shared tags: architecture)
+Answer user questions about the project by traversing the autology knowledge graph.
+Search docs/ for relevant nodes, follow wikilinks to build context, and return
+rich answers grounded in documented decisions, conventions, and architecture.
 
 ## Graph Operations
-
-When invoked directly or with arguments, explore performs graph traversal in addition to triage.
 
 The `<node>` argument is a **title-slug** — the filename without the `.md` extension (e.g., `redis-storage-decision` for `docs/redis-storage-decision.md`).
 
@@ -90,10 +40,9 @@ Process:
 
 Output: `A → [intermediate] → B` with each hop labeled
 
-### Quick Reference
+## Quick Reference
 
 ```
-/autology:explore-knowledge              # triage (default when called by autology-workflow)
 /autology:explore-knowledge overview     # graph overview
 /autology:explore-knowledge <node>       # neighborhood (2-hop BFS)
 /autology:explore-knowledge path A B     # shortest path
@@ -103,7 +52,6 @@ Output: `A → [intermediate] → B` with each hop labeled
 
 | Mistake | Fix |
 |---------|-----|
-| Judge relevance by keyword match alone | Read the file to confirm actual relevance |
-| Omit topology hints | sync/capture rely on connected/suggested relations — always include |
-| Ignore implicit relations | Check tags and content overlap even without wikilinks |
-| Confuse triage with graph traversal | Triage classifies items for sync/capture; graph traversal answers user queries about existing nodes |
+| Answer from memory instead of docs | Always Read the actual doc nodes before answering |
+| Stop at 1-hop neighbors | Follow wikilinks to 2-hop for richer context |
+| Ignore node type and tags | Include type/tags in answers — they add classification context |

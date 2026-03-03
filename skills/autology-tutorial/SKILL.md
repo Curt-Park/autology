@@ -82,18 +82,18 @@ git add docker-compose.yml
 git commit -m "tutorial: add Redis docker-compose"
 ```
 
-**autology-workflow triggers** — commit = trigger point. Now invoke capture for real:
+**autology-workflow triggers** — commit = trigger point. Now invoke triage then capture for real:
 
-Use Skill tool: `autology:capture-knowledge`
+Use Skill tool: `autology:triage-knowledge`, then `autology:capture-knowledge`
 
-Capture will create a doc in `docs/` (e.g., `docs/tutorial-url-shortener-db.md`). After capture completes, stage and commit the newly created doc:
+Triage classifies items, capture creates the doc in `docs/` (e.g., `docs/tutorial-url-shortener-db.md`). After capture completes, stage and commit the newly created doc:
 
 ```bash
 git add docs/tutorial-*.md
 git commit -m "tutorial: capture Redis storage decision"
 ```
 
-**📌 Why capture fired**: Commit introduced a Redis config with no corresponding decision doc. Explore classified it as new → capture created the doc automatically.
+**📌 Why capture fired**: Commit introduced a Redis config with no corresponding decision doc. Triage classified it as new → capture created the doc automatically.
 
 ```
 > **Autology Tutorial** — Act 1 complete
@@ -148,18 +148,18 @@ git add docker-compose.yml
 git commit -m "tutorial: switch storage from Redis to PostgreSQL"
 ```
 
-**autology-workflow triggers** — commit = trigger point. Now invoke sync for real:
+**autology-workflow triggers** — commit = trigger point. Now invoke triage then sync for real:
 
-Use Skill tool: `autology:sync-knowledge`
+Use Skill tool: `autology:triage-knowledge`, then `autology:sync-knowledge`
 
-Sync will read both files, detect the drift, and update the doc in-place. After sync completes, stage and commit the updated doc:
+Triage identifies the existing doc, sync reads both files, detects the drift, and updates the doc in-place. After sync completes, stage and commit the updated doc:
 
 ```bash
 git add docs/tutorial-*.md
 git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 ```
 
-**📌 Why sync fired**: docker-compose changed to PostgreSQL but the decision doc still said Redis. Explore detected the mismatch, sync updated the doc in-place to match reality.
+**📌 Why sync fired**: docker-compose changed to PostgreSQL but the decision doc still said Redis. Triage detected the existing doc, sync updated it in-place to match reality.
 
 ```
 > **Autology Tutorial** — Act 2 complete
@@ -212,13 +212,13 @@ You've seen all three core workflows:
 
 | Act | What happened | Skill fired |
 |-----|---------------|-------------|
-| 1: Capture | Redis config committed, no doc existed | explore → capture |
-| 2: Sync | Config changed to PostgreSQL, doc said Redis | explore → sync |
+| 1: Capture | Redis config committed, no doc existed | triage → capture |
+| 2: Sync | Config changed to PostgreSQL, doc said Redis | triage → sync |
 | 3: Explore | Asked about the storage decision | explore → answer |
 
 **The full loop**:
 ```
-code → commit → autology-workflow → explore triage → capture/sync → commit → explore queries → answer from docs
+code → commit → autology-workflow → triage → capture/sync → commit → explore queries → answer from docs
 ```
 
 ---
@@ -242,8 +242,9 @@ Delete each matched file with Bash rm
 Confirm: "Back on `<ORIGINAL_BRANCH>`. Tutorial branch deleted. Cleaned up N tutorial nodes."
 
 **Next steps**:
+- `/autology:triage-knowledge` — classify knowledge items after actions
 - `/autology:capture-knowledge` — capture knowledge from real conversations
-- `/autology:explore-knowledge` — triage knowledge items, or explore graph topology
+- `/autology:explore-knowledge` — explore graph topology, query decisions and conventions
 - `/autology:sync-knowledge` — find doc-code drift anytime (or `sync full` for complete audit)
 
 ---
@@ -266,5 +267,5 @@ When user runs `/autology:autology-tutorial reset`:
 1. **Real artifacts**: docker-compose is a concrete, tangible file — not just docs
 2. **User interaction at each act**: user makes decisions, not just watches
 3. **Commit → sync**: sync always commits the updated doc
-4. **Three workflows**: capture (new), sync (drift), explore (query)
+4. **Four workflows**: triage (classify), capture (new), sync (drift), explore (query)
 5. **Guided invocation**: the tutorial calls skills explicitly to demonstrate each step — in real work, autology-workflow triggers them automatically after commits

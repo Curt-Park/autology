@@ -1,21 +1,21 @@
 ---
 name: capture-knowledge
-description: Use when a project decision, convention, or pattern should be saved to the autology knowledge base (docs/) — user says "remember this", "decided", "chose", "always do X", or autology-workflow identifies new items from explore triage.
+description: Use when a project decision, convention, or pattern should be saved to the autology knowledge base (docs/) — user says "remember this", "decided", "chose", "always do X", or triage classifies new items to capture.
 ---
 
 ## Overview
 
 Capture knowledge from conversation context into docs/ as markdown nodes. Save immediately — no confirmation needed.
 
-**Precondition**: explore must have run first. Explore classifies items as new (→ capture) and provides suggested relations.
+**Precondition**: triage must have run first. Triage classifies items as new (→ capture) and provides suggested relations.
 
 ## When invoked directly
 
-Capture requires explore output. If explore has not run, run `/autology:explore-knowledge` first.
+Capture requires triage output. If triage has not run, run `/autology:triage-knowledge` first.
 
 ## What Capture Targets
 
-Capture the items explore classified as new (→ capture):
+Capture the items triage classified as new (→ capture):
 - Decisions made (technology choices, architectural choices)
 - Components created or modified
 - Conventions or patterns established
@@ -25,7 +25,7 @@ Capture the items explore classified as new (→ capture):
 When NOT to capture:
 - Session-specific context (current task, temporary state)
 - Incomplete or unverified information
-- Items explore classified as existing (→ sync, not capture)
+- Items triage classified as existing (→ sync, not capture)
 
 ## Quick Reference
 
@@ -43,12 +43,12 @@ When NOT to capture:
 
 ## Process
 
-### 1. Receive Explore Output
+### 1. Receive Triage Output
 
-Use explore's new items list as the capture scope:
+Use triage's new items list as the capture scope:
 
 ```
-New items from explore triage (→ capture):
+New items from triage (→ capture):
 - [item description] — no matching node
   Suggested relations: [[foo]], [[bar]] (shared tags: architecture)
 - [item description] — no matching node
@@ -71,7 +71,7 @@ tags: [tag1, tag2]
 
 ### 3. Add Relations
 
-Use explore's suggested relations for wikilinks:
+Use triage's suggested relations for wikilinks:
 
 - Add `[[title-slug]]` wikilink in the new node's body text (wikilink target = filename without `.md` extension)
 - Also Edit the related node to add the reverse `[[title-slug]]` wikilink
@@ -87,8 +87,8 @@ Use explore's suggested relations for wikilinks:
 
 | Mistake | Fix |
 |---------|-----|
-| Running capture without explore output | Explore classifies new vs existing — run it first. |
-| Capturing items explore classified as existing | Those go to sync, not capture. |
+| Running capture without triage output | Triage classifies new vs existing — run it first. |
+| Capturing items triage classified as existing | Those go to sync, not capture. |
 | Ask user for confirmation before saving | Save immediately, then report. |
 | Leave nodes for deleted code active | Set `status: archived`. |
 | Add wikilink only to new node | Also add reverse link to related node. |

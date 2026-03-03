@@ -44,7 +44,7 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 - Claude CRUDs these directly with native tools
 
 ### Skills
-- `autology-workflow`, `capture-knowledge`, `explore-knowledge`, `sync-knowledge`, `autology-tutorial` — guide Claude through workflows using native tools only
+- `autology-workflow`, `triage-knowledge`, `capture-knowledge`, `explore-knowledge`, `sync-knowledge`, `autology-tutorial` — guide Claude through workflows using native tools only
 
 ## Removed
 - `cmd/`, `internal/` — Go entrypoint and packages
@@ -71,3 +71,4 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 
 - [[autology-internals]] — Updated implementation layer description
 - [[shell-hook-scripts]] — Shell script implementation details
+- [[triage-explore-split-decision]] — Subsequent split of explore into triage + explore
