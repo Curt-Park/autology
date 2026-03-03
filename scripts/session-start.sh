@@ -2,9 +2,6 @@
 # Session start hook: inject autology-workflow skill as trigger guidance
 set -euo pipefail
 
-# Consume stdin to avoid broken pipe
-cat /dev/stdin > /dev/null 2>&1 || true
-
 # Determine plugin root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -27,5 +24,15 @@ escape_for_json() {
     printf '%s' "$s"
 }
 
-ctx=$(escape_for_json "$context")
-printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$ctx"
+session_context=$(escape_for_json "$context")
+
+cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "${session_context}"
+  }
+}
+EOF
+
+exit 0
