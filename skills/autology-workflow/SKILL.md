@@ -21,10 +21,9 @@ Route to the right autology skill after significant actions. `triage` runs conte
 ### [Action completed] After commit/push/PR or decision/convention discovered
 
 1. `/autology:triage-knowledge` — context triage: analyze action, return classified list + topology hints
-2. Existing items → batch `/autology:sync-knowledge` (use topology hints to verify connected nodes too)
-3. New items → batch `/autology:capture-knowledge` (use suggested relations from hints to add wikilinks)
-
-Both sync and capture can run from the same triage result.
+2. **In parallel** from the same triage result:
+   - Existing items → batch `/autology:sync-knowledge` (use topology hints to verify connected nodes too)
+   - New items → batch `/autology:capture-knowledge` (use suggested relations from hints to add wikilinks)
 
 Signals for "action completed":
 - commit, push, PR created
@@ -36,7 +35,7 @@ autology-workflow just completed (skip — do not re-trigger):
 
 ## The Rule
 
-**After every significant action: triage → batch sync + batch capture.**
+**After every significant action: triage → then sync + capture in parallel.**
 Even a 1% chance applies means invoke it.
 
 ```dot
@@ -44,20 +43,17 @@ digraph router {
   "Action completed" [shape=doublecircle];
   "Did autology-workflow\njust complete?" [shape=diamond];
   "Is it a significant action?" [shape=diamond];
-  "triage (context triage)" [shape=box];
-  "batch sync (with hints)" [shape=box];
-  "batch capture (with hints)" [shape=box];
+  "triage" [shape=box];
+  "sync + capture\n(parallel)" [shape=box];
   "Continue" [shape=doublecircle];
 
   "Action completed" -> "Did autology-workflow\njust complete?";
   "Did autology-workflow\njust complete?" -> "Continue" [label="yes (skip)"];
   "Did autology-workflow\njust complete?" -> "Is it a significant action?" [label="no"];
-  "Is it a significant action?" -> "triage (context triage)" [label="yes"];
+  "Is it a significant action?" -> "triage" [label="yes"];
   "Is it a significant action?" -> "Continue" [label="no"];
-  "triage (context triage)" -> "batch sync (with hints)" [label="existing items (if any)"];
-  "triage (context triage)" -> "batch capture (with hints)" [label="new items (if any)"];
-  "batch sync (with hints)" -> "Continue";
-  "batch capture (with hints)" -> "Continue";
+  "triage" -> "sync + capture\n(parallel)" [label="existing → sync, new → capture"];
+  "sync + capture\n(parallel)" -> "Continue";
 }
 ```
 
