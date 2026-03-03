@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/Curt-Park/autology/compare/autology-v0.9.1...autology-v0.10.0) (2026-03-03)
+
+
+### Features
+
+* add triage-knowledge skill, narrow explore to graph traversal ([#49](https://github.com/Curt-Park/autology/issues/49)) ([75d9170](https://github.com/Curt-Park/autology/commit/75d91702e83f26866b7df11c5999082d31d9e5ad))
+
 ## [0.9.1](https://github.com/Curt-Park/autology/compare/autology-v0.9.0...autology-v0.9.1) (2026-03-02)
 
 
