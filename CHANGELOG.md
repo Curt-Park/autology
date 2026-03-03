@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.2](https://github.com/Curt-Park/autology/compare/autology-v0.10.1...autology-v0.10.2) (2026-03-03)
+
+
+### Bug Fixes
+
+* **hooks:** improve autology-workflow trigger reliability ([#55](https://github.com/Curt-Park/autology/issues/55)) ([d84b730](https://github.com/Curt-Park/autology/commit/d84b7301170a1e95a376120b7cc53b7767e913b1))
+* **hooks:** remove SessionEnd hook, clean up session-start.sh ([#53](https://github.com/Curt-Park/autology/issues/53)) ([a9a6200](https://github.com/Curt-Park/autology/commit/a9a620013032973b8c52e05fc06cb9e6e79f4635))
+
 ## [0.10.1](https://github.com/Curt-Park/autology/compare/autology-v0.10.0...autology-v0.10.1) (2026-03-03)
 
 
