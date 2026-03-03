@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/Curt-Park/autology/compare/autology-v0.10.0...autology-v0.10.1) (2026-03-03)
+
+
+### Bug Fixes
+
+* **hooks:** session-end output to stderr instead of JSON ([#51](https://github.com/Curt-Park/autology/issues/51)) ([2cfc8ed](https://github.com/Curt-Park/autology/commit/2cfc8ed359da3545496bc5a42e079f5425e637b9))
+
 ## [0.10.0](https://github.com/Curt-Park/autology/compare/autology-v0.9.1...autology-v0.10.0) (2026-03-03)
 
 
