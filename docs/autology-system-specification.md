@@ -13,7 +13,7 @@ Map of Contents for the Autology specification documents.
 
 ## Architecture Overview
 
-Autology is a code-less knowledge management system. Claude uses native tools (Read/Write/Edit/Grep/Glob) to directly CRUD docs/*.md files. Shell script hooks inject context at session start and show tips at session end.
+Autology is a code-less knowledge management system. Claude uses native tools (Read/Write/Edit/Grep/Glob) to directly CRUD docs/*.md files. A shell script hook injects context at session start.
 
 ## Specification Components
 

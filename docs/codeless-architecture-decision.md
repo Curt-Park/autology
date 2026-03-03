@@ -35,9 +35,6 @@ Eliminate all Go code. Claude uses **native tools** to manage `docs/*.md` direct
 - Injects autology-workflow skill as trigger guidance — tells Claude when/how to invoke autology skills
 - Outputs `additionalContext` JSON for Claude Code
 
-### SessionEnd Hook (shell script)
-- Outputs JSON `systemMessage` with capture tip
-
 ### docs/*.md (flat structure)
 - Knowledge nodes as markdown files with YAML frontmatter
 - Filename = title slug (`docs/{title-slug}.md`)
