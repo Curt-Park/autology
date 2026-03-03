@@ -26,10 +26,10 @@ As each developer moves faster with AI, decisions, conventions, and context beco
             ↓
     Your Work: commit / decision
       ↑             │
-   explore        explore
-   (query)       ↙       ↘
-      ↑    sync existing  capture new
-      │          ↘       ↙
+   explore        triage
+   (query)          │
+      ↑    sync existing and capture new (parallel)
+      │             │
       └───────── docs/*.md
 ```
 
@@ -38,6 +38,18 @@ As each developer moves faster with AI, decisions, conventions, and context beco
 > **vs. automemory**: automemory is Claude's private, machine-local memory — per-developer, not committed to git, invisible to teammates. Autology is a team knowledge base: typed nodes, `[[wikilinks]]` forming a graph, doc-code sync, and git-committed so knowledge compounds across all developers.
 
 ## Skills
+
+### `/autology:triage-knowledge` — Classify Knowledge Items
+
+Scans `docs/` against the current action (commit, decision, refactor) and classifies each knowledge item as existing or new, with topology hints.
+
+- **Existing items** → feeds `/autology:sync-knowledge` with matched nodes and connected neighbors
+- **New items** → feeds `/autology:capture-knowledge` with suggested relations for wikilinks
+- **Automatic**: triggered by `/autology:autology-workflow` after every significant action
+
+```bash
+/autology:triage-knowledge      # classify after an action
+```
 
 ### `/autology:capture-knowledge` — Capture Knowledge
 
@@ -59,7 +71,7 @@ Traverses the `[[wikilink]]` graph — operations that Grep alone cannot do.
 
 | Mode | Command | Use Case |
 |------|---------|----------|
-| Graph overview | `/autology:explore-knowledge` | Hub nodes, orphans, connected components |
+| Graph overview | `/autology:explore-knowledge overview` | Hub nodes, orphans, connected components |
 | Neighborhood | `/autology:explore-knowledge <node>` | 2-hop expansion — blast radius before refactoring |
 | Path finding | `/autology:explore-knowledge path A B` | Shortest path between two concepts |
 
@@ -74,7 +86,7 @@ Detects and fixes doc-code drift in-place.
 
 ### `/autology:autology-tutorial` — Interactive Tutorial
 
-3-act hands-on walkthrough: capture a decision → detect doc-code drift with sync → query the knowledge graph with explore. Runs in a live git branch (~15 minutes).
+3-act hands-on walkthrough: triage + capture a decision → triage + sync on drift → query the knowledge graph with explore. Runs in a live git branch (~15 minutes).
 
 ```bash
 /autology:autology-tutorial          # start from Act 1
@@ -102,7 +114,7 @@ Dev A: implements JWT RS256
              Consequences (token expiry UX, key rotation ops)
   [convention] Always verify JWT expiry before role check (links to → jwt-decision)
 
-Dev B: new session — router skill injected at start, Claude knows to check docs/ for decisions
+Dev B: new session — workflow skill injected at start, Claude knows to check docs/ for decisions
 → /autology:explore-knowledge path jwt-decision api-gateway
   → sees: jwt-decision → auth-middleware → api-gateway (2 hops)
 → implements the new service correctly, no re-research needed
@@ -129,11 +141,14 @@ New hire: full decision chain available at session start, zero onboarding cost
 # Learn the full loop (3-act interactive tutorial)
 /autology:autology-tutorial
 
-# Capture knowledge from current conversation
+# Triage after an action (classify existing/new items)
+/autology:triage-knowledge
+
+# Capture new knowledge
 /autology:capture-knowledge
 
 # Explore the knowledge graph
-/autology:explore-knowledge                         # overview: hubs, orphans, components
+/autology:explore-knowledge overview                # hubs, orphans, components
 /autology:explore-knowledge <node>                  # neighborhood (2-hop expansion)
 /autology:explore-knowledge path <node-a> <node-b>  # path between two concepts
 
@@ -150,7 +165,7 @@ cd autology
 claude --plugin-dir .
 ```
 
-`/autology:autology-tutorial` is the end-to-end test: 3 acts covering capture (decision + code) → sync (drift detection) → explore (query). If all complete, the full loop works.
+`/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture (decision + code) → triage + sync (drift detection) → explore (query). If all complete, the full loop works.
 
 ## License
 
