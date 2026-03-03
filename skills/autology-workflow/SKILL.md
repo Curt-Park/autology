@@ -1,15 +1,15 @@
 ---
 name: autology-workflow
-description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered.
+description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered. MUST run after every commit, architectural choice, or convention discovery.
 ---
 
-<EXTREMELY-IMPORTANT>
+<EXTREMELY_IMPORTANT>
 After every significant action, you ABSOLUTELY MUST run the autology workflow.
 
 YOU DO NOT HAVE A CHOICE. YOU MUST INVOKE TRIAGE → SYNC/CAPTURE.
 
 This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-</EXTREMELY-IMPORTANT>
+</EXTREMELY_IMPORTANT>
 
 ## Overview
 

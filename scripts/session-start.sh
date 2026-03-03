@@ -6,12 +6,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Read autology-workflow skill, strip YAML frontmatter
-_skill_content=$(awk '/^---$/{if(found){found=0;next}else{found=1;next}} !found{print}' "${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md")
+# Read autology-workflow skill content (including frontmatter, like superpowers does)
+_skill_content=$(cat "${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md" 2>&1 || echo "Error reading autology-workflow skill")
 
-context="Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills:
+context="<EXTREMELY_IMPORTANT>
+You have autology knowledge management.
 
-${_skill_content}"
+**Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills. For all other autology skills, use the Skill tool:**
+
+${_skill_content}
+</EXTREMELY_IMPORTANT>"
 
 # Escape string for JSON embedding
 escape_for_json() {

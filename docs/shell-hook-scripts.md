@@ -13,42 +13,38 @@ Part of [[autology-internals]]. Implements [[codeless-architecture-decision]].
 
 ## Overview
 
-Autology's only code: two bash scripts that implement the SessionStart and SessionEnd Claude Code hooks.
+Autology's only code: one bash script that implements the SessionStart Claude Code hook.
 
 ## Files
 
 ### scripts/session-start.sh
 **Core logic:**
-1. Consume stdin (avoid broken pipe with `set -euo pipefail`)
-2. Determine plugin root via `BASH_SOURCE[0]` + `cd && pwd`
-3. Read `skills/autology-workflow/SKILL.md`, strip YAML frontmatter with awk
-4. Prepend plain framing text: `"Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills:"`
-5. Escape string for JSON using bash parameter substitution (`$'\n'` for newlines)
-6. Output JSON:
+1. Determine plugin root via `BASH_SOURCE[0]` + `cd && pwd`
+2. Read `skills/autology-workflow/SKILL.md`, strip YAML frontmatter with awk
+3. Prepend plain framing text: `"Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills:"`
+4. Escape string for JSON using bash parameter substitution (`$'\n'` for newlines)
+5. Output JSON via heredoc:
    ```json
    {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "..."}}
    ```
-
-### scripts/session-end.sh
-Outputs a JSON `systemMessage` (user-visible) with a capture tip:
-```json
-{"systemMessage": "Autology: /autology:capture-knowledge to save knowledge from this session"}
-```
+6. Explicit `exit 0`
 
 ## Hook Configuration (`hooks/hooks.json`)
 
 ```json
 {
-  "SessionStart": [...],  // → session-start.sh
-  "SessionEnd": [...]     // → session-end.sh
+  "SessionStart": [...]  // → session-start.sh
 }
 ```
+
+SessionEnd hook was removed — Claude Code does not reliably display stderr on session exit, and SessionStart already injects capture guidance via autology-workflow skill.
 
 ## Key Design Choices
 
 - **awk for frontmatter stripping**: no dependencies (pure POSIX)
 - **bash parameter substitution for JSON escaping**: no external dependencies; `$'\n'` matches actual newlines correctly
-- **`|| true` on stdin consume**: prevents `set -e` from aborting on broken pipe
+- **heredoc for JSON output**: clearer structure than single-line printf
+- **Explicit `exit 0`**: ensures clean exit under `set -euo pipefail`
 - **Self-locating via `BASH_SOURCE[0]`**: script determines its own `PLUGIN_ROOT` at runtime — no env override needed for testing (`bash scripts/session-start.sh` from repo root works directly)
 
 ## Related
