@@ -12,19 +12,6 @@
         ],
         "description": "Inject autology-workflow skill content as trigger guidance for autology skills"
       }
-    ],
-    "SessionEnd": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/session-end.sh\"",
-            "statusMessage": "Autology session end..."
-          }
-        ],
-        "description": "Show knowledge capture tip on session end"
-      }
     ]
   }
 }
