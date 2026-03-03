@@ -14,7 +14,7 @@ The reentry guard checks **"Did autology-workflow just complete?"** (event-based
 
 ## Rationale
 
-The trigger point is `[Action completed]`. When that completed action was autology-workflow itself (explore, sync, capture, or a docs write), the guard fires and skips re-triggering.
+The trigger point is `[Action completed]`. When that completed action was autology-workflow itself (triage, sync, capture, or a docs write), the guard fires and skips re-triggering.
 
 **State-based (rejected)**: Requires tracking runtime execution context ("am I currently in a workflow?"). Fragile — state can become stale or be missed, leaving the loop prevention unreliable.
 
@@ -22,7 +22,7 @@ The trigger point is `[Action completed]`. When that completed action was autolo
 
 ## What counts as "autology-workflow just completed"
 
-- `explore-knowledge`, `sync-knowledge`, or `capture-knowledge` just ran
+- `triage-knowledge`, `sync-knowledge`, or `capture-knowledge` just ran
 - A `docs/*.md` file was just written or edited
 
 ## Implementation
