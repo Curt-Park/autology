@@ -22,7 +22,7 @@ When NOT to use:
 
 ## When invoked directly
 
-Fast mode requires triage output. If triage has not run, run `/autology:triage-knowledge` first — or use `/autology:sync-knowledge full` to audit everything without triage.
+If triage has not run in this session, run `/autology:triage-knowledge` first, then continue with fast sync. Do NOT fall back to full mode — always triage first. Full mode is only used when the user explicitly passes `full`.
 
 ## Quick Reference
 
@@ -167,7 +167,8 @@ Report broken wikilinks.
 
 | Mistake | Fix |
 |---------|-----|
-| Running fast mode without triage output | Fast mode needs triage's matched nodes as scope. Run triage first. |
+| Running fast mode without triage output | Run `/autology:triage-knowledge` first automatically. Never fall back to full mode. |
+| Falling back to full mode when triage is missing | Full mode is ONLY for explicit `full` argument. Default: run triage → fast sync. |
 | Report findings without fixing | Edit docs in-place immediately when discrepancies are found. |
 | Judge doc accuracy without reading code | Always Read the actual file before comparing. |
 | Run full audit on every action | Fast mode (post-triage) for daily use; full mode for periodic audits. |
