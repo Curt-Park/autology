@@ -5,13 +5,9 @@ description: Use when a project decision, convention, or pattern should be saved
 
 ## Overview
 
-Capture knowledge from conversation context into docs/ as markdown nodes. Save immediately — no confirmation needed.
+Capture knowledge from conversation context into docs/ as markdown nodes. Save immediately — asking confirmation interrupts flow and discourages capture.
 
-**Precondition**: triage must have run first. Triage classifies items as new (→ capture) and provides suggested relations.
-
-## When invoked directly
-
-Capture requires triage output. If triage has not run, run `/autology:triage-knowledge` first.
+**Precondition**: if triage has not run this session, run `/autology:triage-knowledge` first.
 
 ## What Capture Targets
 
@@ -90,5 +86,4 @@ Use triage's suggested relations for wikilinks:
 | Running capture without triage output | Triage classifies new vs existing — run it first. |
 | Capturing items triage classified as existing | Those go to sync, not capture. |
 | Ask user for confirmation before saving | Save immediately, then report. |
-| Leave nodes for deleted code active | Set `status: archived`. |
 | Add wikilink only to new node | Also add reverse link to related node. |

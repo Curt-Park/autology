@@ -9,6 +9,17 @@ Answer user questions about the project by traversing the autology knowledge gra
 Search docs/ for relevant nodes, follow wikilinks to build context, and return
 rich answers grounded in documented decisions, conventions, and architecture.
 
+Use explore instead of reading a doc directly when: the user asks a question (rather than requesting a specific doc), or when the topic may span multiple connected nodes.
+
+## Question-Answering (primary mode)
+
+When the user asks a question about the project (conventions, architecture, decisions, rationale):
+
+1. **Search**: Grep `docs/` for keywords from the question
+2. **Read**: Read matched nodes (frontmatter + body)
+3. **Follow**: For each wikilink in matched nodes, read the linked node (1-hop)
+4. **Synthesize**: Answer citing specific docs (e.g., "per [[redis-storage-decision]]")
+
 ## Graph Operations
 
 The `<node>` argument is a **title-slug** — the filename without the `.md` extension (e.g., `redis-storage-decision` for `docs/redis-storage-decision.md`).

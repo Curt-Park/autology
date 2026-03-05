@@ -93,7 +93,7 @@ git add docs/tutorial-*.md
 git commit -m "tutorial: capture Redis storage decision"
 ```
 
-**📌 Why capture fired**: Commit introduced a Redis config with no corresponding decision doc. Triage classified it as new → capture created the doc automatically.
+**Key insight**: Commit introduced a Redis config with no corresponding decision doc. Triage classified it as new → capture created the doc automatically.
 
 ```
 > **Autology Tutorial** — Act 1 complete
@@ -159,7 +159,7 @@ git add docs/tutorial-*.md
 git commit -m "tutorial: sync storage decision (Redis → PostgreSQL)"
 ```
 
-**📌 Why sync fired**: docker-compose changed to PostgreSQL but the decision doc still said Redis. Triage detected the existing doc, sync updated it in-place to match reality.
+**Key insight**: docker-compose changed to PostgreSQL but the decision doc still said Redis. Triage detected the existing doc, sync updated it in-place to match reality.
 
 ```
 > **Autology Tutorial** — Act 2 complete
@@ -198,7 +198,7 @@ Explore will search the knowledge base and answer from the doc content. The node
 
 Point out: this is what `explore` does in real work — you don't have to remember decisions. The knowledge base answers.
 
-**📌 Why explore fires**: Question about existing project knowledge. Explore searches docs/, finds the relevant node, reads it, and answers from captured context.
+**Key insight**: Question about existing project knowledge. Explore searches docs/, finds the relevant node, reads it, and answers from captured context.
 
 ```
 > **Autology Tutorial** — Act 3 complete

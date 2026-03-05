@@ -9,13 +9,11 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # Read autology-workflow skill content (including frontmatter, like superpowers does)
 _skill_content=$(cat "${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md" 2>&1 || echo "Error reading autology-workflow skill")
 
-context="<EXTREMELY_IMPORTANT>
-You have autology knowledge management.
+context="You have autology knowledge management installed.
 
 **Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills. For all other autology skills, use the Skill tool:**
 
-${_skill_content}
-</EXTREMELY_IMPORTANT>"
+${_skill_content}"
 
 # Escape string for JSON embedding
 escape_for_json() {

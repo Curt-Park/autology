@@ -8,21 +8,10 @@ description: Use when autology docs/ nodes may be out of sync with the codebase 
 docs/ nodes must accurately reflect the actual codebase and decisions. This skill verifies that and fixes any discrepancies in-place.
 
 Two modes:
-- **Fast** (default): verifies the nodes triage identified. Requires triage output.
-- **Full**: audits the entire codebase and knowledge base independently. Use for periodic reviews or when explicitly requested.
+- **Fast** (default): verifies only the nodes triage identified — fast enough to run after every action.
+- **Full**: audits the entire codebase and knowledge base independently — for periodic reviews or when explicitly requested.
 
-## When to Use
-
-- After triage classifies existing nodes to verify
-- Periodic full audit of the knowledge base
-
-When NOT to use:
-- Capturing new knowledge → `/autology:capture-knowledge`
-- Finding what changed → `/autology:triage-knowledge` (run triage first, then sync)
-
-## When invoked directly
-
-If triage has not run in this session, run `/autology:triage-knowledge` first, then continue with fast sync. Do NOT fall back to full mode — always triage first. Full mode is only used when the user explicitly passes `full`.
+**Precondition**: if triage has not run this session, run `/autology:triage-knowledge` first, then fast sync. Full mode is only used when the user explicitly passes `full`.
 
 ## Quick Reference
 
@@ -127,38 +116,21 @@ Report broken wikilinks.
 ```markdown
 ## Sync Report (full)
 
-## 1. Knowledge Gaps
-
 ### Code → No Doc
-#### [Component Name]
-**What**: description
-**Where**: path/to/code
-**Fix**: /autology:capture-knowledge as [type] with tags [...]
+- **[Component Name]**: what/where → fix: capture as [type] with tags [...]
 
-### Doc → No Code
-#### [Node Title] (node-id)
-**Claim**: what node says exists
-**Reality**: doesn't exist / was removed
-**Fix**: update or delete the node
+### Doc → No Code / Doc ≠ Code
+- **[Node Title]**: claim vs reality → fix: edit or delete
 
-### Doc ≠ Code
-#### [Node Title] (node-id)
-**Claim**: what node says
-**Reality**: what code actually shows
-**Fix**: specific correction
+### Broken Wikilinks
+| Source | Broken Link |
+|--------|-------------|
 
-## 2. Broken Wikilinks
-| Source Node | Broken Link | Context |
-|-------------|-------------|---------|
-
-## 3. Missing Wikilinks
+### Missing Wikilinks
 | Node A | Node B | Reason |
 |--------|--------|--------|
 
-## Summary
-- Knowledge gaps: N
-- Broken wikilinks: N
-- Missing wikilinks: N
+**Summary**: N gaps, N broken links, N missing links
 ```
 
 ---

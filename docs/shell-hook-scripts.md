@@ -20,8 +20,8 @@ Autology's only code: one bash script that implements the SessionStart Claude Co
 ### scripts/session-start.sh
 **Core logic:**
 1. Determine plugin root via `BASH_SOURCE[0]` + `cd && pwd`
-2. Read `skills/autology-workflow/SKILL.md`, strip YAML frontmatter with awk
-3. Prepend plain framing text: `"Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills:"`
+2. Read `skills/autology-workflow/SKILL.md` (full file, including frontmatter)
+3. Wrap with neutral framing: `"You have autology knowledge management installed."`
 4. Escape string for JSON using bash parameter substitution (`$'\n'` for newlines)
 5. Output JSON via heredoc:
    ```json
@@ -41,7 +41,6 @@ SessionEnd hook was removed — Claude Code does not reliably display stderr on 
 
 ## Key Design Choices
 
-- **awk for frontmatter stripping**: no dependencies (pure POSIX)
 - **bash parameter substitution for JSON escaping**: no external dependencies; `$'\n'` matches actual newlines correctly
 - **heredoc for JSON output**: clearer structure than single-line printf
 - **Explicit `exit 0`**: ensures clean exit under `set -euo pipefail`
