@@ -27,8 +27,10 @@ The trigger point is `[Action completed]`. When that completed action was autolo
 
 ## Implementation
 
-`skills/autology-workflow/SKILL.md` — first diamond in the flowchart:
+`skills/autology-workflow/SKILL.md` — Trigger Points section, skip condition:
 
 ```
-"Did autology-workflow just complete?" → yes: Continue (skip) / no: check significance
+autology-workflow just completed (skip — do not re-trigger):
+- triage-knowledge, sync-knowledge, or capture-knowledge just ran
+- docs/*.md file was just written or edited
 ```

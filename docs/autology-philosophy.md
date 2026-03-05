@@ -148,3 +148,5 @@ See [[codeless-architecture-decision]] for how these principles guided the evolu
 ---
 
 **Autology ensures AI serves human intelligence, not replaces it.**
+
+See also: [[skill-writing-convention]] — applies the transparency principle to how skills are written.
