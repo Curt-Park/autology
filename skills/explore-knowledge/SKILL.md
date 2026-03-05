@@ -1,6 +1,6 @@
 ---
 name: explore-knowledge
-description: Use when user asks about project conventions, architecture, decisions, or relationships between documented concepts — leverages the ontology to provide rich, connected answers.
+description: Use to answer questions about this project's decisions, architecture, and conventions — "why did we choose X?", "how does Y work?", "what's the convention for Z?". Also use for explicit /autology:explore-knowledge commands (overview, neighborhood, path). Searches docs/, follows wikilinks, and synthesizes grounded answers from the knowledge base.
 ---
 
 ## Overview
