@@ -162,6 +162,8 @@ claude --plugin-dir .
 
 `/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture (decision + code) → triage + sync (drift detection) → explore (query). If all complete, the full loop works.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add and run skill evals.
+
 ## License
 
 MIT
