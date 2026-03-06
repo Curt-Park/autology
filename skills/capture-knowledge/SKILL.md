@@ -51,9 +51,18 @@ New items from triage (→ capture):
   Suggested relations: none
 ```
 
-### 2. Create Node
+### 2. Decide node granularity
 
-For each new item, create `docs/{title-slug}.md`:
+Not every triage item needs its own file. Before creating, ask: does this item have enough standalone substance to be useful on its own, or is it a detail of something larger?
+
+- **Own node**: has a distinct title, multiple meaningful sentences, likely to be linked or searched independently
+- **Fold into parent**: a behavior detail, edge case, or consequence of another item being captured in the same batch (e.g., "returns 401 on invalid token" is a detail of a JWT middleware component, not a standalone node)
+
+When folding, capture the detail in the parent node's body. This keeps the graph navigable — thin stub nodes add noise without adding reach.
+
+### 3. Create Node
+
+For each new item that warrants its own node, create `docs/{title-slug}.md`:
 
 ```yaml
 ---
@@ -65,14 +74,14 @@ tags: [tag1, tag2]
 
 **File naming**: `docs/{title-slug}.md` — lowercase, hyphens, no special characters.
 
-### 3. Add Relations
+### 4. Add Relations
 
 Use triage's suggested relations for wikilinks:
 
 - Add `[[title-slug]]` wikilink in the new node's body text (wikilink target = filename without `.md` extension)
 - Also Edit the related node to add the reverse `[[title-slug]]` wikilink
 
-### 4. Report Result
+### 5. Report Result
 
 ```
 > **Autology** — Captured [type]: docs/{slug}.md

@@ -139,8 +139,8 @@ Report broken wikilinks.
 
 | Mistake | Fix |
 |---------|-----|
-| Running fast mode without triage output | Run `/autology:triage-knowledge` first automatically. Never fall back to full mode. |
-| Falling back to full mode when triage is missing | Full mode is ONLY for explicit `full` argument. Default: run triage → fast sync. |
+| Running fast mode without triage output | Run `/autology:triage-knowledge` first automatically — triage output is what fast mode syncs against. |
+| Falling back to full mode when triage is missing | Full mode is only for explicit `full` argument. Default path: run triage → fast sync. |
 | Report findings without fixing | Edit docs in-place immediately when discrepancies are found. |
 | Judge doc accuracy without reading code | Always Read the actual file before comparing. |
 | Run full audit on every action | Fast mode (post-triage) for daily use; full mode for periodic audits. |

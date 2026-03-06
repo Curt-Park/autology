@@ -118,6 +118,11 @@ Dev C: 3 months later, migrates an internal service to HS256 (simpler for intern
 New hire: full decision chain available at session start, zero onboarding cost
 ```
 
+## Prerequisites
+
+- [Claude Code](https://claude.ai/code)
+- [`jq`](https://jqlang.org) — used by the session-start hook for JSON encoding
+
 ## Installation
 
 ```bash

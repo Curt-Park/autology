@@ -1,0 +1,80 @@
+{
+  "skill_name": "autology-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "name": "commit-trigger",
+      "prompt": "I just pushed a commit: `feat(auth): add JWT token validation middleware`. The middleware checks tokens on protected routes and returns 401 if invalid. We chose JWT over session cookies because the API needs to be stateless.",
+      "expected_output": "Triage runs first, classifies JWT middleware and decision as new items, capture creates 2 linked docs (component + decision) with 401 behavior and stateless rationale folded in rather than as separate nodes.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Workflow trace explicitly explains which items were folded and why"
+        },
+        {
+          "id": "thin-items-folded",
+          "description": "401 behavior and stateless rationale are NOT separate nodes — folded into parent docs"
+        },
+        {
+          "id": "two-docs-created",
+          "description": "Exactly 2 docs created (component + decision), not 3 or 4"
+        },
+        {
+          "id": "bidirectional-wikilinks",
+          "description": "Both docs link to each other with [[wikilinks]]"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "convention-decision",
+      "prompt": "We just decided that all API endpoints will use snake_case for JSON field names going forward. This is the new convention across the whole backend. No more camelCase in API responses.",
+      "expected_output": "Triage runs first, classifies as new convention item, capture creates a single convention doc. Skip-sync rule explicitly cited. Granularity reasoning documented.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace explains why the convention gets its own node"
+        },
+        {
+          "id": "skip-sync-rule-cited",
+          "description": "The explicit skip-sync rule is cited when sync is skipped"
+        },
+        {
+          "id": "one-doc-created",
+          "description": "Exactly 1 doc created"
+        },
+        {
+          "id": "type-convention",
+          "description": "Created doc has type: convention in frontmatter"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "refactor-existing",
+      "prompt": "Just committed a refactor: `refactor(hooks): move rate limiting from Express middleware to a dedicated RateLimiter service class`. The old middleware approach is removed. Existing docs might reference the old middleware.",
+      "expected_output": "Triage finds no existing docs, pivots to capture. Skip-sync rule cited explicitly. Middleware removal detail folded into component node, not a separate ADR stub.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace explains which items get own nodes vs which are folded"
+        },
+        {
+          "id": "skip-sync-rule-cited",
+          "description": "The explicit skip-sync rule is cited when triage finds no existing docs"
+        },
+        {
+          "id": "thin-item-folded",
+          "description": "The 'old middleware removal' detail is folded into the component node, not a separate ADR stub"
+        },
+        {
+          "id": "doc-created",
+          "description": "At least 1 doc is created (triage→capture pivot for new component)"
+        }
+      ]
+    }
+  ]
+}

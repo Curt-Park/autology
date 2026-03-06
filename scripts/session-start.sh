@@ -6,33 +6,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Read autology-workflow skill content (including frontmatter, like superpowers does)
-_skill_content=$(cat "${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md" 2>&1 || echo "Error reading autology-workflow skill")
+_skill_file="${PLUGIN_ROOT}/skills/autology-workflow/SKILL.md"
 
-context="You have autology knowledge management installed.
+if [[ ! -f "$_skill_file" ]]; then
+    echo "autology session-start: skill file not found: $_skill_file" >&2
+    exit 1
+fi
 
-**Below is the full content of the autology-workflow skill — your guide to when and how to invoke autology skills. For all other autology skills, use the Skill tool:**
+_skill_content=$(cat "$_skill_file")
+
+context="Autology knowledge management is active. Workflow guide:
 
 ${_skill_content}"
-
-# Escape string for JSON embedding
-escape_for_json() {
-    local s="$1"
-    s="${s//\\/\\\\}"        # \ → \\
-    s="${s//\"/\\\"}"        # " → \"
-    s="${s//$'\n'/\\n}"      # newline → \n
-    s="${s//$'\r'/\\r}"      # CR → \r
-    s="${s//$'\t'/\\t}"      # tab → \t
-    printf '%s' "$s"
-}
-
-session_context=$(escape_for_json "$context")
 
 cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "${session_context}"
+    "additionalContext": $(jq -n --arg s "$context" '$s')
   }
 }
 EOF

@@ -1,6 +1,6 @@
 ---
 name: autology-workflow
-description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered. MUST run after every commit, architectural choice, or convention discovery.
+description: Use after significant project actions — commit, push, PR, or when a project decision or convention is discovered. Running close to the action keeps captured knowledge more accurate and complete.
 ---
 
 ## Overview
@@ -15,6 +15,8 @@ Route to the right autology skill after significant actions. Knowledge captured 
 2. **In parallel** from the same triage result:
    - Existing items → batch `/autology:sync-knowledge` (use topology hints to verify connected nodes too)
    - New items → batch `/autology:capture-knowledge` (use suggested relations from hints to add wikilinks)
+
+If triage returns only new items (no existing matches), skip sync — capture runs alone. If triage returns only existing items (nothing new), skip capture — sync runs alone.
 
 Signals for "action completed":
 - commit, push, PR created
