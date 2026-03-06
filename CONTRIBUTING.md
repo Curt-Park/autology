@@ -77,3 +77,52 @@ Things worth asserting for autology skills:
 1. Add a new entry to `skills/{skill-name}/evals/evals.json` with a unique `id`, a descriptive `name`, a realistic `prompt`, and 3–5 assertions
 2. Run the skill-creator eval loop to see how the skill performs
 3. If the skill fails, improve `SKILL.md` and re-run into a new iteration directory
+
+---
+
+## Trigger Evals (Description Optimization)
+
+Skills that are invoked via their SKILL.md description (rather than hook injection) also have a `trigger_evals.json` file. These test whether Claude selects the right skill for a given prompt.
+
+This applies to: `explore-knowledge`, `capture-knowledge`, `triage-knowledge`, `sync-knowledge`.
+It does **not** apply to `autology-workflow`, which is injected at session start via a hook.
+
+### File Structure
+
+```
+skills/
+└── {skill-name}/
+    └── evals/
+        ├── evals.json          # Behavioral test cases
+        └── trigger_evals.json  # Trigger accuracy test cases
+```
+
+### trigger_evals.json Schema
+
+```json
+[
+  { "query": "User prompt that should trigger this skill", "should_trigger": true },
+  { "query": "User prompt that should NOT trigger this skill", "should_trigger": false }
+]
+```
+
+Each entry is a realistic user prompt. Aim for 6–10 should-trigger and 6–10 should-not-trigger cases, with emphasis on **near-misses** — queries that share keywords with the skill but belong to a different skill.
+
+### Running Description Optimization
+
+The skill-creator `run_loop.py` script tests the current skill description against the eval set and iteratively proposes improvements:
+
+```bash
+SKILL_CREATOR=~/.claude/plugins/cache/claude-plugins-official/skill-creator/205b6e0b3036/skills/skill-creator
+
+python -m scripts.run_loop \
+  --eval-set skills/{skill-name}/evals/trigger_evals.json \
+  --skill-path skills/{skill-name} \
+  --model claude-sonnet-4-6 \
+  --max-iterations 5 \
+  --verbose
+```
+
+Run from the `$SKILL_CREATOR` directory. The script splits the eval set into 60% train / 40% held-out test, evaluates the current description, then calls Claude with extended thinking to propose improvements. It outputs `best_description` — selected by test score to avoid overfitting.
+
+After the loop finishes, copy `best_description` into the skill's SKILL.md frontmatter `description` field.

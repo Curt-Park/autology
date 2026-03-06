@@ -1,0 +1,50 @@
+[
+  {
+    "query": "Remember this: we decided to use Redis for session storage because it supports TTL natively and we need distributed sessions across pods.",
+    "should_trigger": true
+  },
+  {
+    "query": "Document this decision — we're going with PostgreSQL as our primary database. We evaluated MongoDB but chose Postgres for ACID compliance.",
+    "should_trigger": true
+  },
+  {
+    "query": "We just settled on a convention: all timestamps in API responses must be ISO 8601 in UTC. No Unix timestamps.",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to capture this for the team: we discovered that our ORM has N+1 query issues on nested relations — always use eager loading with include.",
+    "should_trigger": true
+  },
+  {
+    "query": "Save this as a known issue: the payment service has a race condition under high load when two requests try to create the same order simultaneously.",
+    "should_trigger": true
+  },
+  {
+    "query": "Let's document the architecture decision: we chose a monorepo over separate repos because shared types and atomic cross-service commits outweigh the CI complexity.",
+    "should_trigger": true
+  },
+  {
+    "query": "Why did we choose Redis over Memcached? I want to understand the reasoning.",
+    "should_trigger": false
+  },
+  {
+    "query": "I just pushed a commit: refactor(storage): extract FileService into S3FileStorage and LocalFileStorage.",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm thinking about whether to use Redis or Memcached for the cache layer. What are the tradeoffs?",
+    "should_trigger": false
+  },
+  {
+    "query": "Sync the docs — the CacheService was refactored and the existing docs might be stale.",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me implement a Redis-backed session store in Express.",
+    "should_trigger": false
+  },
+  {
+    "query": "What conventions do we have around database migrations?",
+    "should_trigger": false
+  }
+]
