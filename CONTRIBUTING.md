@@ -113,16 +113,18 @@ Each entry is a realistic user prompt. Aim for 6–10 should-trigger and 6–10 
 The skill-creator `run_loop.py` script tests the current skill description against the eval set and iteratively proposes improvements:
 
 ```bash
-SKILL_CREATOR=~/.claude/plugins/cache/claude-plugins-official/skill-creator/205b6e0b3036/skills/skill-creator
-
+export VERSION=skill-creator-version
+export PYTHONPATH=~/.claude/plugins/cache/claude-plugins-official/skill-creator/${VERSION}/skills/skill-creator
+export SKILL_NAME=skill-name
+export ANTHROPIC_API_KEY=api-key
 python -m scripts.run_loop \
-  --eval-set skills/{skill-name}/evals/trigger_evals.json \
-  --skill-path skills/{skill-name} \
+  --eval-set skills/${SKILL_NAME}/evals/trigger_evals.json \
+  --skill-path skills/${SKILL_NAME} \
   --model claude-sonnet-4-6 \
   --max-iterations 5 \
   --verbose
 ```
 
-Run from the `$SKILL_CREATOR` directory. The script splits the eval set into 60% train / 40% held-out test, evaluates the current description, then calls Claude with extended thinking to propose improvements. It outputs `best_description` — selected by test score to avoid overfitting.
+The script splits the eval set into 60% train / 40% held-out test, evaluates the current description, then calls Claude with extended thinking to propose improvements. It outputs `best_description` — selected by test score to avoid overfitting.
 
 After the loop finishes, copy `best_description` into the skill's SKILL.md frontmatter `description` field.
