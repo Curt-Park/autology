@@ -5,3 +5,4 @@
 .claude/worktrees/
 .worktrees/
 *workspace
+.venv
