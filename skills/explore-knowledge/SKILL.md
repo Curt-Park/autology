@@ -1,6 +1,6 @@
 ---
 name: explore-knowledge
-description: Use when user asks about project conventions, architecture, decisions, or relationships between documented concepts — leverages the ontology to provide rich, connected answers.
+description: Use to answer questions about this project's decisions, architecture, and conventions — "why did we choose X?", "how does Y work?", "what's the convention for Z?". Also use for explicit /autology:explore-knowledge commands (overview, neighborhood, path). Searches docs/, follows wikilinks, and synthesizes grounded answers from the knowledge base.
 ---
 
 ## Overview
@@ -8,6 +8,17 @@ description: Use when user asks about project conventions, architecture, decisio
 Answer user questions about the project by traversing the autology knowledge graph.
 Search docs/ for relevant nodes, follow wikilinks to build context, and return
 rich answers grounded in documented decisions, conventions, and architecture.
+
+Use explore instead of reading a doc directly when: the user asks a question (rather than requesting a specific doc), or when the topic may span multiple connected nodes.
+
+## Question-Answering (primary mode)
+
+When the user asks a question about the project (conventions, architecture, decisions, rationale):
+
+1. **Search**: Grep `docs/` for keywords from the question
+2. **Read**: Read matched nodes (frontmatter + body)
+3. **Follow**: For each wikilink in matched nodes, read the linked node (1-hop)
+4. **Synthesize**: Answer citing specific docs (e.g., "per [[redis-storage-decision]]")
 
 ## Graph Operations
 

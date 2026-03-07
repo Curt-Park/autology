@@ -1,0 +1,50 @@
+[
+  {
+    "query": "/autology:sync-knowledge",
+    "should_trigger": true
+  },
+  {
+    "query": "/autology:sync-knowledge full",
+    "should_trigger": true
+  },
+  {
+    "query": "The docs might be out of date after last week's refactor. Can you check and fix any drift?",
+    "should_trigger": true
+  },
+  {
+    "query": "Run a full knowledge audit — we've had a lot of churn lately and I want to make sure nothing is stale.",
+    "should_trigger": true
+  },
+  {
+    "query": "Triage found these existing nodes that need syncing: docs/rate-limiter-service.md, docs/file-service.md. Please sync them.",
+    "should_trigger": true
+  },
+  {
+    "query": "Check if docs/api-gateway.md is still accurate after the port change.",
+    "should_trigger": true
+  },
+  {
+    "query": "I just pushed feat(queue): add BullMQ job queue for background email sending. No existing docs reference this.",
+    "should_trigger": false
+  },
+  {
+    "query": "What does our knowledge graph say about the API gateway?",
+    "should_trigger": false
+  },
+  {
+    "query": "Capture this: we decided all background jobs will retry up to 3 times with exponential backoff.",
+    "should_trigger": false
+  },
+  {
+    "query": "Triage my latest commit: refactor(cache): replace in-memory Map with Redis-backed store.",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me write tests for the CacheService.",
+    "should_trigger": false
+  },
+  {
+    "query": "What's the convention for how we name database migrations in this project?",
+    "should_trigger": false
+  }
+]

@@ -5,13 +5,9 @@ description: Use when a project decision, convention, or pattern should be saved
 
 ## Overview
 
-Capture knowledge from conversation context into docs/ as markdown nodes. Save immediately — no confirmation needed.
+Capture knowledge from conversation context into docs/ as markdown nodes. Save immediately — asking confirmation interrupts flow and discourages capture.
 
-**Precondition**: triage must have run first. Triage classifies items as new (→ capture) and provides suggested relations.
-
-## When invoked directly
-
-Capture requires triage output. If triage has not run, run `/autology:triage-knowledge` first.
+**Precondition**: if triage has not run this session, run `/autology:triage-knowledge` first.
 
 ## What Capture Targets
 
@@ -55,9 +51,19 @@ New items from triage (→ capture):
   Suggested relations: none
 ```
 
-### 2. Create Node
+### 2. Decide node granularity
 
-For each new item, create `docs/{title-slug}.md`:
+Not every triage item needs its own file. Before creating, ask: does this item have enough standalone substance to be useful on its own, or is it a detail of something larger?
+
+- **Own node**: has a distinct title, multiple meaningful sentences, likely to be linked or searched independently
+- **Decisions always get their own node** — even if brief. A decision is "chose X over Y because Z": the rationale makes it independently searchable and worth linking from other contexts. E.g., "chose JWT over session cookies because we need a stateless API" → `type: decision` node, not a footnote in the component doc.
+- **Fold into parent**: a pure behavior detail, edge case, or implementation consequence of another item in the same batch (e.g., "returns 401 on invalid token" is a consequence of the JWT middleware, not a choice made with rationale)
+
+The deciding criterion is not length but kind: *a choice made with rationale* → own node; *a behavioral detail of an implementation* → fold. When folding, capture the detail in the parent node's body. This keeps the graph navigable — thin stub nodes add noise without adding reach.
+
+### 3. Create Node
+
+For each new item that warrants its own node, create `docs/{title-slug}.md`:
 
 ```yaml
 ---
@@ -69,14 +75,14 @@ tags: [tag1, tag2]
 
 **File naming**: `docs/{title-slug}.md` — lowercase, hyphens, no special characters.
 
-### 3. Add Relations
+### 4. Add Relations
 
 Use triage's suggested relations for wikilinks:
 
 - Add `[[title-slug]]` wikilink in the new node's body text (wikilink target = filename without `.md` extension)
 - Also Edit the related node to add the reverse `[[title-slug]]` wikilink
 
-### 4. Report Result
+### 5. Report Result
 
 ```
 > **Autology** — Captured [type]: docs/{slug}.md
@@ -90,5 +96,4 @@ Use triage's suggested relations for wikilinks:
 | Running capture without triage output | Triage classifies new vs existing — run it first. |
 | Capturing items triage classified as existing | Those go to sync, not capture. |
 | Ask user for confirmation before saving | Save immediately, then report. |
-| Leave nodes for deleted code active | Set `status: archived`. |
 | Add wikilink only to new node | Also add reverse link to related node. |

@@ -1,0 +1,80 @@
+{
+  "skill_name": "triage-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mixed-batch",
+      "prompt": "Just pushed: `feat(auth): add OAuth2 login with Google`. Also updated the existing UserService to support OAuth user creation alongside password users. Assume docs/ contains a node called `user-service.md` documenting the UserService.",
+      "expected_output": "Triage searches docs/ and finds user-service.md as existing (→ sync). OAuth2 login is new (→ capture). Both classified with topology hints: user-service.md gets Connected/Tags output; OAuth item gets Suggested relations pointing at user-service.md.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "existing-found",
+          "description": "user-service.md (or equivalent) is classified as Existing (→ sync)"
+        },
+        {
+          "id": "new-classified",
+          "description": "OAuth2 login is classified as New (→ capture)"
+        },
+        {
+          "id": "topology-hints-existing",
+          "description": "Existing node includes Connected/Tags topology hints"
+        },
+        {
+          "id": "topology-hints-new",
+          "description": "New item includes Suggested relations (even if none found)"
+        },
+        {
+          "id": "output-format",
+          "description": "Output uses the Autology — Triage Results blockquote format with Existing and New sections"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "all-new-items",
+      "prompt": "Just pushed first commit for a new service: `feat(queue): add BullMQ job queue for background email sending`. No existing docs/ nodes relate to queues or email.",
+      "expected_output": "Triage searches docs/, finds no matches, uses the empty-state format. All items classified as New (→ capture). Suggested relations section present even if empty.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "empty-state-format",
+          "description": "Uses the 'No existing matches found. All items classified as new.' empty-state format"
+        },
+        {
+          "id": "no-existing-section",
+          "description": "No Existing (→ sync) section present, or it is explicitly empty"
+        },
+        {
+          "id": "new-items-listed",
+          "description": "BullMQ queue and/or email sending is listed under New (→ capture)"
+        },
+        {
+          "id": "suggested-relations-present",
+          "description": "Each new item has a Suggested relations line (can be 'none')"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "topology-hints-depth",
+      "prompt": "We just changed how the session-start hook works: it now reads the skill file path from an environment variable instead of computing it from BASH_SOURCE. Assume docs/ has: shell-hook-scripts.md (which wikilinks to autology-internals.md and codeless-architecture-decision.md).",
+      "expected_output": "Triage finds shell-hook-scripts.md as Existing. Topology hints include its wikilink connections (autology-internals, codeless-architecture-decision) and any shared-tag nodes. Connected nodes listed so sync knows what to check.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "primary-node-found",
+          "description": "shell-hook-scripts.md classified as Existing (→ sync)"
+        },
+        {
+          "id": "connected-nodes-listed",
+          "description": "Connected nodes (autology-internals, codeless-architecture-decision) appear in topology hints"
+        },
+        {
+          "id": "hub-or-orphan-flag",
+          "description": "Hub/orphan status or link count included in topology output"
+        }
+      ]
+    }
+  ]
+}

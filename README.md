@@ -118,6 +118,11 @@ Dev C: 3 months later, migrates an internal service to HS256 (simpler for intern
 New hire: full decision chain available at session start, zero onboarding cost
 ```
 
+## Prerequisites
+
+- [Claude Code](https://claude.ai/code)
+- [`jq`](https://jqlang.org) — used by the session-start hook for JSON encoding
+
 ## Installation
 
 ```bash
@@ -156,6 +161,8 @@ claude --plugin-dir .
 ```
 
 `/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture (decision + code) → triage + sync (drift detection) → explore (query). If all complete, the full loop works.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add and run skill evals.
 
 ## License
 

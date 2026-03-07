@@ -1,0 +1,84 @@
+{
+  "skill_name": "explore-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "name": "question-answering",
+      "prompt": "Why did we decide to use jq for JSON escaping in the session-start hook instead of doing it in bash?",
+      "expected_output": "Searches docs/ for jq/session-start/hook keywords. Reads shell-hook-scripts.md and follows wikilinks (codeless-architecture-decision, autology-internals). Synthesizes answer citing specific docs: jq handles all control characters and unicode correctly; bash parameter substitution failed on glob characters. Answer is grounded in docs, not just general knowledge.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "searches-docs-first",
+          "description": "Grep or search of docs/ is performed before answering — not answered from memory"
+        },
+        {
+          "id": "reads-matched-node",
+          "description": "shell-hook-scripts.md (or equivalent) is read"
+        },
+        {
+          "id": "follows-wikilinks",
+          "description": "At least one wikilinked node is followed (1-hop) for additional context"
+        },
+        {
+          "id": "cites-docs-in-answer",
+          "description": "Answer cites specific doc nodes (e.g., 'per [[shell-hook-scripts]]')"
+        },
+        {
+          "id": "correct-rationale",
+          "description": "Answer mentions unicode/control character handling or bash escaping failure as the reason for jq"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "overview-operation",
+      "prompt": "/autology:explore-knowledge overview",
+      "expected_output": "Reads all docs/*.md, extracts frontmatter and wikilinks. Reports: total node count, link count, component count, top 5 hub nodes (most connections), orphan nodes (no links). Format matches the overview output spec.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "globs-all-docs",
+          "description": "All docs/*.md files are globbed and read"
+        },
+        {
+          "id": "hub-nodes-listed",
+          "description": "Top hub nodes (most wikilink connections) are identified and listed"
+        },
+        {
+          "id": "orphan-nodes-listed",
+          "description": "Orphan nodes (no links) are identified"
+        },
+        {
+          "id": "counts-reported",
+          "description": "Total node count and link count are reported as numbers"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "neighborhood-traversal",
+      "prompt": "/autology:explore-knowledge autology-internals",
+      "expected_output": "Reads docs/autology-internals.md. Finds all nodes that link to or from it (1-hop). Then finds their connections (2-hop BFS). Reports node title, type, tags, and connections at each hop. Does not stop at 1-hop.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "target-node-read",
+          "description": "docs/autology-internals.md is read"
+        },
+        {
+          "id": "1-hop-neighbors-found",
+          "description": "Nodes directly linked to/from autology-internals are identified"
+        },
+        {
+          "id": "2-hop-traversal",
+          "description": "2-hop neighbors (neighbors of neighbors) are also found and reported"
+        },
+        {
+          "id": "type-and-tags-included",
+          "description": "Each node in the output includes its type and tags"
+        }
+      ]
+    }
+  ]
+}

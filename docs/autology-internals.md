@@ -19,6 +19,10 @@ Autology is implemented as a code-less system with shell script hooks:
 2. **docs/*.md** — Knowledge nodes stored as markdown files with YAML frontmatter
 4. **Skills** — Claude skill files that guide autology-workflow/triage-knowledge/capture-knowledge/explore-knowledge/sync-knowledge/autology-tutorial workflows using native tools
 
+## Conventions
+
+- Skill writing: [[skill-writing-convention]]
+
 ## Cross-References
 
 - Specification: [[autology-system-specification]]
