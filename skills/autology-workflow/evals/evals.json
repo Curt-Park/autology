@@ -127,7 +127,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 7,
       "name": "mid-session-decision",
       "prompt": "Actually, let's settle this now: all internal service-to-service calls will use gRPC, not REST. That's the standard going forward across all backend services.",
       "expected_output": "Workflow captures the decision directly. A convention or decision node is created without waiting for a commit. Triage may run briefly but finds no existing docs on this.",
@@ -148,7 +148,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": 8,
       "name": "convention-in-review",
       "prompt": "I noticed while reviewing PRs that we're inconsistent about error responses \u2014 some services return `{error: string}`, others return `{code, message, details}`. Let's standardize: all error responses must use `{code, message, details}` going forward.",
       "expected_output": "Workflow recognizes this as a new convention established mid-conversation (not a commit). Triage finds no existing docs. Capture creates a convention node.",
@@ -167,6 +167,6 @@
           "description": "Doc body describes both the old inconsistency and the new standard"
         }
       ]
-    },
+    }
   ]
 }

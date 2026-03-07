@@ -1,0 +1,82 @@
+[
+  {
+    "query": "just pushed `feat(payments): add Stripe webhook handler for subscription events`. handler validates signatures and updates subscription status in postgres.",
+    "should_trigger": true
+  },
+  {
+    "query": "PR #84 is up — refactored the notification service to use an event queue instead of direct HTTP calls between services",
+    "should_trigger": true
+  },
+  {
+    "query": "we decided: all background jobs will use BullMQ, not raw Redis pub/sub. easier retry logic and better observability.",
+    "should_trigger": true
+  },
+  {
+    "query": "going forward, every new service must expose a /healthz endpoint that returns {status: ok, version: string}. that's the standard now.",
+    "should_trigger": true
+  },
+  {
+    "query": "pushed the S3 migration — file uploads now go through FileStorageService instead of writing to disk directly",
+    "should_trigger": true
+  },
+  {
+    "query": "settled on postgres jsonb for storing user preferences instead of a separate KV store. simpler to query and we already have postgres",
+    "should_trigger": true
+  },
+  {
+    "query": "feat(auth): switch from bcrypt to argon2 for password hashing — merged to main",
+    "should_trigger": true
+  },
+  {
+    "query": "the rule is: never store PII in logs. mask email and user IDs before writing to stdout. applies to all services.",
+    "should_trigger": true
+  },
+  {
+    "query": "opened a PR to move rate limiting out of the API gateway into individual services. each service owns its own limits now",
+    "should_trigger": true
+  },
+  {
+    "query": "we always do DB migrations in a separate PR from the feature code — keeps rollbacks clean",
+    "should_trigger": true
+  },
+  {
+    "query": "how does the FileStorageService handle large file uploads? does it stream or buffer?",
+    "should_trigger": false
+  },
+  {
+    "query": "can you add pagination to the GET /users endpoint? use cursor-based pagination, limit 50 per page",
+    "should_trigger": false
+  },
+  {
+    "query": "the webhook handler is throwing a 500 on Stripe's `invoice.payment_failed` event. here's the stack trace: TypeError: Cannot read property 'id' of undefined",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the tradeoffs between BullMQ and Kafka for our job queue? we're processing about 10k jobs/day",
+    "should_trigger": false
+  },
+  {
+    "query": "what does docs/payment-service.md say about how we handle refunds?",
+    "should_trigger": false
+  },
+  {
+    "query": "I committed to using React for the new admin dashboard — just need help picking a component library",
+    "should_trigger": false
+  },
+  {
+    "query": "can you push back on the requirement to add GraphQL? I think REST is simpler for our use case and want talking points",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the convention in this codebase for naming service classes? I see some end in 'Service' and some don't",
+    "should_trigger": false
+  },
+  {
+    "query": "triage just finished — it found FileStorageService as new and UserService as existing. what comes next?",
+    "should_trigger": false
+  },
+  {
+    "query": "you just wrote docs/background-jobs.md — looks good. now help me write the actual BullMQ queue setup code",
+    "should_trigger": false
+  }
+]
