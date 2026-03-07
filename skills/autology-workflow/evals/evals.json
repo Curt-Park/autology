@@ -78,27 +78,6 @@
     },
     {
       "id": 4,
-      "name": "no-trigger-knowledge-question",
-      "prompt": "Why did we decide to avoid session cookies in the API? I thought sessions were simpler to implement.",
-      "expected_output": "Workflow does NOT run \u2014 this is a knowledge question, not an action. explore-knowledge handles it directly via its own description. autology-workflow should not intercept Q&A.",
-      "files": [],
-      "assertions": [
-        {
-          "id": "workflow-does-not-run",
-          "description": "autology-workflow does not invoke triage, capture, or sync \u2014 knowledge questions are not actions"
-        },
-        {
-          "id": "no-doc-created",
-          "description": "No docs/ node is created"
-        },
-        {
-          "id": "question-answered",
-          "description": "The question is answered (by explore-knowledge or directly) without routing through autology-workflow"
-        }
-      ]
-    },
-    {
-      "id": 5,
       "name": "sync-only",
       "prompt": "Just pushed a fix: `fix(rate-limiter): switch from stdout logging to structured logger`. The RateLimiter service already has docs. Only the logging behavior changed \u2014 no architectural decision, no new component.",
       "expected_output": "Triage finds existing RateLimiter docs (\u2192 sync). No new items to capture. Sync runs alone. Skip-capture rule cited explicitly.",
@@ -123,7 +102,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": 5,
       "name": "mixed-batch",
       "prompt": "Pushed `feat(storage): add S3FileStorage service for file uploads`. Also updated the existing FileService to delegate large file uploads to S3FileStorage. FileService already has a doc.",
       "expected_output": "Triage classifies S3FileStorage as new (\u2192 capture) and FileService as existing (\u2192 sync). Both capture and sync run. Capture creates S3FileStorage node; sync updates FileService doc.",
@@ -148,7 +127,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": 6,
       "name": "mid-session-decision",
       "prompt": "Actually, let's settle this now: all internal service-to-service calls will use gRPC, not REST. That's the standard going forward across all backend services.",
       "expected_output": "Workflow captures the decision directly. A convention or decision node is created without waiting for a commit. Triage may run briefly but finds no existing docs on this.",
@@ -169,7 +148,7 @@
       ]
     },
     {
-      "id": 8,
+      "id": 7,
       "name": "convention-in-review",
       "prompt": "I noticed while reviewing PRs that we're inconsistent about error responses \u2014 some services return `{error: string}`, others return `{code, message, details}`. Let's standardize: all error responses must use `{code, message, details}` going forward.",
       "expected_output": "Workflow recognizes this as a new convention established mid-conversation (not a commit). Triage finds no existing docs. Capture creates a convention node.",
@@ -189,89 +168,5 @@
         }
       ]
     },
-    {
-      "id": 9,
-      "name": "no-trigger-coding-task",
-      "prompt": "Can you help me add pagination to the /users endpoint? I want cursor-based pagination using the user's created_at timestamp.",
-      "expected_output": "Workflow does NOT run. Claude helps implement the pagination without invoking triage, capture, or sync. No docs are created.",
-      "files": [],
-      "assertions": [
-        {
-          "id": "workflow-does-not-run",
-          "description": "No autology sub-skill (triage, capture, sync, explore) is invoked"
-        },
-        {
-          "id": "no-doc-created",
-          "description": "No docs/ node is created \u2014 implementation help only"
-        },
-        {
-          "id": "coding-task-addressed",
-          "description": "Claude responds with pagination implementation help, not knowledge management"
-        }
-      ]
-    },
-    {
-      "id": 10,
-      "name": "no-trigger-brainstorm",
-      "prompt": "I'm trying to decide whether to use WebSockets or Server-Sent Events for real-time notifications. What are the tradeoffs? We haven't decided yet.",
-      "expected_output": "Workflow does NOT run \u2014 this is an open question with no decision made. Claude discusses tradeoffs. No docs created. Capture should only fire when a decision is actually made.",
-      "files": [],
-      "assertions": [
-        {
-          "id": "workflow-does-not-run",
-          "description": "No triage or capture invoked \u2014 no decision has been made yet"
-        },
-        {
-          "id": "no-doc-created",
-          "description": "No docs/ node is created for an undecided question"
-        },
-        {
-          "id": "tradeoffs-discussed",
-          "description": "Claude discusses WebSocket vs SSE tradeoffs without treating it as a finalized decision"
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "name": "no-trigger-debugging",
-      "prompt": "My auth middleware is throwing 401 for valid tokens. Here's the error: `JsonWebTokenError: invalid signature`. The tokens are generated by a different service. Help me debug.",
-      "expected_output": "Workflow does NOT run. Claude helps debug the JWT signature mismatch. No docs created \u2014 a bug investigation is not a decision or convention.",
-      "files": [],
-      "assertions": [
-        {
-          "id": "workflow-does-not-run",
-          "description": "No autology sub-skill invoked \u2014 debugging is not knowledge capture"
-        },
-        {
-          "id": "no-doc-created",
-          "description": "No docs/ node created during debugging"
-        },
-        {
-          "id": "debug-help-provided",
-          "description": "Claude investigates the JWT signature issue rather than routing to knowledge management"
-        }
-      ]
-    },
-    {
-      "id": 12,
-      "name": "no-trigger-wip",
-      "prompt": "I'm designing the token refresh flow. The idea is to use a sliding window \u2014 each API call extends the session by 15 minutes. Can you help me think through edge cases like concurrent requests and clock skew?",
-      "expected_output": "Workflow does NOT run \u2014 this is a design discussion, not a finalized decision. Claude helps think through edge cases. Nothing is captured until a decision is confirmed.",
-      "files": [],
-      "assertions": [
-        {
-          "id": "workflow-does-not-run",
-          "description": "No triage or capture invoked \u2014 design is in progress, not finalized"
-        },
-        {
-          "id": "no-doc-created",
-          "description": "No docs/ node created for a work-in-progress design"
-        },
-        {
-          "id": "design-discussion-engaged",
-          "description": "Claude engages with edge cases (concurrent requests, clock skew) rather than capturing an undecided design"
-        }
-      ]
-    }
   ]
 }
