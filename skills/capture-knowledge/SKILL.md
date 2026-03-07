@@ -56,9 +56,10 @@ New items from triage (→ capture):
 Not every triage item needs its own file. Before creating, ask: does this item have enough standalone substance to be useful on its own, or is it a detail of something larger?
 
 - **Own node**: has a distinct title, multiple meaningful sentences, likely to be linked or searched independently
-- **Fold into parent**: a behavior detail, edge case, or consequence of another item being captured in the same batch (e.g., "returns 401 on invalid token" is a detail of a JWT middleware component, not a standalone node)
+- **Decisions always get their own node** — even if brief. A decision is "chose X over Y because Z": the rationale makes it independently searchable and worth linking from other contexts. E.g., "chose JWT over session cookies because we need a stateless API" → `type: decision` node, not a footnote in the component doc.
+- **Fold into parent**: a pure behavior detail, edge case, or implementation consequence of another item in the same batch (e.g., "returns 401 on invalid token" is a consequence of the JWT middleware, not a choice made with rationale)
 
-When folding, capture the detail in the parent node's body. This keeps the graph navigable — thin stub nodes add noise without adding reach.
+The deciding criterion is not length but kind: *a choice made with rationale* → own node; *a behavioral detail of an implementation* → fold. When folding, capture the detail in the parent node's body. This keeps the graph navigable — thin stub nodes add noise without adding reach.
 
 ### 3. Create Node
 
