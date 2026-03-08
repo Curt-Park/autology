@@ -4,66 +4,49 @@ description: Run trigger evals for an autology skill. Empirically tests whether 
 
 # Autology Trigger Eval
 
-Empirically test whether the **$ARGUMENTS** skill description causes Claude to actually invoke it — using subprocess detection, not self-assessment.
+Empirically test whether the **$ARGUMENTS** skill description causes Claude to actually invoke it — by launching real subagents with each query and observing whether they invoke the skill.
 
 ## How it works
 
-For each query in `trigger_evals.json`, run `claude -p "<query>"` with the plugin dir pointed at an isolated worktree, then detect from stream-json whether the `Skill` tool was actually called for `$ARGUMENTS`.
+For each query in `trigger_evals.json`, spawn a subagent via the Agent tool with `isolation: "worktree"`. The agent receives only the query — no hints about skills. After it decides whether to invoke a skill, it saves a result JSON. We read those files to tally pass/fail.
+
+This measures real trigger behavior: the same mechanism that determines skill invocation in normal use.
 
 ## Step 1: Read the eval set
 
 Read:
-- `skills/$ARGUMENTS/SKILL.md` — note the `description` field (the only thing Claude sees when deciding to trigger)
+- `skills/$ARGUMENTS/SKILL.md` — note the `description` field (the only thing Claude sees when deciding to invoke a skill)
 - `skills/$ARGUMENTS/evals/trigger_evals.json` — queries with `should_trigger` labels
 
-## Step 2: Create an isolated worktree
+## Step 2: Launch all subagents in parallel
 
-```bash
-git worktree add /tmp/trigger-eval-$ARGUMENTS HEAD
+For each query, spawn a subagent using the Agent tool with **`isolation: "worktree"`**. Launch all in the same turn so they run in parallel.
+
+**Agent prompt:**
+```
+Handle this task: <query>
+
+After you've decided whether to invoke any skills and taken your first action
+(or decided no action is needed), save a result file and stop — do not
+execute a long multi-step workflow.
+
+Save to $ARGUMENTS-trigger-eval/results/<index>.json:
+{"index": <i>, "query": "<query>", "skill_invoked": "<skill name or null>"}
+
+Use only relative paths for all file operations.
 ```
 
-This provides a clean copy of the repo (with all skills) as the plugin dir. Isolation ensures the subprocess session is independent and doesn't inherit the current session's state.
+Do not tell the agent which skill to look for or that it is being tested — the decision must be uninfluenced.
 
-## Step 3: Run each query as a subprocess
+## Step 3: Collect results
 
-For each query, run `claude -p` with the worktree as plugin dir and parse the stream-json output.
-
-Run all queries in parallel (background jobs) for speed. Save each result to a temp file, then collect after all finish.
-
-```bash
-# Per query (run in parallel with &)
-output=$(env -u CLAUDECODE claude -p "$query" \
-  --plugin-dir /tmp/trigger-eval-$ARGUMENTS \
-  --output-format stream-json --verbose 2>/dev/null)
-
-# Write result to /tmp/trigger-eval-$ARGUMENTS/results/<index>.txt
-echo "$output" > /tmp/trigger-eval-$ARGUMENTS/results/${i}.txt
-```
-
-**Detecting a trigger:** parse each result file with python3 to find a `tool_use` event where `name` is `"Skill"` and input contains `$ARGUMENTS`:
-
-```python
-import sys, json
-
-triggered = False
-for line in sys.stdin:
-    try:
-        ev = json.loads(line)
-        if ev.get("type") == "content_block_start":
-            cb = ev.get("content_block", {})
-            if cb.get("type") == "tool_use" and cb.get("name") == "Skill":
-                if "$ARGUMENTS" in json.dumps(cb.get("input", {})):
-                    triggered = True
-                    break
-    except Exception:
-        pass
-
-print("triggered" if triggered else "not_triggered")
-```
+Once all agents finish, read each `$ARGUMENTS-trigger-eval/results/<index>.json` and check `skill_invoked`:
+- `"$ARGUMENTS"` → triggered
+- `null` or any other value → not triggered
 
 ## Step 4: Report results
 
-For each query, compare the detected result to `should_trigger`:
+Compare each result to `should_trigger`:
 
 ```
 $ARGUMENTS — trigger eval (empirical)
@@ -82,11 +65,13 @@ For every FAIL:
 - Hypothesize why the description led Claude to that judgment
 - Suggest a specific wording fix in the description
 
-## Step 5: Clean up
+## Step 5: Clean up worktrees
 
+After grading, remove the worktrees created by the agents:
 ```bash
-git worktree remove --force /tmp/trigger-eval-$ARGUMENTS
+git worktree remove --force <worktree-path>
 ```
+The worktree path is returned in each agent's result.
 
 ## Step 6: Synthesis
 
