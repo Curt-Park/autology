@@ -35,9 +35,10 @@ The stub dir contains only the target skill — no other skills can compete.
 
 The Bash tool cannot directly run `claude -p` (no TTY). Instead, write a runner script and execute it inside a tmux session.
 
-**Why two env vars must be unset:**
-- `CLAUDECODE` — prevents nested Claude Code detection
-- `ANTHROPIC_API_KEY` — forces OAuth (claude.ai) instead of API key billing
+**Why three env vars / flags are needed:**
+- `CLAUDECODE` unset — prevents nested Claude Code detection
+- `ANTHROPIC_API_KEY` unset — forces OAuth (claude.ai) instead of API key billing
+- `--setting-sources ''` — skips all settings files so no global plugins load; only `--plugin-dir` skills are visible
 
 **Create the runner script:**
 
@@ -52,8 +53,9 @@ RESULTS="/tmp/trigger-eval-$ARGUMENTS/results"
 (
   output=$(env -u CLAUDECODE -u ANTHROPIC_API_KEY claude -p "$query" \
     --plugin-dir "$STUB" \
+    --setting-sources '' \
     --output-format stream-json --verbose 2>/dev/null)
-  echo "$output" > "$RESULTS/${i}.txt"
+  printf '%s' "$output" > "$RESULTS/${i}.txt"
 ) &
 
 wait
