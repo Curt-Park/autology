@@ -85,6 +85,30 @@ Description tested:
 
 ---
 
+### capture-knowledge — 2026-03-09 — 10/12 (83%)
+
+Description tested:
+> Use to permanently record a project decision, convention, pattern, or known issue into the knowledge base (docs/) — triggers on explicit save intent ("remember this", "save this", "document this"), decision or convention announcements ("we decided", "settled on", "the rule is"), or triage output classifying new items to capture. Distinct from conversational memory — this writes to docs/.
+
+| # | should_trigger | Result | Query |
+|---|---------------|--------|-------|
+| 0 | true | FAIL | `Remember this: we decided to use Redis for session storage because it supports TTL natively and we need distributed sessions across pods.` |
+| 1 | true | PASS | `Document this decision — we're going with PostgreSQL as our primary database. We evaluated MongoDB but chose Postgres for ACID compliance.` |
+| 2 | true | FAIL | `We just settled on a convention: all timestamps in API responses must be ISO 8601 in UTC. No Unix timestamps.` |
+| 3 | true | PASS | `I want to capture this for the team: we discovered that our ORM has N+1 query issues on nested relations — always use eager loading with include.` |
+| 4 | true | PASS | `Save this as a known issue: the payment service has a race condition under high load when two requests try to create the same order simultaneously.` |
+| 5 | true | PASS | `Let's document the architecture decision: we chose a monorepo over separate repos because shared types and atomic cross-service commits outweigh the CI complexity.` |
+| 6 | false | PASS | `Why did we choose Redis over Memcached? I want to understand the reasoning.` |
+| 7 | false | PASS | `I just pushed a commit: refactor(storage): extract FileService into S3FileStorage and LocalFileStorage.` |
+| 8 | false | PASS | `I'm thinking about whether to use Redis or Memcached for the cache layer. What are the tradeoffs?` |
+| 9 | false | PASS | `Sync the docs — the CacheService was refactored and the existing docs might be stale.` |
+| 10 | false | PASS | `Help me implement a Redis-backed session store in Express.` |
+| 11 | false | PASS | `What conventions do we have around database migrations?` |
+
+**Notes:** Zero false positives. FAILs [0][2] are structural description limits: [0] "Remember this" is consistently interpreted as conversational memory instruction rather than a docs write request, even with "Distinct from conversational memory" in the description; [2] is a pure declarative announcement with no explicit save intent — Claude does not invoke the skill without an action verb. Both cases require an action verb ("document", "capture", "save") or a triage handoff to reliably trigger. Description iterated from phrase enumeration → semantic categories → current hybrid; 83% is the assessed ceiling without false positive risk.
+
+---
+
 ### sync-knowledge — 2026-03-09 — 10/10 (100%)
 
 Description tested:
@@ -108,29 +132,6 @@ Description tested:
 ---
 
 ## Behavioral Evals
-
-### triage-knowledge — 2026-03-09 — with_skill: 14/14 (100%)  without_skill: 0/14 (0%)
-
-| # | eval | assertion | with_skill | without_skill |
-|---|------|-----------|-----------|--------------|
-| 0 | mixed-batch | `existing-found` — `### Existing (→ sync)` section with user-service.md | PASS | FAIL |
-| 1 | mixed-batch | `new-classified` — `### New (→ capture)` section with OAuth2 login | PASS | FAIL |
-| 2 | mixed-batch | `topology-hints-existing` — `Connected:` and `Tags:` labels on existing node | PASS | FAIL |
-| 3 | mixed-batch | `topology-hints-new` — `Suggested relations:` line on each new item | PASS | FAIL |
-| 4 | mixed-batch | `output-format` — `**Autology** — Triage Results` header present | PASS | FAIL |
-| 5 | all-new-items | `empty-state-format` — exact phrase "No existing matches found. All items classified as new." | PASS | FAIL |
-| 6 | all-new-items | `no-matching-node-suffix` — each new item line includes `— no matching node` | PASS | FAIL |
-| 7 | all-new-items | `new-items-listed` — BullMQ/email under `### New (→ capture)` | PASS | FAIL |
-| 8 | all-new-items | `suggested-relations-present` — `Suggested relations:` line on each new item | PASS | FAIL |
-| 9 | all-new-items | `output-format` — `**Autology** — Triage Results` header present | PASS | FAIL |
-| 10 | topology-hints-depth | `primary-node-found` — shell-hook-scripts.md under `### Existing (→ sync)` | PASS | FAIL |
-| 11 | topology-hints-depth | `connected-nodes-listed` — `Connected:` with autology-internals and codeless-architecture-decision wikilinks | PASS | FAIL |
-| 12 | topology-hints-depth | `hub-or-orphan-flag` — `Hub`, `Orphan`, or link count in topology line | PASS | FAIL |
-| 13 | topology-hints-depth | `output-format` — `**Autology** — Triage Results` header present | PASS | FAIL |
-
-**Notes:** without_skill correctly classifies items but never produces the required section labels, topology hint format (`Connected:` / `Tags:` / `Suggested relations:`), or `— no matching node` suffix, scoring 0/14. The `output-format` assertion does not require the `>` blockquote prefix — it is visual styling only and not parsed by downstream skills (sync/capture).
-
----
 
 ### explore-knowledge — 2026-03-09 — with_skill: 25/25 (100%)  without_skill: 17/25 (68%)  delta: +32%
 
@@ -166,23 +167,26 @@ Description tested:
 
 ---
 
-### sync-knowledge — 2026-03-09 — with_skill: 11/11 (100%)  without_skill: 8/11 (73%)  delta: +27%
+### triage-knowledge — 2026-03-09 — with_skill: 14/14 (100%)  without_skill: 0/14 (0%)
 
 | # | eval | assertion | with_skill | without_skill |
 |---|------|-----------|-----------|--------------|
-| 0 | fast-mode-update | `reads-code-before-comparing` — code file searched/read before comparing with doc | PASS | PASS |
-| 1 | fast-mode-update | `doc-edited-in-place` — docs/rate-limiter-service.md edited to fix outdated claim | PASS | PASS |
-| 2 | fast-mode-update | `report-format` — Sync Report (fast) format with Updated/No changes needed sections | PASS | FAIL |
-| 3 | fast-mode-update | `specific-change-described` — report describes what changed (middleware → service class) | PASS | PASS |
-| 4 | skip-when-no-existing | `skip-sync-rule-cited` — rule that all-new triage output means no sync scope is cited | PASS | PASS |
-| 5 | skip-when-no-existing | `no-full-mode-fallback` — does not fall back to full audit | PASS | PASS |
-| 6 | skip-when-no-existing | `routes-to-capture` — output indicates capture should run next | PASS | PASS |
-| 7 | full-mode-audit | `doc-code-discrepancy-fixed` — api-gateway.md port edited in-place (3000 → 8080) | PASS | FAIL |
-| 8 | full-mode-audit | `broken-wikilink-reported` — [[session-store]] broken link in auth-service.md reported | PASS | PASS |
-| 9 | full-mode-audit | `missing-wikilink-suggested` — cache-service ↔ api-gateway missing link suggested | PASS | PASS |
-| 10 | full-mode-audit | `report-format` — Sync Report (full) format with all four sections | PASS | FAIL |
+| 0 | mixed-batch | `existing-found` — `### Existing (→ sync)` section with user-service.md | PASS | FAIL |
+| 1 | mixed-batch | `new-classified` — `### New (→ capture)` section with OAuth2 login | PASS | FAIL |
+| 2 | mixed-batch | `topology-hints-existing` — `Connected:` and `Tags:` labels on existing node | PASS | FAIL |
+| 3 | mixed-batch | `topology-hints-new` — `Suggested relations:` line on each new item | PASS | FAIL |
+| 4 | mixed-batch | `output-format` — `**Autology** — Triage Results` header present | PASS | FAIL |
+| 5 | all-new-items | `empty-state-format` — exact phrase "No existing matches found. All items classified as new." | PASS | FAIL |
+| 6 | all-new-items | `no-matching-node-suffix` — each new item line includes `— no matching node` | PASS | FAIL |
+| 7 | all-new-items | `new-items-listed` — BullMQ/email under `### New (→ capture)` | PASS | FAIL |
+| 8 | all-new-items | `suggested-relations-present` — `Suggested relations:` line on each new item | PASS | FAIL |
+| 9 | all-new-items | `output-format` — `**Autology** — Triage Results` header present | PASS | FAIL |
+| 10 | topology-hints-depth | `primary-node-found` — shell-hook-scripts.md under `### Existing (→ sync)` | PASS | FAIL |
+| 11 | topology-hints-depth | `connected-nodes-listed` — `Connected:` with autology-internals and codeless-architecture-decision wikilinks | PASS | FAIL |
+| 12 | topology-hints-depth | `hub-or-orphan-flag` — `Hub`, `Orphan`, or link count in topology line | PASS | FAIL |
+| 13 | topology-hints-depth | `output-format` — `**Autology** — Triage Results` header present | PASS | FAIL |
 
-**Notes:** `full-mode-audit` is the most discriminating case (+50% delta): without_skill found all issues correctly but treated the task as an audit report, not a fix task — it recommended editing api-gateway.md instead of editing it in-place. The skill's fix-in-place policy ("edit docs in-place immediately, then report what was fixed") is the key discriminator. `fast-mode-update` without_skill also fails report format — free-form narrative instead of the structured Sync Report schema. `skip-when-no-existing` is non-discriminating (0% delta): skip logic is intuitive and without_skill even ran capture spontaneously. Report format assertions are the most reliable discriminators across both fast and full modes.
+**Notes:** without_skill correctly classifies items but never produces the required section labels, topology hint format (`Connected:` / `Tags:` / `Suggested relations:`), or `— no matching node` suffix, scoring 0/14. The `output-format` assertion does not require the `>` blockquote prefix — it is visual styling only and not parsed by downstream skills (sync/capture).
 
 ---
 
@@ -205,3 +209,23 @@ Description tested:
 | 12 | convention-fold-mixed | `granularity-reasoning-documented` — response explains why example is folded | PASS | PASS |
 
 **Notes:** `granularity-fold` is the most discriminating case (+75% delta): without_skill treats every triage item as an independent capture target and creates one file per item; with_skill correctly identifies that a configuration detail belongs inside the parent decision node. `bidirectional-wikilinks` is partially discriminating (+25% delta) — both configs place wikilinks correctly but only with_skill produces the structured `**Autology** — Captured` report header. `convention-fold-mixed` is non-discriminating (0% delta): the fold relationship between "snake_case rule" and "userId → user_id example" is obvious enough that without_skill merges them anyway. The key skill discriminator for capture-knowledge is the granularity judgment rule — "a choice made with rationale → own node; a behavioral detail → fold into parent" — which without_skill does not apply.
+
+---
+
+### sync-knowledge — 2026-03-09 — with_skill: 11/11 (100%)  without_skill: 8/11 (73%)  delta: +27%
+
+| # | eval | assertion | with_skill | without_skill |
+|---|------|-----------|-----------|--------------|
+| 0 | fast-mode-update | `reads-code-before-comparing` — code file searched/read before comparing with doc | PASS | PASS |
+| 1 | fast-mode-update | `doc-edited-in-place` — docs/rate-limiter-service.md edited to fix outdated claim | PASS | PASS |
+| 2 | fast-mode-update | `report-format` — Sync Report (fast) format with Updated/No changes needed sections | PASS | FAIL |
+| 3 | fast-mode-update | `specific-change-described` — report describes what changed (middleware → service class) | PASS | PASS |
+| 4 | skip-when-no-existing | `skip-sync-rule-cited` — rule that all-new triage output means no sync scope is cited | PASS | PASS |
+| 5 | skip-when-no-existing | `no-full-mode-fallback` — does not fall back to full audit | PASS | PASS |
+| 6 | skip-when-no-existing | `routes-to-capture` — output indicates capture should run next | PASS | PASS |
+| 7 | full-mode-audit | `doc-code-discrepancy-fixed` — api-gateway.md port edited in-place (3000 → 8080) | PASS | FAIL |
+| 8 | full-mode-audit | `broken-wikilink-reported` — [[session-store]] broken link in auth-service.md reported | PASS | PASS |
+| 9 | full-mode-audit | `missing-wikilink-suggested` — cache-service ↔ api-gateway missing link suggested | PASS | PASS |
+| 10 | full-mode-audit | `report-format` — Sync Report (full) format with all four sections | PASS | FAIL |
+
+**Notes:** `full-mode-audit` is the most discriminating case (+50% delta): without_skill found all issues correctly but treated the task as an audit report, not a fix task — it recommended editing api-gateway.md instead of editing it in-place. The skill's fix-in-place policy ("edit docs in-place immediately, then report what was fixed") is the key discriminator. `fast-mode-update` without_skill also fails report format — free-form narrative instead of the structured Sync Report schema. `skip-when-no-existing` is non-discriminating (0% delta): skip logic is intuitive and without_skill even ran capture spontaneously. Report format assertions are the most reliable discriminators across both fast and full modes.
