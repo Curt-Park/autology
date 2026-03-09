@@ -45,7 +45,7 @@ Write and execute `/tmp/trigger-eval-$ARGUMENTS/run.py`. The script reads `trigg
 
 ```python
 #!/usr/bin/env python3
-import json, os, select, subprocess, sys, time
+import json, os, select, signal, subprocess, sys, time
 from concurrent.futures import ThreadPoolExecutor
 
 SKILL = "$ARGUMENTS"
@@ -53,19 +53,37 @@ STUB  = f"/tmp/trigger-eval-{SKILL}/stub"
 OUT   = f"/tmp/trigger-eval-{SKILL}/results"
 os.makedirs(OUT, exist_ok=True)
 
+def kill_proc(process):
+    """Kill process group to ensure child processes are also terminated."""
+    try:
+        os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+    except Exception:
+        try:
+            process.kill()
+        except Exception:
+            pass
+    try:
+        process.wait(timeout=3)
+    except Exception:
+        pass
+
 def run_query(item):
     query   = item["query"]
     idx     = item["idx"]
     env     = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "ANTHROPIC_API_KEY")}
+    # --include-partial-messages streams content_block_start events as they are
+    # generated — we detect the Skill tool_use BEFORE the skill executes,
+    # avoiding extra model calls that would otherwise cause rate limiting.
     cmd     = ["claude", "-p", query,
                "--plugin-dir", STUB,
                "--setting-sources", "",
-               "--output-format", "stream-json", "--verbose"]
+               "--output-format", "stream-json", "--verbose",
+               "--include-partial-messages"]
 
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
-    triggered = False
-    start     = time.time()
-    buf       = ""
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                               env=env, start_new_session=True)
+    start = time.time()
+    buf   = ""
 
     try:
         while time.time() - start < 30:
@@ -79,26 +97,24 @@ def run_query(item):
             if not chunk:
                 break
             buf += chunk.decode("utf-8", errors="replace")
-            # parse complete lines
             while "\n" in buf:
                 line, buf = buf.split("\n", 1)
                 try:
                     ev = json.loads(line.strip())
-                    if ev.get("type") == "assistant":
-                        for item_ in ev.get("message", {}).get("content", []):
-                            if (item_.get("type") == "tool_use"
-                                    and item_.get("name") == "Skill"
-                                    and SKILL in item_.get("input", {}).get("skill", "")):
-                                triggered = True
-                                return idx, triggered  # early exit
+                    # stream_event/content_block_start fires as soon as Claude
+                    # begins generating a tool_use block — before execution
+                    if ev.get("type") == "stream_event":
+                        se = ev.get("event", {})
+                        if se.get("type") == "content_block_start":
+                            cb = se.get("content_block", {})
+                            if cb.get("type") == "tool_use" and cb.get("name") == "Skill":
+                                return idx, True  # early exit before skill executes
                 except Exception:
                     pass
     finally:
-        if process.poll() is None:
-            process.kill()
-            process.wait()
+        kill_proc(process)
 
-    return idx, triggered
+    return idx, False
 
 evals = json.loads(open(f"skills/{SKILL}/evals/trigger_evals.json").read())
 items = [{"idx": i, **ev} for i, ev in enumerate(evals)]
