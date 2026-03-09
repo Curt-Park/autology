@@ -30,3 +30,8 @@ Autology is implemented as a code-less system with shell script hooks:
 - User guide: [[autology-user-guide]]
 - Reentry guard design: [[autology-workflow-reentry-guard]]
 - Triage/explore split: [[triage-explore-split-decision]]
+
+## Eval Infrastructure
+
+- Why custom eval commands instead of skill-creator: [[eval-infrastructure-decision]]
+- Trigger eval mechanism (tmux, subprocess, isolation): [[trigger-eval-mechanism]]
