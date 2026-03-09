@@ -10,9 +10,11 @@ We chose to build custom eval commands (`eval-trigger`, `eval-behavior`) directl
 
 **skill-creator's eval model doesn't fit this project.** skill-creator is designed for an iterative human-review loop: run test cases, open a browser viewer, collect feedback, revise. autology's evals are automated regression checks — the goal is a pass/fail score, not subjective output review.
 
-**skill-creator's trigger detection is broken in Claude Code.** `run_eval.py` detects skill invocation by watching for `Skill` or `Read` tool calls and returning `False` on the first unrecognized tool call (`else: return False`). In Claude Code, deferred tools are discovered via `ToolSearch` before they can be invoked — so the detection hits `return False` on the `ToolSearch` event, before Claude ever calls `Skill`. All queries return `False` regardless of whether the skill would have triggered. This is a fundamental incompatibility with Claude Code's deferred tool architecture.
+**skill-creator's trigger eval doesn't isolate the skill under test.** `run_eval.py` places the skill in `.claude/commands/` and runs `claude -p` with global settings intact — so all other installed skills are visible alongside the test skill. This means the trigger rate reflects how the skill performs in competition with everything else the user has installed, not the quality of the description itself. A failing query might be losing to a competing skill, not failing on its own merits. For regression testing and description iteration, this makes results hard to interpret.
 
-**Subprocess isolation is necessary for trigger evals.** Each query must run in a fresh Claude session with only the target skill visible (no other skill descriptions competing for the trigger). That requires `claude -p` subprocesses with a stub `--plugin-dir`, which skill-creator's architecture doesn't support.
+Our `eval-trigger` instead loads only the target skill via a stub `--plugin-dir` with `--setting-sources ''`, giving each query a clean environment. This isolates the description signal from environmental noise.
+
+Note: `run_eval.py` has an additional reliability issue — it omits `ANTHROPIC_API_KEY` from the subprocess env, causing silent `False` results for Max subscribers with an API key set (see [anthropics/skills#556](https://github.com/anthropics/skills/issues/556)). The fix is `env -u ANTHROPIC_API_KEY`.
 
 **Project-local commands are simpler to evolve.** `.claude/commands/eval-trigger.md` and `eval-behavior.md` are markdown files in the repo — easy to version, modify, and run without plugin infrastructure.
 
