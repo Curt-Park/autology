@@ -160,9 +160,39 @@ cd autology
 claude --plugin-dir .
 ```
 
-`/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture (decision + code) → triage + sync (drift detection) → explore (query). If all complete, the full loop works.
+`/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture → triage + sync → explore. If all complete, the full loop works.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add and run skill evals.
+### Skill Evals
+
+Each skill has `skills/{skill-name}/evals/evals.json` (behavioral) and `trigger_evals.json` (trigger accuracy, for description-invoked skills).
+
+**Behavioral evals** run each case twice — with and without the skill — and grade assertions on process correctness (output format, routing rules, granularity decisions, wikilink integrity). Use `/eval-behavior <skill-name>` to run.
+
+**Trigger evals** test whether the skill description causes Claude to invoke the skill on realistic prompts. Use `/eval-trigger <skill-name>` to run.
+
+**Writing good assertions**: check process, not just output — e.g. "does sync cite the skip rule when triage returns no existing nodes?" not just "was a file created?". Aim for assertions that pass with the skill and fail without it.
+
+**evals.json schema**:
+```json
+{
+  "skill_name": "capture-knowledge",
+  "evals": [{
+    "id": 1, "name": "granularity-fold",
+    "prompt": "User prompt verbatim",
+    "assertions": [{ "id": "one-doc-created", "description": "Exactly 1 doc created (not 2)" }]
+  }]
+}
+```
+
+**trigger_evals.json schema**:
+```json
+[
+  { "query": "prompt that should trigger", "should_trigger": true },
+  { "query": "prompt that should not trigger", "should_trigger": false }
+]
+```
+
+Aim for 6–10 cases each way, with emphasis on near-misses — queries that share keywords with the skill but belong to a different one.
 
 ## License
 
