@@ -12,50 +12,41 @@ The initial implementation asked Claude to judge "would I invoke this skill?" in
 
 ## Key design decisions
 
-### Python `subprocess.Popen` + `select` instead of tmux
+### Python `subprocess.Popen` run from a background process
 
-`claude -p` hangs when invoked directly from Claude Code's Bash tool (bash pipe, process substitution). The fix is to use Python's `subprocess.Popen` with `stdout=PIPE` and a `select`-based read loop:
+`claude -p` subprocesses work correctly when the orchestrating script runs detached from the Bash tool. The critical constraint: **the runner script must be launched in the background** (`python3 -u run.py > run.log 2>&1 &`).
 
-```python
-process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
-while time.time() - start < timeout:
-    if process.poll() is not None:
-        break  # process finished — exit immediately
-    ready, _, _ = select.select([process.stdout], [], [], 1.0)
-    if ready:
-        chunk = os.read(process.stdout.fileno(), 8192)
-        # parse stream-json, detect trigger, early exit if found
-```
+When the Bash tool executes a command synchronously, it is blocked. During this time, any child `claude -p` process that inherits `CLAUDE_CODE_SSE_PORT` will attempt to connect to the parent Claude Code process via IPC — but the parent is blocked waiting for the Bash tool to finish, causing a deadlock. Running the script in the background frees the parent, and the subprocesses proceed normally.
 
-Benefits over tmux:
-- **Early exit**: trigger detected mid-stream → process killed immediately, next query starts
-- **No TTY dependency**: Popen with PIPE avoids the hang
-- **Parallel**: `ThreadPoolExecutor` runs all queries concurrently
+Three env vars must be removed from the subprocess environment:
 
-### `--setting-sources ''` for plugin isolation
+| Variable | Reason |
+|---|---|
+| `CLAUDECODE` | Prevents nested Claude Code detection |
+| `ANTHROPIC_API_KEY` | Forces OAuth; Max subscribers without API credits get a silent `billing_error` if key is set |
+| `CLAUDE_CODE_SSE_PORT` | Prevents IPC connection attempt to parent |
 
-Without this, the subprocess loads global settings (`~/.claude/settings.json`) and enables all registered plugins (superpowers, feature-dev, etc.), contaminating the available_skills list. Passing `--setting-sources ''` skips all settings files. Only `--plugin-dir` skills are visible — exactly one skill, the target being tested.
+### `--plugin-dir` for reliable skill loading
 
-Verified: `plugins=['stub'], skills=['stub:autology-workflow']` with empty setting-sources. Note: a small set of Claude Code built-in skills (e.g. `keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless — but these occupy unrelated domains and don't compete with autology skills in practice.
+`claude -p` in headless (non-interactive) mode does not load project-local `.claude/commands/` files as skills — only global plugin skills from settings are loaded. Passing `--plugin-dir <stub>` makes the target skill explicitly available regardless of execution context.
 
-### stub plugin dir (one skill only)
+### `--setting-sources ''` for isolation
 
-The target skill's `SKILL.md` is copied to a temp directory used as `--plugin-dir`. No other skills compete for the trigger. This is true isolation — the description is the only signal available to the model.
+Without this, all globally installed plugins are loaded alongside the test skill, so the trigger rate reflects competition rather than description quality. With `--setting-sources ''`, only `--plugin-dir` skills are visible. A small set of Claude Code built-in skills (`keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless — but these occupy unrelated domains and don't compete with autology skills in practice.
 
-### `ANTHROPIC_API_KEY` unset
+### Early exit via `stream_event/content_block_start`
 
-Forces the subprocess to use OAuth (claude.ai subscription) instead of the API key. Without this, `claude -p` fails with "Credit balance is too low" even for Max subscribers when `ANTHROPIC_API_KEY` is set in the environment.
-
-## Detection
-
-stream-json format embeds tool_use inside `type:"assistant"` message content arrays (not `content_block_start` events):
+With `--include-partial-messages`, the `stream_event/content_block_start` event fires as soon as Claude begins generating a `Skill` tool_use block — before the skill actually executes. The subprocess is killed immediately on detection, preventing the skill from making downstream API calls (Grep, Read, Glob) that would consume rate limit quota across 10 parallel workers.
 
 ```python
-if ev.get("type") == "assistant":
-    for item in ev.get("message", {}).get("content", []):
-        if item.get("type") == "tool_use" and item.get("name") == "Skill":
-            if skill_name in item.get("input", {}).get("skill", ""):
-                triggered = True
+if ev.get("type") == "stream_event":
+    se = ev.get("event", {})
+    if se.get("type") == "content_block_start":
+        cb = se.get("content_block", {})
+        if cb.get("type") == "tool_use" and cb.get("name") == "Skill":
+            return idx, True  # kill process, record triggered
 ```
+
+Fallback: if partial messages are unavailable, the full `type:"assistant"` message is checked for a `Skill` tool_use in its content array.
 
 See [[eval-infrastructure-decision]] for why this approach was chosen over skill-creator.

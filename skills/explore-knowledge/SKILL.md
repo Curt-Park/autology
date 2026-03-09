@@ -1,6 +1,6 @@
 ---
 name: explore-knowledge
-description: Use to answer questions about this project's decisions, architecture, and conventions — "why did we choose X?", "how does Y work?", "what's the convention for Z?". Also use for explicit /autology:explore-knowledge commands (overview, neighborhood, path). Searches docs/, follows wikilinks, and synthesizes grounded answers from the knowledge base.
+description: Use whenever the user asks about this project's decisions, architecture, conventions, or how something works in this codebase — do NOT answer from general knowledge, always look it up in docs/. Trigger on questions like "why did we choose X?", "how does Y work here?", "what's our convention for Z?", "what docs reference X?", or any question about this project's specific choices. Also use for explicit /autology:explore-knowledge commands (overview, neighborhood, path). Searches docs/, follows wikilinks, and synthesizes grounded answers from the knowledge base.
 ---
 
 ## Overview

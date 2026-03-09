@@ -10,19 +10,23 @@ Empirically test whether the **$ARGUMENTS** skill description causes Claude to a
 
 For each query in `trigger_evals.json`:
 1. A stub plugin dir is created containing **only** the target skill's `SKILL.md`
-2. `claude -p "<query>"` runs with `--plugin-dir <stub>` and `--setting-sources ''` — subprocess sees exactly one skill (plus Claude Code built-ins)
-3. Stream-json output is read via Python `subprocess.Popen` + `select` and parsed for a `Skill` tool_use event
-4. Trigger detected mid-stream → process killed immediately (no need to wait for full response)
+2. `claude -p "<query>"` runs via Python `subprocess.Popen` with `--plugin-dir <stub>` and `--setting-sources ''` — subprocess sees exactly one skill (plus Claude Code built-ins)
+3. stream-json is parsed line-by-line; trigger detected via `stream_event/content_block_start` → process killed immediately before skill executes
+4. All queries run in parallel via `ThreadPoolExecutor`
 
-**Why three env vars / flags are needed:**
-- `CLAUDECODE` unset — prevents nested Claude Code detection
-- `ANTHROPIC_API_KEY` unset — forces OAuth (claude.ai) instead of API key billing
-- `--setting-sources ''` — skips global plugin settings; only `--plugin-dir` skills are visible
+**Why the runner script must be executed in the background:**
+- `claude -p` deadlocks when its parent process is the blocked Bash tool: the subprocess tries to connect to the parent Claude Code process via `CLAUDE_CODE_SSE_PORT`, but the parent is waiting for the Bash tool to finish
+- Running `run.py` in the background (`python3 -u run.py > run.log 2>&1 &`) frees the parent, breaking the deadlock
+- The Bash tool then polls `run.log` for completion
 
-**Why Python subprocess, not bash pipe or tmux:**
-- Bash pipe (`claude -p ... | ...`) hangs in Claude Code's Bash tool (no TTY)
-- Python `subprocess.Popen` with `stdout=PIPE` avoids this — proven by skill-creator's `run_eval.py`
-- `select`-based reading allows early exit the moment a trigger is detected, and timeout-based exit if claude -p hangs
+**Why `CLAUDECODE`, `ANTHROPIC_API_KEY`, `CLAUDE_CODE_SSE_PORT` must be unset:**
+- `CLAUDECODE` — prevents nested Claude Code detection
+- `ANTHROPIC_API_KEY` — forces OAuth (claude.ai subscription); Max subscribers without API credits get a silent `billing_error` otherwise
+- `CLAUDE_CODE_SSE_PORT` — prevents the subprocess from attempting IPC with the parent
+
+**Why `--setting-sources ''` is needed:**
+- Skips global plugin settings; only `--plugin-dir` skills are visible
+- Built-in skills (`keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless — but these occupy unrelated domains and don't compete with autology skills in practice
 
 ## Step 1: Read the eval set
 
@@ -37,15 +41,13 @@ mkdir -p /tmp/trigger-eval-$ARGUMENTS/stub/skills/$ARGUMENTS
 cp skills/$ARGUMENTS/SKILL.md /tmp/trigger-eval-$ARGUMENTS/stub/skills/$ARGUMENTS/SKILL.md
 ```
 
-## Step 3: Run all queries in parallel via Python subprocess
+## Step 3: Write the runner script
 
-Write and execute `/tmp/trigger-eval-$ARGUMENTS/run.py`. The script reads `trigger_evals.json`, runs all queries in parallel (one thread per query), and writes per-query results to `/tmp/trigger-eval-$ARGUMENTS/results/<i>.json`.
-
-**Runner script template:**
+Write `/tmp/trigger-eval-$ARGUMENTS/run.py`:
 
 ```python
 #!/usr/bin/env python3
-import json, os, select, signal, subprocess, sys, time
+import json, os, select, signal, subprocess, time
 from concurrent.futures import ThreadPoolExecutor
 
 SKILL = "$ARGUMENTS"
@@ -53,68 +55,54 @@ STUB  = f"/tmp/trigger-eval-{SKILL}/stub"
 OUT   = f"/tmp/trigger-eval-{SKILL}/results"
 os.makedirs(OUT, exist_ok=True)
 
-def kill_proc(process):
-    """Kill process group to ensure child processes are also terminated."""
-    try:
-        os.killpg(os.getpgid(process.pid), signal.SIGKILL)
-    except Exception:
-        try:
-            process.kill()
-        except Exception:
-            pass
-    try:
-        process.wait(timeout=3)
-    except Exception:
-        pass
+UNSET = ("CLAUDECODE", "ANTHROPIC_API_KEY", "CLAUDE_CODE_SSE_PORT", "CLAUDE_CODE_ENTRYPOINT")
+
+def detected(ev):
+    if ev.get("type") == "stream_event":
+        cb = ev.get("event", {}).get("content_block", {})
+        return cb.get("type") == "tool_use" and cb.get("name") == "Skill"
+    if ev.get("type") == "assistant":
+        return any(c.get("type") == "tool_use" and c.get("name") == "Skill"
+                   for c in ev.get("message", {}).get("content", []))
+    return False
+
+def kill_proc(p):
+    try: os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+    except Exception: p.kill()
+    try: p.wait(timeout=3)
+    except Exception: pass
 
 def run_query(item):
-    query   = item["query"]
-    idx     = item["idx"]
-    env     = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "ANTHROPIC_API_KEY")}
-    # --include-partial-messages streams content_block_start events as they are
-    # generated — we detect the Skill tool_use BEFORE the skill executes,
-    # avoiding extra model calls that would otherwise cause rate limiting.
-    cmd     = ["claude", "-p", query,
-               "--plugin-dir", STUB,
-               "--setting-sources", "",
-               "--output-format", "stream-json", "--verbose",
-               "--include-partial-messages"]
-
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                               env=env, start_new_session=True)
-    start = time.time()
-    buf   = ""
-
+    env = {k: v for k, v in os.environ.items() if k not in UNSET}
+    p = subprocess.Popen(
+        ["claude", "-p", item["query"], "--plugin-dir", STUB,
+         "--setting-sources", "", "--output-format", "stream-json",
+         "--verbose", "--include-partial-messages"],
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+        env=env, start_new_session=True)
+    buf = ""
+    deadline = time.time() + 30
     try:
-        while time.time() - start < 30:
-            if process.poll() is not None:
-                buf += (process.stdout.read() or b"").decode("utf-8", errors="replace")
+        while time.time() < deadline:
+            if p.poll() is not None:
+                buf += (p.stdout.read() or b"").decode("utf-8", errors="replace")
                 break
-            ready, _, _ = select.select([process.stdout], [], [], 1.0)
-            if not ready:
+            if not select.select([p.stdout], [], [], 1.0)[0]:
                 continue
-            chunk = os.read(process.stdout.fileno(), 8192)
+            chunk = os.read(p.stdout.fileno(), 8192)
             if not chunk:
                 break
             buf += chunk.decode("utf-8", errors="replace")
             while "\n" in buf:
                 line, buf = buf.split("\n", 1)
                 try:
-                    ev = json.loads(line.strip())
-                    # stream_event/content_block_start fires as soon as Claude
-                    # begins generating a tool_use block — before execution
-                    if ev.get("type") == "stream_event":
-                        se = ev.get("event", {})
-                        if se.get("type") == "content_block_start":
-                            cb = se.get("content_block", {})
-                            if cb.get("type") == "tool_use" and cb.get("name") == "Skill":
-                                return idx, True  # early exit before skill executes
+                    if detected(json.loads(line)):
+                        return item["idx"], True
                 except Exception:
                     pass
     finally:
-        kill_proc(process)
-
-    return idx, False
+        kill_proc(p)
+    return item["idx"], False
 
 evals = json.loads(open(f"skills/{SKILL}/evals/trigger_evals.json").read())
 items = [{"idx": i, **ev} for i, ev in enumerate(evals)]
@@ -124,19 +112,27 @@ with ThreadPoolExecutor(max_workers=10) as pool:
     for future in futures:
         idx, triggered = future.result()
         ev = futures[future]
-        result = {"query": ev["query"], "should_trigger": ev["should_trigger"], "triggered": triggered}
-        open(f"{OUT}/{idx}.json", "w").write(json.dumps(result))
+        open(f"{OUT}/{idx}.json", "w").write(
+            json.dumps({"query": ev["query"], "should_trigger": ev["should_trigger"], "triggered": triggered}))
 
 print("done")
 ```
 
-Run it:
+## Step 4: Run in the background and wait
 
 ```bash
-python3 /tmp/trigger-eval-$ARGUMENTS/run.py
+python3 -u /tmp/trigger-eval-$ARGUMENTS/run.py > /tmp/trigger-eval-$ARGUMENTS/run.log 2>&1 &
 ```
 
-## Step 4: Report results
+Then poll until complete:
+
+```bash
+# poll every few seconds
+while ! grep -q "done" /tmp/trigger-eval-$ARGUMENTS/run.log 2>/dev/null; do sleep 3; done
+cat /tmp/trigger-eval-$ARGUMENTS/run.log
+```
+
+## Step 5: Report results
 
 Read all result files and compare `triggered` vs `should_trigger`:
 
@@ -157,13 +153,13 @@ For every FAIL:
 - Hypothesize why the description led Claude to that judgment
 - Suggest a specific wording fix in the description
 
-## Step 5: Clean up
+## Step 6: Clean up
 
 ```bash
 rm -rf /tmp/trigger-eval-$ARGUMENTS
 ```
 
-## Step 6: Synthesis
+## Step 7: Synthesis
 
 After reporting, briefly answer:
 - Which queries are edge cases that reveal description ambiguity?

@@ -8,15 +8,20 @@ We chose to build custom eval commands (`eval-trigger`, `eval-behavior`) directl
 
 ## Rationale
 
-**skill-creator's eval model doesn't fit this project.** skill-creator is designed for an iterative human-review loop: run test cases, open a browser viewer, collect feedback, revise. autology's evals are automated regression checks — the goal is a pass/fail score, not subjective output review.
+**Isolation is guaranteed.** Our `eval-trigger` writes a purpose-built stub `SKILL.md` and loads it via `--plugin-dir` with `--setting-sources ''`. This gives two concrete advantages:
 
-**skill-creator's trigger eval doesn't isolate the skill under test.** `run_eval.py` places the skill in `.claude/commands/` and runs `claude -p` with global settings intact — so all other installed skills are visible alongside the test skill. This means the trigger rate reflects how the skill performs in competition with everything else the user has installed, not the quality of the description itself. A failing query might be losing to a competing skill, not failing on its own merits. For regression testing and description iteration, this makes results hard to interpret.
+- **Only the target skill is visible.** No other installed skills compete for the trigger. A failing query means the description itself failed — not that another skill won.
+- **The subprocess reliably sees the skill.** `--plugin-dir` is explicitly passed at invocation, so the skill is always loaded regardless of how or where `claude -p` is run.
 
-Our `eval-trigger` instead loads only the target skill via a stub `--plugin-dir` with `--setting-sources ''`, which excludes global plugin skills. A small set of Claude Code built-in skills (e.g. `keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless of settings and cannot be excluded — but these occupy unrelated domains and don't compete with autology skills in practice.
+A small set of Claude Code built-in skills (e.g. `keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless of settings and cannot be excluded — but these occupy unrelated domains and don't compete with autology skills in practice.
 
-Note: `run_eval.py` has an additional reliability issue — it omits `ANTHROPIC_API_KEY` from the subprocess env, causing silent `False` results for Max subscribers with an API key set (see [anthropics/skills#556](https://github.com/anthropics/skills/issues/556)). The fix is `env -u ANTHROPIC_API_KEY`.
+**No SDK cost.** skill-creator's optimization loop uses the Anthropic SDK, which incurs API charges. autology's eval-trigger runs via OAuth (claude.ai subscription), so regression checks can be repeated freely without worrying about cost.
 
-**Project-local commands are simpler to evolve.** `.claude/commands/eval-trigger.md` and `eval-behavior.md` are markdown files in the repo — easy to version, modify, and run without plugin infrastructure.
+**Human intervention at any point.** skill-creator's optimization procedure is encapsulated in an automated loop — intervening at an arbitrary step is awkward. eval-trigger is a markdown command: read the results, edit the description directly, re-run. The iteration cycle is fully transparent and easy to interrupt or redirect.
+
+**Customizable validation logic.** The detection and scoring logic lives in the runner script written as part of the eval command. It can be adapted per-skill — e.g. adjusting the timeout, changing how partial messages are parsed, or adding skill-specific heuristics — without being constrained by a general-purpose framework.
+
+**Versioned alongside the skill.** The eval set (`trigger_evals.json`, `eval-behavior/`) and the eval command itself live in the same repo as the skill. Changes to a skill's behavior or description and the corresponding eval updates are committed together, keeping history coherent and making regressions easy to bisect.
 
 ## What we use instead
 
