@@ -161,11 +161,17 @@ mise install   # installs tool versions declared in .mise.toml
 claude --plugin-dir .
 ```
 
-[mise](https://mise.jdx.dev) manages the tool versions used by skill evals (`claude`, `jq`, etc.). Install it first if you don't have it: https://mise.jdx.dev/getting-started.html
-
 `/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture → triage + sync → explore. If all complete, the full loop works.
 
 ### Skill Evals
+
+[mise](https://mise.jdx.dev) manages the tool versions used by skill evals (`claude`, `jq`, etc.). Install it first if you don't have it: https://mise.jdx.dev/getting-started.html
+
+```bash
+# prepare for the evaluation envionment
+mise trust
+mise install
+```
 
 Each skill has `skills/{skill-name}/evals/evals.json` (behavioral) and `trigger_evals.json` (trigger accuracy, for description-invoked skills).
 
@@ -174,6 +180,8 @@ Each skill has `skills/{skill-name}/evals/evals.json` (behavioral) and `trigger_
 **Trigger evals** test whether the skill description causes Claude to invoke the skill on realistic prompts. Use `/eval-trigger <skill-name>` to run.
 
 **Writing good assertions**: check process, not just output — e.g. "does sync cite the skip rule when triage returns no existing nodes?" not just "was a file created?". Aim for assertions that pass with the skill and fail without it. For trigger evals, include near-misses — queries that share keywords with the skill but belong to a different one.
+
+Accumulated eval results are tracked in [`EVAL_RESULTS.md`](EVAL_RESULTS.md) — trigger accuracy and behavioral with/without-skill deltas per skill.
 
 ## License
 
