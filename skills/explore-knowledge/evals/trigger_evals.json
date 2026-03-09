@@ -12,14 +12,6 @@
     "should_trigger": true
   },
   {
-    "query": "/autology:explore-knowledge overview",
-    "should_trigger": true
-  },
-  {
-    "query": "/autology:explore-knowledge autology-internals",
-    "should_trigger": true
-  },
-  {
     "query": "What docs reference the auth service? I'm about to refactor it and want to know the blast radius.",
     "should_trigger": true
   },
