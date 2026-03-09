@@ -12,7 +12,7 @@ We chose to build custom eval commands (`eval-trigger`, `eval-behavior`) directl
 
 **skill-creator's trigger eval doesn't isolate the skill under test.** `run_eval.py` places the skill in `.claude/commands/` and runs `claude -p` with global settings intact — so all other installed skills are visible alongside the test skill. This means the trigger rate reflects how the skill performs in competition with everything else the user has installed, not the quality of the description itself. A failing query might be losing to a competing skill, not failing on its own merits. For regression testing and description iteration, this makes results hard to interpret.
 
-Our `eval-trigger` instead loads only the target skill via a stub `--plugin-dir` with `--setting-sources ''`, giving each query a clean environment. This isolates the description signal from environmental noise.
+Our `eval-trigger` instead loads only the target skill via a stub `--plugin-dir` with `--setting-sources ''`, which excludes global plugin skills. A small set of Claude Code built-in skills (e.g. `keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless of settings and cannot be excluded — but these occupy unrelated domains and don't compete with autology skills in practice.
 
 Note: `run_eval.py` has an additional reliability issue — it omits `ANTHROPIC_API_KEY` from the subprocess env, causing silent `False` results for Max subscribers with an API key set (see [anthropics/skills#556](https://github.com/anthropics/skills/issues/556)). The fix is `env -u ANTHROPIC_API_KEY`.
 
