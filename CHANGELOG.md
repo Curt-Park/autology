@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/Curt-Park/autology/compare/autology-v0.10.2...autology-v0.11.0) (2026-03-09)
+
+
+### Features
+
+* **skills:** behavioral evals and skill quality improvements ([#57](https://github.com/Curt-Park/autology/issues/57)) ([0a71590](https://github.com/Curt-Park/autology/commit/0a7159093620aef7f476a9f61bd2b2e51f8a57ce))
+
 ## [0.10.2](https://github.com/Curt-Park/autology/compare/autology-v0.10.1...autology-v0.10.2) (2026-03-03)
 
 
