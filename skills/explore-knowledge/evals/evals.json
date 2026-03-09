@@ -4,8 +4,8 @@
     {
       "id": 1,
       "name": "question-answering",
-      "prompt": "Why did we decide to use jq for JSON escaping in the session-start hook instead of doing it in bash?",
-      "expected_output": "Searches docs/ first, reads shell-hook-scripts.md, follows wikilinks (e.g. codeless-architecture-decision). Confirms jq IS used. Cites the documented rationale: jq handles all control characters and unicode correctly; bash hand-rolling was replaced because it was fragile. Answer is grounded in docs, not answered from memory.",
+      "prompt": "Why was autology's Go MCP server removed? What specific problems did it create, and what replaced it?",
+      "expected_output": "Searches docs/ for 'MCP server' or 'Go' or 'code-less'. Reads codeless-architecture-decision.md. Follows wikilinks (autology-internals, shell-hook-scripts). Cites the 4 documented problems: build/compilation overhead, Go toolchain dependency, complex hook→binary bootstrapping, redundant MCP layers. States what replaced it: Claude native tools (Read/Write/Edit/Grep/Glob) for docs/*.md, shell script hooks. Answer is grounded in the ADR, not general reasoning about Go vs shell.",
       "files": [],
       "assertions": [
         {
@@ -13,8 +13,8 @@
           "description": "Grep or search of docs/ is performed before answering — not answered from memory"
         },
         {
-          "id": "reads-matched-node",
-          "description": "shell-hook-scripts.md (or equivalent) is read"
+          "id": "reads-architecture-decision",
+          "description": "codeless-architecture-decision.md is read"
         },
         {
           "id": "follows-wikilinks",
@@ -22,11 +22,11 @@
         },
         {
           "id": "cites-docs-in-answer",
-          "description": "Answer cites specific doc nodes (e.g., 'per [[shell-hook-scripts]]')"
+          "description": "Answer cites the specific ADR doc (e.g., 'per [[codeless-architecture-decision]]')"
         },
         {
           "id": "correct-rationale",
-          "description": "Answer correctly states that jq IS used and cites the documented rationale: handles all control characters and unicode correctly (from Key Design Choices in shell-hook-scripts.md)"
+          "description": "Answer cites at least 2 of the 4 documented problems: build/compilation overhead, Go toolchain dependency, complex hook→binary bootstrapping, redundant MCP abstraction layers (Claude native tools make MCP unnecessary)"
         }
       ]
     },
@@ -34,7 +34,7 @@
       "id": 2,
       "name": "overview-operation",
       "prompt": "/autology:explore-knowledge overview",
-      "expected_output": "Reads all docs/*.md, extracts frontmatter and wikilinks. Reports: 12 total nodes, link count, component count, top 5 hub nodes (most connections), orphan nodes (no links), node type breakdown (5 concept, 4 decision, 2 convention, 1 component). Format matches the overview output spec.",
+      "expected_output": "Reads all docs/*.md, extracts frontmatter and wikilinks. Reports: 8 total nodes, 24 directed links, 1 component, top 5 hub nodes with connection counts, orphan nodes (none), node type breakdown (4 concept, 3 decision, 1 component). Format matches the overview output spec.",
       "files": [],
       "assertions": [
         {
@@ -59,7 +59,7 @@
         },
         {
           "id": "type-breakdown-accurate",
-          "description": "Type counts are correct: 5 concept, 4 decision, 2 convention, 1 component (12 total)"
+          "description": "Type counts are correct: 4 concept, 3 decision, 1 component (8 total)"
         }
       ]
     },
@@ -95,54 +95,54 @@
     {
       "id": 4,
       "name": "path-query",
-      "prompt": "/autology:explore-knowledge path autology-philosophy codeless-architecture-decision",
-      "expected_output": "Reads docs/autology-philosophy.md and docs/codeless-architecture-decision.md. Identifies the direct wikilink from autology-philosophy to codeless-architecture-decision (autology-philosophy contains [[codeless-architecture-decision]]). Reports path as: autology-philosophy → codeless-architecture-decision with hop label.",
+      "prompt": "/autology:explore-knowledge path autology-philosophy shell-hook-scripts",
+      "expected_output": "Reads docs/autology-philosophy.md and docs/shell-hook-scripts.md. Finds no direct wikilink between them. Identifies the 2-hop path: autology-philosophy → codeless-architecture-decision → shell-hook-scripts (autology-philosophy links to [[codeless-architecture-decision]], which links to [[shell-hook-scripts]]). Reports path as: autology-philosophy → codeless-architecture-decision → shell-hook-scripts with hop labels.",
       "files": [],
       "assertions": [
         {
-          "id": "both-nodes-read",
-          "description": "Both docs/autology-philosophy.md and docs/codeless-architecture-decision.md are read"
+          "id": "endpoint-nodes-read",
+          "description": "Both docs/autology-philosophy.md and docs/shell-hook-scripts.md are read"
         },
         {
-          "id": "direct-link-found",
-          "description": "The direct wikilink from autology-philosophy to codeless-architecture-decision is found (no intermediate hops needed)"
+          "id": "intermediate-node-found",
+          "description": "codeless-architecture-decision is identified as the intermediate node connecting the two endpoints"
         },
         {
           "id": "path-output-format",
-          "description": "Output shows the path in A → B format with hop labels"
+          "description": "Output shows the 2-hop path in A → B → C format with hop labels"
         },
         {
-          "id": "no-spurious-intermediates",
-          "description": "Output does not insert unnecessary intermediate nodes — the shortest path is length 1"
+          "id": "correct-hop-count",
+          "description": "Path length is reported as 2 hops — no shorter path exists and no spurious extra hops are added"
         }
       ]
     },
     {
       "id": 5,
-      "name": "discriminating-question",
-      "prompt": "Why was explore-knowledge separated into two skills instead of keeping it as one? What were the two new skills?",
-      "expected_output": "Searches docs/ and reads triage-explore-split-decision.md. Explains the split: explore-knowledge was split into triage-knowledge (post-action context classification feeding sync/capture) and explore-knowledge (graph traversal for answering user questions). The rationale: different triggers, inputs, and output consumers. The separation signal was that the old skill's own Common Mistakes table flagged 'Confuse triage with graph traversal'. Answer is grounded in docs, not general reasoning about skill naming.",
+      "name": "reentry-guard-conditions",
+      "prompt": "What specific conditions trigger the autology-workflow reentry guard? List the exact criteria that count as 'autology-workflow just completed', and explain why the check is event-based rather than state-based.",
+      "expected_output": "Searches docs/ for 'reentry guard'. Reads autology-workflow-reentry-guard.md. Reports BOTH specific conditions: (1) triage-knowledge, sync-knowledge, or capture-knowledge just ran; (2) a docs/*.md file was just written or edited. Explains the event-vs-state distinction: state-based is fragile (state can become stale or be missed); event-based looks backward at the source of the completed action with no state to track. Cites [[autology-workflow-reentry-guard]].",
       "files": [],
       "assertions": [
         {
           "id": "searches-docs-first",
-          "description": "docs/ is searched before answering — not inferred from skill names alone"
+          "description": "docs/ is searched before answering — not answered from general knowledge about recursion prevention"
         },
         {
-          "id": "reads-decision-doc",
-          "description": "triage-explore-split-decision.md is read"
+          "id": "reads-reentry-guard-doc",
+          "description": "autology-workflow-reentry-guard.md is read"
         },
         {
-          "id": "correct-two-skills-named",
-          "description": "Answer correctly names both resulting skills: triage-knowledge and explore-knowledge"
+          "id": "skill-based-condition",
+          "description": "Answer correctly states the skill-based condition: triage-knowledge, sync-knowledge, or capture-knowledge just ran"
         },
         {
-          "id": "documented-rationale",
-          "description": "Answer cites the documented rationale: different triggers, inputs, output consumers — not just general reasoning about separation of concerns"
+          "id": "file-based-condition",
+          "description": "Answer correctly states the file-based condition: a docs/*.md file was just written or edited (counterintuitive — not covered by general recursion reasoning)"
         },
         {
-          "id": "cites-docs",
-          "description": "Answer cites the specific decision doc (e.g., per [[triage-explore-split-decision]])"
+          "id": "event-vs-state-rationale",
+          "description": "Answer explains WHY event-based was chosen over state-based: state can become stale or be missed; event-based looks backward at what completed with no state to track"
         }
       ]
     }
