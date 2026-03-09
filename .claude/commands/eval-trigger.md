@@ -31,18 +31,48 @@ mkdir -p /tmp/trigger-eval-$ARGUMENTS/results
 
 The stub dir contains only the target skill — no other skills can compete.
 
-## Step 3: Run all queries in parallel
+## Step 3: Run all queries in parallel via tmux
 
-Launch all queries as background bash jobs. For each query:
+The Bash tool cannot directly run `claude -p` (no TTY). Instead, write a runner script and execute it inside a tmux session.
+
+**Why two env vars must be unset:**
+- `CLAUDECODE` — prevents nested Claude Code detection
+- `ANTHROPIC_API_KEY` — forces OAuth (claude.ai) instead of API key billing
+
+**Create the runner script:**
 
 ```bash
-output=$(env -u CLAUDECODE claude -p "$query" \
-  --plugin-dir /tmp/trigger-eval-$ARGUMENTS/stub \
-  --output-format stream-json --verbose 2>/dev/null)
-echo "$output" > /tmp/trigger-eval-$ARGUMENTS/results/${i}.txt
+cat << 'EOF' > /tmp/trigger-eval-$ARGUMENTS/run.sh
+#!/usr/bin/env bash
+STUB="/tmp/trigger-eval-$ARGUMENTS/stub"
+RESULTS="/tmp/trigger-eval-$ARGUMENTS/results"
+
+# (loop over each query, write inline from evals JSON)
+# Per query — run in parallel:
+(
+  output=$(env -u CLAUDECODE -u ANTHROPIC_API_KEY claude -p "$query" \
+    --plugin-dir "$STUB" \
+    --output-format stream-json --verbose 2>/dev/null)
+  echo "$output" > "$RESULTS/${i}.txt"
+) &
+
+wait
+touch /tmp/trigger-eval-$ARGUMENTS/done
+EOF
 ```
 
-Wait for all background jobs to finish before proceeding.
+Build the full script by reading trigger_evals.json and inlining each query, then launch via tmux:
+
+```bash
+tmux new-session -d -s trigger-eval-$ARGUMENTS -x 220 -y 50
+tmux send-keys -t trigger-eval-$ARGUMENTS "bash /tmp/trigger-eval-$ARGUMENTS/run.sh" Enter
+```
+
+Poll until all results are written (or the `done` sentinel file appears):
+
+```bash
+while [ ! -f /tmp/trigger-eval-$ARGUMENTS/done ]; do sleep 3; done
+```
 
 **Detecting a trigger:** parse each result file with python3 — look for a `content_block_start` event where `content_block.type == "tool_use"` and `content_block.name == "Skill"`:
 
@@ -86,6 +116,7 @@ For every FAIL:
 ## Step 5: Clean up
 
 ```bash
+tmux kill-session -t trigger-eval-$ARGUMENTS 2>/dev/null || true
 rm -rf /tmp/trigger-eval-$ARGUMENTS
 ```
 
