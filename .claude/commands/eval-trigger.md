@@ -74,7 +74,7 @@ Poll until all results are written (or the `done` sentinel file appears):
 while [ ! -f /tmp/trigger-eval-$ARGUMENTS/done ]; do sleep 3; done
 ```
 
-**Detecting a trigger:** parse each result file with python3 — look for a `content_block_start` event where `content_block.type == "tool_use"` and `content_block.name == "Skill"`:
+**Detecting a trigger:** parse each result file with python3 — the stream-json format embeds tool_use items inside `type:"assistant"` message content arrays, not as `content_block_start` events:
 
 ```python
 import sys, json
@@ -82,11 +82,12 @@ triggered = False
 for line in sys.stdin:
     try:
         ev = json.loads(line)
-        if ev.get("type") == "content_block_start":
-            cb = ev.get("content_block", {})
-            if cb.get("type") == "tool_use" and cb.get("name") == "Skill":
-                triggered = True
-                break
+        if ev.get("type") == "assistant":
+            for item in ev.get("message", {}).get("content", []):
+                if item.get("type") == "tool_use" and item.get("name") == "Skill":
+                    if "$ARGUMENTS" in item.get("input", {}).get("skill", ""):
+                        triggered = True
+                        break
     except Exception:
         pass
 print("triggered" if triggered else "not_triggered")
