@@ -1,6 +1,6 @@
 ---
 name: autology-workflow
-description: Use after significant project actions — commit, push, PR — or when the team settles on how something should work: a technology choice, a standard, a rule, or an engineering policy. Running close to the action keeps captured knowledge more accurate and complete.
+description: Use after significant project actions — commit, push, PR — or when the team settles on how to build or operate the system: a technology choice, a process, a rule, or a standard. Running close to the action keeps captured knowledge more accurate and complete.
 ---
 
 ## Overview
