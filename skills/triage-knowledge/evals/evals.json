@@ -4,29 +4,31 @@
     {
       "id": 1,
       "name": "mixed-batch",
-      "prompt": "Just pushed: `feat(auth): add OAuth2 login with Google`. Also updated the existing UserService to support OAuth user creation alongside password users. Assume docs/ contains a node called `user-service.md` documenting the UserService.",
+      "prompt": "Just pushed: `feat(auth): add OAuth2 login with Google`. Also updated the existing UserService to support OAuth user creation alongside password users. Copy skills/triage-knowledge/evals/fixtures/user-service.md to docs/user-service.md before starting.",
       "expected_output": "Triage searches docs/ and finds user-service.md as existing (→ sync). OAuth2 login is new (→ capture). Both classified with topology hints: user-service.md gets Connected/Tags output; OAuth item gets Suggested relations pointing at user-service.md.",
-      "files": [],
+      "files": [
+        "skills/triage-knowledge/evals/fixtures/user-service.md"
+      ],
       "assertions": [
         {
           "id": "existing-found",
-          "description": "user-service.md (or equivalent) is classified as Existing (→ sync)"
+          "description": "Response contains '### Existing (→ sync)' section and user-service.md appears under it"
         },
         {
           "id": "new-classified",
-          "description": "OAuth2 login is classified as New (→ capture)"
+          "description": "Response contains '### New (→ capture)' section and OAuth2 login appears under it"
         },
         {
           "id": "topology-hints-existing",
-          "description": "Existing node includes Connected/Tags topology hints"
+          "description": "Existing node entry includes 'Connected:' and 'Tags:' labels in the topology line"
         },
         {
           "id": "topology-hints-new",
-          "description": "New item includes Suggested relations (even if none found)"
+          "description": "New item entry includes a 'Suggested relations:' line (value may be 'none')"
         },
         {
           "id": "output-format",
-          "description": "Output uses the Autology — Triage Results blockquote format with Existing and New sections"
+          "description": "Output contains the '**Autology** — Triage Results' header"
         }
       ]
     },
@@ -39,40 +41,48 @@
       "assertions": [
         {
           "id": "empty-state-format",
-          "description": "Uses the 'No existing matches found. All items classified as new.' empty-state format"
+          "description": "Response contains the exact phrase 'No existing matches found. All items classified as new.'"
         },
         {
-          "id": "no-existing-section",
-          "description": "No Existing (→ sync) section present, or it is explicitly empty"
+          "id": "no-matching-node-suffix",
+          "description": "Each new item line includes the '— no matching node' suffix"
         },
         {
           "id": "new-items-listed",
-          "description": "BullMQ queue and/or email sending is listed under New (→ capture)"
+          "description": "BullMQ queue and/or email sending appears under '### New (→ capture)'"
         },
         {
           "id": "suggested-relations-present",
-          "description": "Each new item has a Suggested relations line (can be 'none')"
+          "description": "Each new item entry includes a 'Suggested relations:' line (value may be 'none')"
+        },
+        {
+          "id": "output-format",
+          "description": "Output contains the '**Autology** — Triage Results' header"
         }
       ]
     },
     {
       "id": 3,
       "name": "topology-hints-depth",
-      "prompt": "We just changed how the session-start hook works: it now reads the skill file path from an environment variable instead of computing it from BASH_SOURCE. Assume docs/ has: shell-hook-scripts.md (which wikilinks to autology-internals.md and codeless-architecture-decision.md).",
+      "prompt": "We just changed how the session-start hook works: it now reads the skill file path from an environment variable instead of computing it from BASH_SOURCE. docs/ already contains shell-hook-scripts.md — use it as-is.",
       "expected_output": "Triage finds shell-hook-scripts.md as Existing. Topology hints include its wikilink connections (autology-internals, codeless-architecture-decision) and any shared-tag nodes. Connected nodes listed so sync knows what to check.",
       "files": [],
       "assertions": [
         {
           "id": "primary-node-found",
-          "description": "shell-hook-scripts.md classified as Existing (→ sync)"
+          "description": "shell-hook-scripts.md appears under '### Existing (→ sync)'"
         },
         {
           "id": "connected-nodes-listed",
-          "description": "Connected nodes (autology-internals, codeless-architecture-decision) appear in topology hints"
+          "description": "Topology line for shell-hook-scripts.md includes 'Connected:' label with autology-internals and codeless-architecture-decision as wikilinks"
         },
         {
           "id": "hub-or-orphan-flag",
-          "description": "Hub/orphan status or link count included in topology output"
+          "description": "Topology line includes 'Hub', 'Orphan', or a link count (e.g. '2 links') for shell-hook-scripts.md"
+        },
+        {
+          "id": "output-format",
+          "description": "Output contains the '**Autology** — Triage Results' header"
         }
       ]
     }

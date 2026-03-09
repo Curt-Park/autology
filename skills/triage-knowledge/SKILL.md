@@ -1,6 +1,6 @@
 ---
 name: triage-knowledge
-description: Use after significant actions (commits, decisions, refactors) to classify knowledge items as existing or new and provide topology hints for sync and capture.
+description: Use after significant actions (commits, decisions, refactors) or when asked to triage changes — classifies knowledge items as existing or new and provides topology hints for sync and capture.
 ---
 
 ## Overview

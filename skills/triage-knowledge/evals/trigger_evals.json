@@ -12,10 +12,6 @@
     "should_trigger": true
   },
   {
-    "query": "/autology:triage-knowledge",
-    "should_trigger": true
-  },
-  {
     "query": "Triage my latest changes — I pushed a fix to the rate limiter and a new caching layer.",
     "should_trigger": true
   },
