@@ -1,0 +1,46 @@
+[
+  {
+    "query": "I just pushed feat(auth): add OAuth2 login with Google. The UserService was updated to support OAuth users alongside existing password users.",
+    "should_trigger": true
+  },
+  {
+    "query": "Just committed refactor(storage): extract file upload logic from FileService into a dedicated S3FileStorage class.",
+    "should_trigger": true
+  },
+  {
+    "query": "We just merged a big PR — feat(payments): integrate Stripe for subscription billing. New PaymentService, updated UserService, and a new billing convention.",
+    "should_trigger": true
+  },
+  {
+    "query": "Triage my latest changes — I pushed a fix to the rate limiter and a new caching layer.",
+    "should_trigger": true
+  },
+  {
+    "query": "Just pushed fix(api): correct pagination cursor encoding. The cursor was double-encoded in base64.",
+    "should_trigger": true
+  },
+  {
+    "query": "Why did we move to a service-class pattern for rate limiting?",
+    "should_trigger": false
+  },
+  {
+    "query": "Capture this decision: we're adopting OpenTelemetry for distributed tracing across all services.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run a full knowledge audit — the docs might be stale.",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm designing the retry logic for the payment service. Should I use exponential backoff or fixed intervals?",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me write a migration to add an index on users.email.",
+    "should_trigger": false
+  },
+  {
+    "query": "What does the FileService do? I need to understand it before I touch it.",
+    "should_trigger": false
+  }
+]

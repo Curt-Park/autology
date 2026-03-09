@@ -1,0 +1,84 @@
+{
+  "skill_name": "capture-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "name": "granularity-fold",
+      "prompt": "Triage returned: New items (→ capture): 1) PostgreSQL chosen as primary database — no matching node. Suggested relations: none. 2) Connection pool set to max 10 — no matching node. Suggested relations: none. Capture these.",
+      "expected_output": "PostgreSQL decision gets its own node (type: decision). Connection pool limit is thin — folded into the PostgreSQL node body as a configuration detail. Granularity reasoning documented. 1 doc created, not 2.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace explicitly explains that connection pool limit is folded into the PostgreSQL node and why"
+        },
+        {
+          "id": "one-doc-created",
+          "description": "Exactly 1 doc created (not 2)"
+        },
+        {
+          "id": "type-decision",
+          "description": "Created doc has type: decision in frontmatter"
+        },
+        {
+          "id": "pool-detail-folded",
+          "description": "Connection pool max 10 appears as a detail in the PostgreSQL node body, not as a separate file"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "bidirectional-wikilinks",
+      "prompt": "Triage returned: New items (→ capture): 1) CacheService — in-memory cache using Redis. No matching node. Suggested relations: [[api-gateway]] (shared tags: architecture, infrastructure). Capture this. Assume docs/api-gateway.md exists.",
+      "expected_output": "Creates docs/cache-service.md with type: component. Adds [[api-gateway]] wikilink inside the new node body. Also edits docs/api-gateway.md to add the reverse [[cache-service]] wikilink. Report confirms both directions.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "new-node-created",
+          "description": "docs/cache-service.md (or similar slug) created with type: component"
+        },
+        {
+          "id": "forward-wikilink",
+          "description": "New node contains [[api-gateway]] wikilink"
+        },
+        {
+          "id": "reverse-wikilink",
+          "description": "docs/api-gateway.md is edited to add [[cache-service]] (or equivalent) reverse wikilink"
+        },
+        {
+          "id": "report-format",
+          "description": "Report uses the 'Autology — Captured [type]: docs/{slug}.md' format"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "convention-fold-mixed",
+      "prompt": "Triage returned: New items (→ capture): 1) All API responses must use snake_case field names — no camelCase anywhere in API responses. No matching node. Suggested relations: none. 2) The field 'userId' must be written as 'user_id' in all API responses. No matching node. Suggested relations: none. Capture these.",
+      "expected_output": "snake_case convention gets its own node (type: convention). The 'userId → user_id' example is a specific instance of the convention — folded into the convention node body as an example, not a separate file. 1 doc created, not 2. Granularity reasoning documented.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "type-convention",
+          "description": "Created doc has type: convention in frontmatter"
+        },
+        {
+          "id": "one-doc-created",
+          "description": "Exactly 1 doc created (not 2)"
+        },
+        {
+          "id": "body-contains-rule",
+          "description": "Node body describes the snake_case requirement"
+        },
+        {
+          "id": "example-folded",
+          "description": "The userId → user_id example appears in the convention node body, not as a separate file"
+        },
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace or response explains why the example is folded rather than given its own node"
+        }
+      ]
+    }
+  ]
+}

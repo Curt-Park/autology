@@ -1,0 +1,90 @@
+{
+  "skill_name": "triage-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mixed-batch",
+      "prompt": "Just pushed: `feat(auth): add OAuth2 login with Google`. Also updated the existing UserService to support OAuth user creation alongside password users. Copy skills/triage-knowledge/evals/fixtures/user-service.md to docs/user-service.md before starting.",
+      "expected_output": "Triage searches docs/ and finds user-service.md as existing (→ sync). OAuth2 login is new (→ capture). Both classified with topology hints: user-service.md gets Connected/Tags output; OAuth item gets Suggested relations pointing at user-service.md.",
+      "files": [
+        "skills/triage-knowledge/evals/fixtures/user-service.md"
+      ],
+      "assertions": [
+        {
+          "id": "existing-found",
+          "description": "Response contains '### Existing (→ sync)' section and user-service.md appears under it"
+        },
+        {
+          "id": "new-classified",
+          "description": "Response contains '### New (→ capture)' section and OAuth2 login appears under it"
+        },
+        {
+          "id": "topology-hints-existing",
+          "description": "Existing node entry includes 'Connected:' and 'Tags:' labels in the topology line"
+        },
+        {
+          "id": "topology-hints-new",
+          "description": "New item entry includes a 'Suggested relations:' line (value may be 'none')"
+        },
+        {
+          "id": "output-format",
+          "description": "Output contains the '**Autology** — Triage Results' header"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "all-new-items",
+      "prompt": "Just pushed first commit for a new service: `feat(queue): add BullMQ job queue for background email sending`. No existing docs/ nodes relate to queues or email.",
+      "expected_output": "Triage searches docs/, finds no matches, uses the empty-state format. All items classified as New (→ capture). Suggested relations section present even if empty.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "empty-state-format",
+          "description": "Response contains the exact phrase 'No existing matches found. All items classified as new.'"
+        },
+        {
+          "id": "no-matching-node-suffix",
+          "description": "Each new item line includes the '— no matching node' suffix"
+        },
+        {
+          "id": "new-items-listed",
+          "description": "BullMQ queue and/or email sending appears under '### New (→ capture)'"
+        },
+        {
+          "id": "suggested-relations-present",
+          "description": "Each new item entry includes a 'Suggested relations:' line (value may be 'none')"
+        },
+        {
+          "id": "output-format",
+          "description": "Output contains the '**Autology** — Triage Results' header"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "topology-hints-depth",
+      "prompt": "We just changed how the session-start hook works: it now reads the skill file path from an environment variable instead of computing it from BASH_SOURCE. docs/ already contains shell-hook-scripts.md — use it as-is.",
+      "expected_output": "Triage finds shell-hook-scripts.md as Existing. Topology hints include its wikilink connections (autology-internals, codeless-architecture-decision) and any shared-tag nodes. Connected nodes listed so sync knows what to check.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "primary-node-found",
+          "description": "shell-hook-scripts.md appears under '### Existing (→ sync)'"
+        },
+        {
+          "id": "connected-nodes-listed",
+          "description": "Topology line for shell-hook-scripts.md includes 'Connected:' label with autology-internals and codeless-architecture-decision as wikilinks"
+        },
+        {
+          "id": "hub-or-orphan-flag",
+          "description": "Topology line includes 'Hub', 'Orphan', or a link count (e.g. '2 links') for shell-hook-scripts.md"
+        },
+        {
+          "id": "output-format",
+          "description": "Output contains the '**Autology** — Triage Results' header"
+        }
+      ]
+    }
+  ]
+}

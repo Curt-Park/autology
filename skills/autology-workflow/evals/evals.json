@@ -1,0 +1,172 @@
+{
+  "skill_name": "autology-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "name": "commit-trigger",
+      "prompt": "I just pushed a commit: `feat(auth): add JWT token validation middleware`. The middleware checks tokens on protected routes and returns 401 if invalid. We chose JWT over session cookies because the API needs to be stateless.",
+      "expected_output": "Triage runs first, classifies JWT middleware and decision as new items, capture creates 2 linked docs (component + decision) with 401 behavior and stateless rationale folded in rather than as separate nodes.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Workflow trace explicitly explains which items were folded and why"
+        },
+        {
+          "id": "thin-items-folded",
+          "description": "401 behavior and stateless rationale are NOT separate nodes \u2014 folded into parent docs"
+        },
+        {
+          "id": "two-docs-created",
+          "description": "Exactly 2 docs created (component + decision), not 3 or 4"
+        },
+        {
+          "id": "bidirectional-wikilinks",
+          "description": "Both docs link to each other with [[wikilinks]]"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "convention-decision",
+      "prompt": "We just decided that all API endpoints will use snake_case for JSON field names going forward. This is the new convention across the whole backend. No more camelCase in API responses.",
+      "expected_output": "Triage runs first, classifies as new convention item, capture creates a single convention doc. Skip-sync rule explicitly cited. Granularity reasoning documented.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace explains why the convention gets its own node"
+        },
+        {
+          "id": "skip-sync-rule-cited",
+          "description": "The explicit skip-sync rule is cited when sync is skipped"
+        },
+        {
+          "id": "one-doc-created",
+          "description": "Exactly 1 doc created"
+        },
+        {
+          "id": "type-convention",
+          "description": "Created doc has type: convention in frontmatter"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "refactor-existing",
+      "prompt": "Just committed a refactor: `refactor(hooks): move rate limiting from Express middleware to a dedicated RateLimiter service class`. The old middleware approach is removed. Existing docs might reference the old middleware.",
+      "expected_output": "Triage finds no existing docs, pivots to capture. Skip-sync rule cited explicitly. Middleware removal detail folded into component node, not a separate ADR stub.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace explains which items get own nodes vs which are folded"
+        },
+        {
+          "id": "skip-sync-rule-cited",
+          "description": "The explicit skip-sync rule is cited when triage finds no existing docs"
+        },
+        {
+          "id": "thin-item-folded",
+          "description": "The 'old middleware removal' detail is folded into the component node, not a separate ADR stub"
+        },
+        {
+          "id": "doc-created",
+          "description": "At least 1 doc is created (triage\u2192capture pivot for new component)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "sync-only",
+      "prompt": "Just pushed a fix: `fix(rate-limiter): switch from stdout logging to structured logger`. The RateLimiter service already has docs. Only the logging behavior changed \u2014 no architectural decision, no new component.",
+      "expected_output": "Triage finds existing RateLimiter docs (\u2192 sync). No new items to capture. Sync runs alone. Skip-capture rule cited explicitly.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "triage-finds-existing",
+          "description": "Triage classifies the RateLimiter change as Existing (\u2192 sync), not New"
+        },
+        {
+          "id": "sync-runs",
+          "description": "sync-knowledge runs to update the existing doc"
+        },
+        {
+          "id": "skip-capture-rule-cited",
+          "description": "The rule 'if triage returns only existing items, skip capture' is cited explicitly"
+        },
+        {
+          "id": "no-new-doc-created",
+          "description": "No new docs/ node is created"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "mixed-batch",
+      "prompt": "Pushed `feat(storage): add S3FileStorage service for file uploads`. Also updated the existing FileService to delegate large file uploads to S3FileStorage. FileService already has a doc.",
+      "expected_output": "Triage classifies S3FileStorage as new (\u2192 capture) and FileService as existing (\u2192 sync). Both capture and sync run. Capture creates S3FileStorage node; sync updates FileService doc.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "both-paths-run",
+          "description": "Both capture-knowledge and sync-knowledge run (mixed triage result)"
+        },
+        {
+          "id": "new-doc-created",
+          "description": "A new doc is created for S3FileStorage"
+        },
+        {
+          "id": "existing-doc-updated",
+          "description": "FileService doc is updated via sync (not a new node)"
+        },
+        {
+          "id": "triage-explains-split",
+          "description": "Triage output clearly separates Existing and New sections"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "mid-session-decision",
+      "prompt": "Actually, let's settle this now: all internal service-to-service calls will use gRPC, not REST. That's the standard going forward across all backend services.",
+      "expected_output": "Workflow captures the decision directly. A convention or decision node is created without waiting for a commit. Triage may run briefly but finds no existing docs on this.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "decision-captured",
+          "description": "A doc is created for the gRPC decision without requiring a commit"
+        },
+        {
+          "id": "correct-type",
+          "description": "Created doc has type: decision or type: convention in frontmatter"
+        },
+        {
+          "id": "no-wait-for-commit",
+          "description": "Workflow does not say 'wait for a commit' \u2014 captures the decision immediately from conversation"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "convention-in-review",
+      "prompt": "I noticed while reviewing PRs that we're inconsistent about error responses \u2014 some services return `{error: string}`, others return `{code, message, details}`. Let's standardize: all error responses must use `{code, message, details}` going forward.",
+      "expected_output": "Workflow recognizes this as a new convention established mid-conversation (not a commit). Triage finds no existing docs. Capture creates a convention node.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "convention-node-created",
+          "description": "A convention doc is created for the error response standard"
+        },
+        {
+          "id": "type-convention",
+          "description": "Created doc has type: convention in frontmatter"
+        },
+        {
+          "id": "captures-both-formats",
+          "description": "Doc body describes both the old inconsistency and the new standard"
+        }
+      ]
+    }
+  ]
+}

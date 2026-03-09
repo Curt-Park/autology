@@ -1,0 +1,150 @@
+{
+  "skill_name": "explore-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "name": "question-answering",
+      "prompt": "Why was autology's Go MCP server removed? What specific problems did it create, and what replaced it?",
+      "expected_output": "Searches docs/ for 'MCP server' or 'Go' or 'code-less'. Reads codeless-architecture-decision.md. Follows wikilinks (autology-internals, shell-hook-scripts). Cites the 4 documented problems: build/compilation overhead, Go toolchain dependency, complex hook→binary bootstrapping, redundant MCP layers. States what replaced it: Claude native tools (Read/Write/Edit/Grep/Glob) for docs/*.md, shell script hooks. Answer is grounded in the ADR, not general reasoning about Go vs shell.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "searches-docs-first",
+          "description": "Grep or search of docs/ is performed before answering — not answered from memory"
+        },
+        {
+          "id": "reads-architecture-decision",
+          "description": "codeless-architecture-decision.md is read"
+        },
+        {
+          "id": "follows-wikilinks",
+          "description": "At least one wikilinked node is followed (1-hop) for additional context"
+        },
+        {
+          "id": "cites-docs-in-answer",
+          "description": "Answer cites the specific ADR doc (e.g., 'per [[codeless-architecture-decision]]')"
+        },
+        {
+          "id": "correct-rationale",
+          "description": "Answer cites at least 2 of the 4 documented problems: build/compilation overhead, Go toolchain dependency, complex hook→binary bootstrapping, redundant MCP abstraction layers (Claude native tools make MCP unnecessary)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "overview-operation",
+      "prompt": "/autology:explore-knowledge overview",
+      "expected_output": "Reads all docs/*.md, extracts frontmatter and wikilinks. Reports: 8 total nodes, 24 directed links, 1 component, top 5 hub nodes with connection counts, orphan nodes (none), node type breakdown (4 concept, 3 decision, 1 component). Format matches the overview output spec.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "globs-all-docs",
+          "description": "All docs/*.md files are globbed and read"
+        },
+        {
+          "id": "hub-nodes-listed",
+          "description": "Top hub nodes (most wikilink connections) are identified and listed with connection counts"
+        },
+        {
+          "id": "orphan-nodes-listed",
+          "description": "Orphan nodes (no links) are identified — even if result is 'none'"
+        },
+        {
+          "id": "counts-reported",
+          "description": "Total node count and link count are reported as numbers"
+        },
+        {
+          "id": "type-breakdown-reported",
+          "description": "Node type breakdown is included (e.g., how many concept / decision / component nodes)"
+        },
+        {
+          "id": "type-breakdown-accurate",
+          "description": "Type counts are correct: 4 concept, 3 decision, 1 component (8 total)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "neighborhood-traversal",
+      "prompt": "/autology:explore-knowledge autology-internals",
+      "expected_output": "Reads docs/autology-internals.md. Finds ALL nodes that link to or from it (1-hop) — both outgoing wikilinks AND nodes that reference [[autology-internals]] via grep. Finds their connections (2-hop BFS). Reports node title, type, tags, and connections at each hop. Does not stop at 1-hop. codeless-architecture-decision should appear as 1-hop (it links to autology-internals) not 2-hop.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "target-node-read",
+          "description": "docs/autology-internals.md is read"
+        },
+        {
+          "id": "outgoing-links-found",
+          "description": "Nodes that autology-internals links to (outgoing) are identified — autology-system-specification, shell-hook-scripts, autology-user-guide, autology-workflow-reentry-guard, triage-explore-split-decision"
+        },
+        {
+          "id": "incoming-links-considered",
+          "description": "docs/ is grepped for [[autology-internals]] to find nodes linking TO the target — codeless-architecture-decision is a 1-hop neighbor via incoming link"
+        },
+        {
+          "id": "2-hop-traversal",
+          "description": "2-hop neighbors (neighbors of neighbors not yet visited) are also found and reported"
+        },
+        {
+          "id": "type-and-tags-included",
+          "description": "Each node in the output includes its type and tags"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "path-query",
+      "prompt": "/autology:explore-knowledge path autology-philosophy shell-hook-scripts",
+      "expected_output": "Reads docs/autology-philosophy.md and docs/shell-hook-scripts.md. Finds no direct wikilink between them. Identifies the 2-hop path: autology-philosophy → codeless-architecture-decision → shell-hook-scripts (autology-philosophy links to [[codeless-architecture-decision]], which links to [[shell-hook-scripts]]). Reports path as: autology-philosophy → codeless-architecture-decision → shell-hook-scripts with hop labels.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "endpoint-nodes-read",
+          "description": "Both docs/autology-philosophy.md and docs/shell-hook-scripts.md are read"
+        },
+        {
+          "id": "intermediate-node-found",
+          "description": "codeless-architecture-decision is identified as the intermediate node connecting the two endpoints"
+        },
+        {
+          "id": "path-output-format",
+          "description": "Output shows the 2-hop path in A → B → C format with hop labels"
+        },
+        {
+          "id": "correct-hop-count",
+          "description": "Path length is reported as 2 hops — no shorter path exists and no spurious extra hops are added"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "reentry-guard-conditions",
+      "prompt": "What specific conditions trigger the autology-workflow reentry guard? List the exact criteria that count as 'autology-workflow just completed', and explain why the check is event-based rather than state-based.",
+      "expected_output": "Searches docs/ for 'reentry guard'. Reads autology-workflow-reentry-guard.md. Reports BOTH specific conditions: (1) triage-knowledge, sync-knowledge, or capture-knowledge just ran; (2) a docs/*.md file was just written or edited. Explains the event-vs-state distinction: state-based is fragile (state can become stale or be missed); event-based looks backward at the source of the completed action with no state to track. Cites [[autology-workflow-reentry-guard]].",
+      "files": [],
+      "assertions": [
+        {
+          "id": "searches-docs-first",
+          "description": "docs/ is searched before answering — not answered from general knowledge about recursion prevention"
+        },
+        {
+          "id": "reads-reentry-guard-doc",
+          "description": "autology-workflow-reentry-guard.md is read"
+        },
+        {
+          "id": "skill-based-condition",
+          "description": "Answer correctly states the skill-based condition: triage-knowledge, sync-knowledge, or capture-knowledge just ran"
+        },
+        {
+          "id": "file-based-condition",
+          "description": "Answer correctly states the file-based condition: a docs/*.md file was just written or edited (counterintuitive — not covered by general recursion reasoning)"
+        },
+        {
+          "id": "event-vs-state-rationale",
+          "description": "Answer explains WHY event-based was chosen over state-based: state can become stale or be missed; event-based looks backward at what completed with no state to track"
+        }
+      ]
+    }
+  ]
+}

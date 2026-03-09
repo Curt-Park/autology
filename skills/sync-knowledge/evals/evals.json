@@ -1,0 +1,76 @@
+{
+  "skill_name": "sync-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "name": "fast-mode-update",
+      "prompt": "Triage returned: Existing nodes (→ sync): docs/rate-limiter-service.md — matches RateLimiter refactor. Connected: [[api-gateway]] | Tags: rate-limiting, architecture. The doc currently says 'implemented as Express middleware' but the code was refactored to a standalone service class. Run fast sync.",
+      "expected_output": "Reads docs/rate-limiter-service.md and the changed code file. Finds the 'Express middleware' claim is outdated. Edits the doc in-place to reflect the service class implementation. Sync report lists the doc as updated with what changed.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "reads-code-before-comparing",
+          "description": "Trace shows the code file was read before comparing — not just the doc"
+        },
+        {
+          "id": "doc-edited-in-place",
+          "description": "docs/rate-limiter-service.md is edited to fix the outdated claim"
+        },
+        {
+          "id": "report-format",
+          "description": "Report uses the Sync Report (fast) format with Updated/No changes needed sections"
+        },
+        {
+          "id": "specific-change-described",
+          "description": "Report describes what was changed (e.g., 'middleware → service class')"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "skip-when-no-existing",
+      "prompt": "Triage returned: No existing matches found. All items classified as new. New (→ capture): BullMQ job queue — no matching node. Run sync.",
+      "expected_output": "Sync immediately recognizes triage found no existing nodes. Cites the skip-sync rule explicitly. Does not fall back to full mode. Routes directly to capture.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "skip-sync-rule-cited",
+          "description": "The explicit rule 'If triage returns only new items, skip sync' is cited or referenced"
+        },
+        {
+          "id": "no-full-mode-fallback",
+          "description": "Does NOT run a full audit — stays in fast-mode path or explicitly skips"
+        },
+        {
+          "id": "routes-to-capture",
+          "description": "Output indicates capture should run next for the new items"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "full-mode-audit",
+      "prompt": "Run a full knowledge audit. Assume docs/ has: api-gateway.md (mentions port 3000), auth-service.md (wikilinks to [[session-store]] but session-store.md does not exist), cache-service.md (no wikilinks, tags: infrastructure). The actual api-gateway code runs on port 8080.",
+      "expected_output": "Full mode reads all docs, surveys codebase. Finds: Doc≠Code: api-gateway.md port claim wrong (3000 vs 8080) — fixes it. Broken wikilink: auth-service.md→session-store (file missing). Missing wikilink suggestion: cache-service ↔ api-gateway (shared infrastructure tag). Report covers all three categories.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "doc-code-discrepancy-fixed",
+          "description": "api-gateway.md port claim is edited in-place (3000 → 8080)"
+        },
+        {
+          "id": "broken-wikilink-reported",
+          "description": "Broken wikilink [[session-store]] in auth-service.md is reported in the Broken Wikilinks section"
+        },
+        {
+          "id": "missing-wikilink-suggested",
+          "description": "cache-service ↔ api-gateway missing wikilink is suggested based on shared tags"
+        },
+        {
+          "id": "report-format",
+          "description": "Report uses the Sync Report (full) format with Code→No Doc, Doc→No Code/Doc≠Code, Broken Wikilinks, Missing Wikilinks sections"
+        }
+      ]
+    }
+  ]
+}

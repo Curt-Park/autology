@@ -1,0 +1,50 @@
+[
+  {
+    "query": "Why did we decide to use JWT over session cookies for the API? I want to understand the reasoning before I implement the mobile client.",
+    "should_trigger": true
+  },
+  {
+    "query": "How does the rate limiter work in this project? I need to know before I add a new endpoint.",
+    "should_trigger": true
+  },
+  {
+    "query": "What's the convention for error responses in our API? I keep seeing different formats across services.",
+    "should_trigger": true
+  },
+  {
+    "query": "What docs reference the auth service? I'm about to refactor it and want to know the blast radius.",
+    "should_trigger": true
+  },
+  {
+    "query": "Walk me through what architectural decisions led to the current storage layer design.",
+    "should_trigger": true
+  },
+  {
+    "query": "What's the path between the JWT decision and the API gateway in the knowledge graph?",
+    "should_trigger": true
+  },
+  {
+    "query": "I just pushed feat(auth): add OAuth2 login with Google. The UserService was updated to support OAuth users.",
+    "should_trigger": false
+  },
+  {
+    "query": "Remember this: we decided all background jobs will use BullMQ going forward.",
+    "should_trigger": false
+  },
+  {
+    "query": "How do I implement JWT token validation in Express? What middleware should I use?",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you explain how bcrypt hashing works and why we use 12 salt rounds?",
+    "should_trigger": false
+  },
+  {
+    "query": "Sync the docs after my last commit — the FileService was refactored.",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you help me write a unit test for the RateLimiter class?",
+    "should_trigger": false
+  }
+]

@@ -118,6 +118,11 @@ Dev C: 3 months later, migrates an internal service to HS256 (simpler for intern
 New hire: full decision chain available at session start, zero onboarding cost
 ```
 
+## Prerequisites
+
+- [Claude Code](https://claude.ai/code)
+- [`jq`](https://jqlang.org) — used by the session-start hook for JSON encoding
+
 ## Installation
 
 ```bash
@@ -152,10 +157,31 @@ New hire: full decision chain available at session start, zero onboarding cost
 ```bash
 git clone https://github.com/Curt-Park/autology.git
 cd autology
+mise install   # installs tool versions declared in .mise.toml
 claude --plugin-dir .
 ```
 
-`/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture (decision + code) → triage + sync (drift detection) → explore (query). If all complete, the full loop works.
+`/autology:autology-tutorial` is the end-to-end test: 3 acts covering triage + capture → triage + sync → explore. If all complete, the full loop works.
+
+### Skill Evals
+
+[mise](https://mise.jdx.dev) manages the tool versions used by skill evals (`claude`, `jq`, etc.). Install it first if you don't have it: https://mise.jdx.dev/getting-started.html
+
+```bash
+# prepare for the evaluation envionment
+mise trust
+mise install
+```
+
+Each skill has `skills/{skill-name}/evals/evals.json` (behavioral) and `trigger_evals.json` (trigger accuracy, for description-invoked skills).
+
+**Behavioral evals** run each case twice — with and without the skill — and grade assertions on process correctness. Use `/eval-behavior <skill-name>` to run.
+
+**Trigger evals** test whether the skill description causes Claude to invoke the skill on realistic prompts. Use `/eval-trigger <skill-name>` to run.
+
+**Writing good assertions**: check process, not just output — e.g. "does sync cite the skip rule when triage returns no existing nodes?" not just "was a file created?". Aim for assertions that pass with the skill and fail without it. For trigger evals, include near-misses — queries that share keywords with the skill but belong to a different one.
+
+Accumulated eval results are tracked in [`EVAL_RESULTS.md`](EVAL_RESULTS.md) — trigger accuracy and behavioral with/without-skill deltas per skill.
 
 ## License
 
