@@ -19,6 +19,7 @@ When the user asks a question about the project (conventions, architecture, deci
 2. **Read**: Read matched nodes (frontmatter + body)
 3. **Follow**: For each wikilink in matched nodes, read the linked node (1-hop)
 4. **Synthesize**: Answer citing specific docs (e.g., "per [[redis-storage-decision]]")
+5. **False premise check**: If the search finds no doc that supports the question's premise, state this explicitly — give the actual documented state instead. Do not speculate or construct a rationale that isn't in docs.
 
 ## Graph Operations
 
@@ -32,6 +33,7 @@ Process:
 
 Output:
 - Total node count, link count, component count
+- Node type breakdown (count per type, e.g. 5 concept / 4 decision / 2 convention / 1 component)
 - Top 5 hub nodes (most wikilink connections)
 - Orphan node list (no incoming or outgoing links)
 
@@ -39,7 +41,9 @@ Output:
 
 Process:
 - Read the target node
-- Find all nodes that link to or from the target (1-hop)
+- Find all nodes that link **to or from** the target (1-hop):
+  - **Outgoing**: wikilinks in the target node's body → `[[slug]]`
+  - **Incoming**: grep `docs/` for `[[target-slug]]` to find nodes that reference the target
 - Find their connections (2-hop BFS)
 
 Output: node title, type, tags, and connections for each hop
@@ -66,3 +70,5 @@ Output: `A → [intermediate] → B` with each hop labeled
 | Answer from memory instead of docs | Always Read the actual doc nodes before answering |
 | Stop at 1-hop neighbors | Follow wikilinks to 2-hop for richer context |
 | Ignore node type and tags | Include type/tags in answers — they add classification context |
+| Only follow outgoing links in neighborhood | Also grep `docs/` for `[[node-name]]` to find nodes that link TO the target |
+| Speculate when question has false premise | State what IS documented; never construct a rationale not found in docs |

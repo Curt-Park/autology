@@ -5,7 +5,7 @@
       "id": 1,
       "name": "question-answering",
       "prompt": "Why did we decide to use jq for JSON escaping in the session-start hook instead of doing it in bash?",
-      "expected_output": "Searches docs/ for jq/session-start/hook keywords. Reads shell-hook-scripts.md and follows wikilinks (codeless-architecture-decision, autology-internals). Synthesizes answer citing specific docs: jq handles all control characters and unicode correctly; bash parameter substitution failed on glob characters. Answer is grounded in docs, not just general knowledge.",
+      "expected_output": "Searches docs/ first, reads shell-hook-scripts.md, follows wikilinks (e.g. codeless-architecture-decision). Confirms jq IS used. Cites the documented rationale: jq handles all control characters and unicode correctly; bash hand-rolling was replaced because it was fragile. Answer is grounded in docs, not answered from memory.",
       "files": [],
       "assertions": [
         {
@@ -26,7 +26,7 @@
         },
         {
           "id": "correct-rationale",
-          "description": "Answer mentions unicode/control character handling or bash escaping failure as the reason for jq"
+          "description": "Answer correctly states that jq IS used and cites the documented rationale: handles all control characters and unicode correctly (from Key Design Choices in shell-hook-scripts.md)"
         }
       ]
     },
@@ -34,7 +34,7 @@
       "id": 2,
       "name": "overview-operation",
       "prompt": "/autology:explore-knowledge overview",
-      "expected_output": "Reads all docs/*.md, extracts frontmatter and wikilinks. Reports: total node count, link count, component count, top 5 hub nodes (most connections), orphan nodes (no links). Format matches the overview output spec.",
+      "expected_output": "Reads all docs/*.md, extracts frontmatter and wikilinks. Reports: 12 total nodes, link count, component count, top 5 hub nodes (most connections), orphan nodes (no links), node type breakdown (5 concept, 4 decision, 2 convention, 1 component). Format matches the overview output spec.",
       "files": [],
       "assertions": [
         {
@@ -43,15 +43,23 @@
         },
         {
           "id": "hub-nodes-listed",
-          "description": "Top hub nodes (most wikilink connections) are identified and listed"
+          "description": "Top hub nodes (most wikilink connections) are identified and listed with connection counts"
         },
         {
           "id": "orphan-nodes-listed",
-          "description": "Orphan nodes (no links) are identified"
+          "description": "Orphan nodes (no links) are identified — even if result is 'none'"
         },
         {
           "id": "counts-reported",
           "description": "Total node count and link count are reported as numbers"
+        },
+        {
+          "id": "type-breakdown-reported",
+          "description": "Node type breakdown is included (e.g., how many concept / decision / component nodes)"
+        },
+        {
+          "id": "type-breakdown-accurate",
+          "description": "Type counts are correct: 5 concept, 4 decision, 2 convention, 1 component (12 total)"
         }
       ]
     },
@@ -59,7 +67,7 @@
       "id": 3,
       "name": "neighborhood-traversal",
       "prompt": "/autology:explore-knowledge autology-internals",
-      "expected_output": "Reads docs/autology-internals.md. Finds all nodes that link to or from it (1-hop). Then finds their connections (2-hop BFS). Reports node title, type, tags, and connections at each hop. Does not stop at 1-hop.",
+      "expected_output": "Reads docs/autology-internals.md. Finds ALL nodes that link to or from it (1-hop) — both outgoing wikilinks AND nodes that reference [[autology-internals]] via grep. Finds their connections (2-hop BFS). Reports node title, type, tags, and connections at each hop. Does not stop at 1-hop. codeless-architecture-decision should appear as 1-hop (it links to autology-internals) not 2-hop.",
       "files": [],
       "assertions": [
         {
@@ -67,16 +75,74 @@
           "description": "docs/autology-internals.md is read"
         },
         {
-          "id": "1-hop-neighbors-found",
-          "description": "Nodes directly linked to/from autology-internals are identified"
+          "id": "outgoing-links-found",
+          "description": "Nodes that autology-internals links to (outgoing) are identified — autology-system-specification, shell-hook-scripts, autology-user-guide, autology-workflow-reentry-guard, triage-explore-split-decision"
+        },
+        {
+          "id": "incoming-links-considered",
+          "description": "docs/ is grepped for [[autology-internals]] to find nodes linking TO the target — codeless-architecture-decision is a 1-hop neighbor via incoming link"
         },
         {
           "id": "2-hop-traversal",
-          "description": "2-hop neighbors (neighbors of neighbors) are also found and reported"
+          "description": "2-hop neighbors (neighbors of neighbors not yet visited) are also found and reported"
         },
         {
           "id": "type-and-tags-included",
           "description": "Each node in the output includes its type and tags"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "path-query",
+      "prompt": "/autology:explore-knowledge path autology-philosophy codeless-architecture-decision",
+      "expected_output": "Reads docs/autology-philosophy.md and docs/codeless-architecture-decision.md. Identifies the direct wikilink from autology-philosophy to codeless-architecture-decision (autology-philosophy contains [[codeless-architecture-decision]]). Reports path as: autology-philosophy → codeless-architecture-decision with hop label.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "both-nodes-read",
+          "description": "Both docs/autology-philosophy.md and docs/codeless-architecture-decision.md are read"
+        },
+        {
+          "id": "direct-link-found",
+          "description": "The direct wikilink from autology-philosophy to codeless-architecture-decision is found (no intermediate hops needed)"
+        },
+        {
+          "id": "path-output-format",
+          "description": "Output shows the path in A → B format with hop labels"
+        },
+        {
+          "id": "no-spurious-intermediates",
+          "description": "Output does not insert unnecessary intermediate nodes — the shortest path is length 1"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "discriminating-question",
+      "prompt": "Why was explore-knowledge separated into two skills instead of keeping it as one? What were the two new skills?",
+      "expected_output": "Searches docs/ and reads triage-explore-split-decision.md. Explains the split: explore-knowledge was split into triage-knowledge (post-action context classification feeding sync/capture) and explore-knowledge (graph traversal for answering user questions). The rationale: different triggers, inputs, and output consumers. The separation signal was that the old skill's own Common Mistakes table flagged 'Confuse triage with graph traversal'. Answer is grounded in docs, not general reasoning about skill naming.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "searches-docs-first",
+          "description": "docs/ is searched before answering — not inferred from skill names alone"
+        },
+        {
+          "id": "reads-decision-doc",
+          "description": "triage-explore-split-decision.md is read"
+        },
+        {
+          "id": "correct-two-skills-named",
+          "description": "Answer correctly names both resulting skills: triage-knowledge and explore-knowledge"
+        },
+        {
+          "id": "documented-rationale",
+          "description": "Answer cites the documented rationale: different triggers, inputs, output consumers — not just general reasoning about separation of concerns"
+        },
+        {
+          "id": "cites-docs",
+          "description": "Answer cites the specific decision doc (e.g., per [[triage-explore-split-decision]])"
         }
       ]
     }
