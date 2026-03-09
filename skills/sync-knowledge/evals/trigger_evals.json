@@ -1,13 +1,5 @@
 [
   {
-    "query": "/autology:sync-knowledge",
-    "should_trigger": true
-  },
-  {
-    "query": "/autology:sync-knowledge full",
-    "should_trigger": true
-  },
-  {
     "query": "The docs might be out of date after last week's refactor. Can you check and fix any drift?",
     "should_trigger": true
   },
@@ -20,7 +12,7 @@
     "should_trigger": true
   },
   {
-    "query": "Check if docs/api-gateway.md is still accurate after the port change.",
+    "query": "docs/api-gateway.md needs syncing after the port change — can you update it?",
     "should_trigger": true
   },
   {

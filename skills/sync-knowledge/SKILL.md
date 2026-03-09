@@ -1,6 +1,6 @@
 ---
 name: sync-knowledge
-description: Use when autology docs/ nodes may be out of sync with the codebase — after commits, large refactors, or when triage identifies existing nodes to verify. Also for periodic full audits.
+description: Use when existing autology docs/ nodes need syncing or updating — when a doc is out of date after a code change, after refactors, when triage identifies existing nodes to verify, or for periodic full audits. Not for new items (use capture) or knowledge questions (use explore).
 ---
 
 ## Overview

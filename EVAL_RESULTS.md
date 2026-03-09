@@ -85,6 +85,28 @@ Description tested:
 
 ---
 
+### sync-knowledge — 2026-03-09 — 10/10 (100%)
+
+Description tested:
+> Use when existing autology docs/ nodes need syncing or updating — when a doc is out of date after a code change, after refactors, when triage identifies existing nodes to verify, or for periodic full audits. Not for new items (use capture) or knowledge questions (use explore).
+
+| # | should_trigger | Result | Query |
+|---|---------------|--------|-------|
+| 0 | true | PASS | `The docs might be out of date after last week's refactor. Can you check and fix any drift?` |
+| 1 | true | PASS | `Run a full knowledge audit — we've had a lot of churn lately and I want to make sure nothing is stale.` |
+| 2 | true | PASS | `Triage found these existing nodes that need syncing: docs/rate-limiter-service.md, docs/file-service.md. Please sync them.` |
+| 3 | true | PASS | `docs/api-gateway.md needs syncing after the port change — can you update it?` |
+| 4 | false | PASS | `I just pushed feat(queue): add BullMQ job queue for background email sending. No existing docs reference this.` |
+| 5 | false | PASS | `What does our knowledge graph say about the API gateway?` |
+| 6 | false | PASS | `Capture this: we decided all background jobs will retry up to 3 times with exponential backoff.` |
+| 7 | false | PASS | `Triage my latest commit: refactor(cache): replace in-memory Map with Redis-backed store.` |
+| 8 | false | PASS | `Help me write tests for the CacheService.` |
+| 9 | false | PASS | `What's the convention for how we name database migrations in this project?` |
+
+**Notes:** Initial description scored 8/12 — FAIL on slash-command cases (routed as project commands, not Skill invocations; removed from eval set) and FAIL on single-file "needs syncing" query (description said "may need updating" without "syncing"). Added `"syncing or updating"` and `"when a doc is out of date after a code change"` to description; re-run confirmed 10/10. Zero false positives.
+
+---
+
 ## Behavioral Evals
 
 ### triage-knowledge — 2026-03-09 — with_skill: 14/14 (100%)  without_skill: 0/14 (0%)
@@ -141,3 +163,45 @@ Description tested:
 | 24 | reentry-guard-conditions | `event-vs-state-rationale` — state-based is fragile; event-based looks backward | PASS | PASS |
 
 **Notes:** `path-query` is the most discriminating case (+75% delta): without_skill narrated a philosophical connection between endpoints instead of performing BFS graph traversal, missing the intermediate node entirely. `neighborhood-traversal` fails incoming-link grep and type/tags output without skill guidance. `overview-operation` without skill uses functional layers (Philosophy/Spec/Guide) rather than reading frontmatter `type:` fields for breakdown. `reentry-guard-conditions` is non-discriminating (0% delta) — the keyword "reentry guard" maps too directly to the filename; both configs found the doc without skill guidance. Assertions calibrated to main-branch repo state (8 docs: 4 concept / 3 decision / 1 component).
+
+---
+
+### sync-knowledge — 2026-03-09 — with_skill: 11/11 (100%)  without_skill: 8/11 (73%)  delta: +27%
+
+| # | eval | assertion | with_skill | without_skill |
+|---|------|-----------|-----------|--------------|
+| 0 | fast-mode-update | `reads-code-before-comparing` — code file searched/read before comparing with doc | PASS | PASS |
+| 1 | fast-mode-update | `doc-edited-in-place` — docs/rate-limiter-service.md edited to fix outdated claim | PASS | PASS |
+| 2 | fast-mode-update | `report-format` — Sync Report (fast) format with Updated/No changes needed sections | PASS | FAIL |
+| 3 | fast-mode-update | `specific-change-described` — report describes what changed (middleware → service class) | PASS | PASS |
+| 4 | skip-when-no-existing | `skip-sync-rule-cited` — rule that all-new triage output means no sync scope is cited | PASS | PASS |
+| 5 | skip-when-no-existing | `no-full-mode-fallback` — does not fall back to full audit | PASS | PASS |
+| 6 | skip-when-no-existing | `routes-to-capture` — output indicates capture should run next | PASS | PASS |
+| 7 | full-mode-audit | `doc-code-discrepancy-fixed` — api-gateway.md port edited in-place (3000 → 8080) | PASS | FAIL |
+| 8 | full-mode-audit | `broken-wikilink-reported` — [[session-store]] broken link in auth-service.md reported | PASS | PASS |
+| 9 | full-mode-audit | `missing-wikilink-suggested` — cache-service ↔ api-gateway missing link suggested | PASS | PASS |
+| 10 | full-mode-audit | `report-format` — Sync Report (full) format with all four sections | PASS | FAIL |
+
+**Notes:** `full-mode-audit` is the most discriminating case (+50% delta): without_skill found all issues correctly but treated the task as an audit report, not a fix task — it recommended editing api-gateway.md instead of editing it in-place. The skill's fix-in-place policy ("edit docs in-place immediately, then report what was fixed") is the key discriminator. `fast-mode-update` without_skill also fails report format — free-form narrative instead of the structured Sync Report schema. `skip-when-no-existing` is non-discriminating (0% delta): skip logic is intuitive and without_skill even ran capture spontaneously. Report format assertions are the most reliable discriminators across both fast and full modes.
+
+---
+
+### capture-knowledge — 2026-03-09 — with_skill: 13/13 (100%)  without_skill: 9/13 (69%)  delta: +31%
+
+| # | eval | assertion | with_skill | without_skill |
+|---|------|-----------|-----------|--------------|
+| 0 | granularity-fold | `granularity-reasoning-documented` — trace explains connection pool is folded into PostgreSQL node and why | PASS | FAIL |
+| 1 | granularity-fold | `one-doc-created` — exactly 1 doc created (not 2) | PASS | FAIL |
+| 2 | granularity-fold | `type-decision` — created doc has type: decision in frontmatter | PASS | PASS |
+| 3 | granularity-fold | `pool-detail-folded` — connection pool max 10 in PostgreSQL node body, not a separate file | PASS | FAIL |
+| 4 | bidirectional-wikilinks | `new-node-created` — docs/cache-service.md created with type: component | PASS | PASS |
+| 5 | bidirectional-wikilinks | `forward-wikilink` — new node contains [[api-gateway]] wikilink | PASS | PASS |
+| 6 | bidirectional-wikilinks | `reverse-wikilink` — docs/api-gateway.md edited to add [[cache-service]] reverse wikilink | PASS | PASS |
+| 7 | bidirectional-wikilinks | `report-format` — report uses `**Autology** — Captured [type]: docs/{slug}.md` format | PASS | FAIL |
+| 8 | convention-fold-mixed | `type-convention` — created doc has type: convention in frontmatter | PASS | PASS |
+| 9 | convention-fold-mixed | `one-doc-created` — exactly 1 doc created (not 2) | PASS | PASS |
+| 10 | convention-fold-mixed | `body-contains-rule` — node body describes the snake_case requirement | PASS | PASS |
+| 11 | convention-fold-mixed | `example-folded` — userId → user_id example in convention node body, not a separate file | PASS | PASS |
+| 12 | convention-fold-mixed | `granularity-reasoning-documented` — response explains why example is folded | PASS | PASS |
+
+**Notes:** `granularity-fold` is the most discriminating case (+75% delta): without_skill treats every triage item as an independent capture target and creates one file per item; with_skill correctly identifies that a configuration detail belongs inside the parent decision node. `bidirectional-wikilinks` is partially discriminating (+25% delta) — both configs place wikilinks correctly but only with_skill produces the structured `**Autology** — Captured` report header. `convention-fold-mixed` is non-discriminating (0% delta): the fold relationship between "snake_case rule" and "userId → user_id example" is obvious enough that without_skill merges them anyway. The key skill discriminator for capture-knowledge is the granularity judgment rule — "a choice made with rationale → own node; a behavioral detail → fold into parent" — which without_skill does not apply.
