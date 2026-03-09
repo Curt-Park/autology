@@ -1,6 +1,6 @@
 ---
 name: capture-knowledge
-description: Use when a project decision, convention, or pattern should be saved to the autology knowledge base (docs/) — user says "remember this", "decided", "chose", "always do X", or triage classifies new items to capture.
+description: Use to permanently record a project decision, convention, pattern, or known issue into the knowledge base (docs/) — triggers on explicit save intent ("remember this", "save this", "document this"), decision or convention announcements ("we decided", "settled on", "the rule is"), or triage output classifying new items to capture. Distinct from conversational memory — this writes to docs/.
 ---
 
 ## Overview

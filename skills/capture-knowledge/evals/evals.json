@@ -53,9 +53,9 @@
     },
     {
       "id": 3,
-      "name": "convention-capture",
-      "prompt": "Triage returned: New items (→ capture): 1) All database migrations must be backwards-compatible — never drop columns, rename with new column + data migration + old column removal in separate PRs. No matching node. Suggested relations: none. Capture this.",
-      "expected_output": "Creates a single convention node. Type is 'convention'. Tags include something about migrations or database. Body explains the rule and the 3-step process. No unnecessary extra nodes.",
+      "name": "convention-fold-mixed",
+      "prompt": "Triage returned: New items (→ capture): 1) All API responses must use snake_case field names — no camelCase anywhere in API responses. No matching node. Suggested relations: none. 2) The field 'userId' must be written as 'user_id' in all API responses. No matching node. Suggested relations: none. Capture these.",
+      "expected_output": "snake_case convention gets its own node (type: convention). The 'userId → user_id' example is a specific instance of the convention — folded into the convention node body as an example, not a separate file. 1 doc created, not 2. Granularity reasoning documented.",
       "files": [],
       "assertions": [
         {
@@ -64,15 +64,19 @@
         },
         {
           "id": "one-doc-created",
-          "description": "Exactly 1 doc created"
+          "description": "Exactly 1 doc created (not 2)"
         },
         {
           "id": "body-contains-rule",
-          "description": "Node body describes the backwards-compatibility requirement and the 3-step column rename process"
+          "description": "Node body describes the snake_case requirement"
         },
         {
-          "id": "appropriate-tags",
-          "description": "Tags include at least one of: database, migrations, convention, schema"
+          "id": "example-folded",
+          "description": "The userId → user_id example appears in the convention node body, not as a separate file"
+        },
+        {
+          "id": "granularity-reasoning-documented",
+          "description": "Trace or response explains why the example is folded rather than given its own node"
         }
       ]
     }
