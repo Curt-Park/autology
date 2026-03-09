@@ -12,20 +12,31 @@ The initial implementation asked Claude to judge "would I invoke this skill?" in
 
 ## Key design decisions
 
-### tmux for TTY
+### Python `subprocess.Popen` + `select` instead of tmux
 
-`claude -p` hangs when invoked from Claude Code's Bash tool — there is no TTY. Running the subprocess inside a tmux session provides a proper TTY and resolves this.
+`claude -p` hangs when invoked directly from Claude Code's Bash tool (bash pipe, process substitution). The fix is to use Python's `subprocess.Popen` with `stdout=PIPE` and a `select`-based read loop:
 
-```bash
-tmux new-session -d -s trigger-eval -x 220 -y 50
-tmux send-keys -t trigger-eval "bash run.sh" Enter
+```python
+process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
+while time.time() - start < timeout:
+    if process.poll() is not None:
+        break  # process finished — exit immediately
+    ready, _, _ = select.select([process.stdout], [], [], 1.0)
+    if ready:
+        chunk = os.read(process.stdout.fileno(), 8192)
+        # parse stream-json, detect trigger, early exit if found
 ```
+
+Benefits over tmux:
+- **Early exit**: trigger detected mid-stream → process killed immediately, next query starts
+- **No TTY dependency**: Popen with PIPE avoids the hang
+- **Parallel**: `ThreadPoolExecutor` runs all queries concurrently
 
 ### `--setting-sources ''` for plugin isolation
 
 Without this, the subprocess loads global settings (`~/.claude/settings.json`) and enables all registered plugins (superpowers, feature-dev, etc.), contaminating the available_skills list. Passing `--setting-sources ''` skips all settings files. Only `--plugin-dir` skills are visible — exactly one skill, the target being tested.
 
-Verified: `plugins=['stub'], skills=['stub:autology-workflow']` with empty setting-sources.
+Verified: `plugins=['stub'], skills=['stub:autology-workflow']` with empty setting-sources. Note: a small set of Claude Code built-in skills (e.g. `keybindings-help`, `simplify`, `loop`, `claude-api`) are always present regardless — but these occupy unrelated domains and don't compete with autology skills in practice.
 
 ### stub plugin dir (one skill only)
 

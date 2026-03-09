@@ -10,10 +10,19 @@ Empirically test whether the **$ARGUMENTS** skill description causes Claude to a
 
 For each query in `trigger_evals.json`:
 1. A stub plugin dir is created containing **only** the target skill's `SKILL.md`
-2. `claude -p "<query>"` runs with `--plugin-dir <stub>` — so the subprocess sees exactly one skill
-3. The stream-json output is parsed for a `Skill` tool_use event
+2. `claude -p "<query>"` runs with `--plugin-dir <stub>` and `--setting-sources ''` — subprocess sees exactly one skill (plus Claude Code built-ins)
+3. Stream-json output is read via Python `subprocess.Popen` + `select` and parsed for a `Skill` tool_use event
+4. Trigger detected mid-stream → process killed immediately (no need to wait for full response)
 
-This gives true isolation: no other skill descriptions can attract the trigger.
+**Why three env vars / flags are needed:**
+- `CLAUDECODE` unset — prevents nested Claude Code detection
+- `ANTHROPIC_API_KEY` unset — forces OAuth (claude.ai) instead of API key billing
+- `--setting-sources ''` — skips global plugin settings; only `--plugin-dir` skills are visible
+
+**Why Python subprocess, not bash pipe or tmux:**
+- Bash pipe (`claude -p ... | ...`) hangs in Claude Code's Bash tool (no TTY)
+- Python `subprocess.Popen` with `stdout=PIPE` avoids this — proven by skill-creator's `run_eval.py`
+- `select`-based reading allows early exit the moment a trigger is detected, and timeout-based exit if claude -p hangs
 
 ## Step 1: Read the eval set
 
@@ -26,78 +35,94 @@ Read:
 ```bash
 mkdir -p /tmp/trigger-eval-$ARGUMENTS/stub/skills/$ARGUMENTS
 cp skills/$ARGUMENTS/SKILL.md /tmp/trigger-eval-$ARGUMENTS/stub/skills/$ARGUMENTS/SKILL.md
-mkdir -p /tmp/trigger-eval-$ARGUMENTS/results
 ```
 
-The stub dir contains only the target skill — no other skills can compete.
+## Step 3: Run all queries in parallel via Python subprocess
 
-## Step 3: Run all queries in parallel via tmux
+Write and execute `/tmp/trigger-eval-$ARGUMENTS/run.py`. The script reads `trigger_evals.json`, runs all queries in parallel (one thread per query), and writes per-query results to `/tmp/trigger-eval-$ARGUMENTS/results/<i>.json`.
 
-The Bash tool cannot directly run `claude -p` (no TTY). Instead, write a runner script and execute it inside a tmux session.
-
-**Why three env vars / flags are needed:**
-- `CLAUDECODE` unset — prevents nested Claude Code detection
-- `ANTHROPIC_API_KEY` unset — forces OAuth (claude.ai) instead of API key billing
-- `--setting-sources ''` — skips all settings files so no global plugins load; only `--plugin-dir` skills are visible
-
-**Create the runner script:**
-
-```bash
-cat << 'EOF' > /tmp/trigger-eval-$ARGUMENTS/run.sh
-#!/usr/bin/env bash
-STUB="/tmp/trigger-eval-$ARGUMENTS/stub"
-RESULTS="/tmp/trigger-eval-$ARGUMENTS/results"
-
-# (loop over each query, write inline from evals JSON)
-# Per query — run in parallel:
-(
-  output=$(env -u CLAUDECODE -u ANTHROPIC_API_KEY claude -p "$query" \
-    --plugin-dir "$STUB" \
-    --setting-sources '' \
-    --output-format stream-json --verbose 2>/dev/null)
-  printf '%s' "$output" > "$RESULTS/${i}.txt"
-) &
-
-wait
-touch /tmp/trigger-eval-$ARGUMENTS/done
-EOF
-```
-
-Build the full script by reading trigger_evals.json and inlining each query, then launch via tmux:
-
-```bash
-tmux new-session -d -s trigger-eval-$ARGUMENTS -x 220 -y 50
-tmux send-keys -t trigger-eval-$ARGUMENTS "bash /tmp/trigger-eval-$ARGUMENTS/run.sh" Enter
-```
-
-Poll until all results are written (or the `done` sentinel file appears):
-
-```bash
-while [ ! -f /tmp/trigger-eval-$ARGUMENTS/done ]; do sleep 3; done
-```
-
-**Detecting a trigger:** parse each result file with python3 — the stream-json format embeds tool_use items inside `type:"assistant"` message content arrays, not as `content_block_start` events:
+**Runner script template:**
 
 ```python
-import sys, json
-triggered = False
-for line in sys.stdin:
+#!/usr/bin/env python3
+import json, os, select, subprocess, sys, time
+from concurrent.futures import ThreadPoolExecutor
+
+SKILL = "$ARGUMENTS"
+STUB  = f"/tmp/trigger-eval-{SKILL}/stub"
+OUT   = f"/tmp/trigger-eval-{SKILL}/results"
+os.makedirs(OUT, exist_ok=True)
+
+def run_query(item):
+    query   = item["query"]
+    idx     = item["idx"]
+    env     = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "ANTHROPIC_API_KEY")}
+    cmd     = ["claude", "-p", query,
+               "--plugin-dir", STUB,
+               "--setting-sources", "",
+               "--output-format", "stream-json", "--verbose"]
+
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
+    triggered = False
+    start     = time.time()
+    buf       = ""
+
     try:
-        ev = json.loads(line)
-        if ev.get("type") == "assistant":
-            for item in ev.get("message", {}).get("content", []):
-                if item.get("type") == "tool_use" and item.get("name") == "Skill":
-                    if "$ARGUMENTS" in item.get("input", {}).get("skill", ""):
-                        triggered = True
-                        break
-    except Exception:
-        pass
-print("triggered" if triggered else "not_triggered")
+        while time.time() - start < 30:
+            if process.poll() is not None:
+                buf += (process.stdout.read() or b"").decode("utf-8", errors="replace")
+                break
+            ready, _, _ = select.select([process.stdout], [], [], 1.0)
+            if not ready:
+                continue
+            chunk = os.read(process.stdout.fileno(), 8192)
+            if not chunk:
+                break
+            buf += chunk.decode("utf-8", errors="replace")
+            # parse complete lines
+            while "\n" in buf:
+                line, buf = buf.split("\n", 1)
+                try:
+                    ev = json.loads(line.strip())
+                    if ev.get("type") == "assistant":
+                        for item_ in ev.get("message", {}).get("content", []):
+                            if (item_.get("type") == "tool_use"
+                                    and item_.get("name") == "Skill"
+                                    and SKILL in item_.get("input", {}).get("skill", "")):
+                                triggered = True
+                                return idx, triggered  # early exit
+                except Exception:
+                    pass
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+
+    return idx, triggered
+
+evals = json.loads(open(f"skills/{SKILL}/evals/trigger_evals.json").read())
+items = [{"idx": i, **ev} for i, ev in enumerate(evals)]
+
+with ThreadPoolExecutor(max_workers=10) as pool:
+    futures = {pool.submit(run_query, item): item for item in items}
+    for future in futures:
+        idx, triggered = future.result()
+        ev = futures[future]
+        result = {"query": ev["query"], "should_trigger": ev["should_trigger"], "triggered": triggered}
+        open(f"{OUT}/{idx}.json", "w").write(json.dumps(result))
+
+print("done")
+```
+
+Run it:
+
+```bash
+python3 /tmp/trigger-eval-$ARGUMENTS/run.py
 ```
 
 ## Step 4: Report results
 
-Compare each result to `should_trigger`:
+Read all result files and compare `triggered` vs `should_trigger`:
 
 ```
 $ARGUMENTS — trigger eval (empirical)
@@ -119,7 +144,6 @@ For every FAIL:
 ## Step 5: Clean up
 
 ```bash
-tmux kill-session -t trigger-eval-$ARGUMENTS 2>/dev/null || true
 rm -rf /tmp/trigger-eval-$ARGUMENTS
 ```
 
